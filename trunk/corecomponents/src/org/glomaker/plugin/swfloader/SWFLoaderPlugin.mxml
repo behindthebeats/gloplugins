@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="utf-8"?>
+<BaseComponent xmlns="org.glomaker.shared.component.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off">
+	
+	<mx:Style>
+		
+	</mx:Style>
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import org.glomaker.shared.properties.PropertyField;
+			import org.glomaker.shared.properties.ColourField;
+			import org.glomaker.shared.properties.BooleanField;
+			import org.glomaker.shared.properties.FileFilterData;
+			import org.glomaker.shared.properties.FilePathField;
+			
+			/**
+		 	* Embed play button up skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_play.png")]	
+			public var playBtn:Class;
+			
+			/**
+		 	* Embed play rollover skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_play_rollover.png")]	
+			public var playRolloverBtn:Class;
+			
+			/**
+		 	* Embed pause button up skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_pause.png")]	
+			public var pauseBtn:Class;
+			
+			/**
+		 	* Embed pause rollover skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_pause_rollover.png")]	
+			public var pauseRolloverBtn:Class;
+			
+			/**
+		 	* Embed forward button up skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_forward.png")]	
+			public var fwdBtn:Class;
+			
+			/**
+		 	* Embed forward rollover skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_forward_rollover.png")]	
+			public var fwdRolloverBtn:Class;
+			
+			/**
+		 	* Embed back button up skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_rewind.png")]	
+			public var backBtn:Class;
+			
+			/**
+		 	* Embed back rollover skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_rewind_rollover.png")]	
+			public var backRolloverBtn:Class;
+			
+			/**
+		 	* Embed placeholder.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/content_placeholder.png")]	
+			public var placeholder:Class;
+			
+			/**
+		 	* Stores any labels within the current scene of a MovieClip.
+		 	*/
+			protected var labels:Array;
+			
+			/**
+		 	* Used to toggle play / pause button.
+		 	*/
+			protected var startMode:Boolean = true;
+			
+			/**
+		 	* Used to set the file types and descriptions when browsing for content.
+		 	*/
+			protected var ff:FileFilterData = new FileFilterData("SWFs and Images", "*.jpg;*.gif;*.png;*.swf");
+			
+			/**
+		 	* Stores the file path to the loaded asset.
+		 	*/
+		 	[Bindable]
+			protected var filePath:FilePathField = new FilePathField("source", "File Path:", "dummy", ff);
+			
+			/**
+		 	* Sets up a field on the Property Panel to control the existence of the play button.
+		 	*/
+			protected var playControl:BooleanField = new BooleanField("playControlValue", "Play button ?", true);
+			
+			/**
+		 	* Sets up a field on the Property Panel to control the existence of the jump button.
+		 	*/
+			protected var nextLabelControl:BooleanField = new BooleanField("labelControlValue", "Jump button ?", true);
+			
+			/**
+		 	* Sets up a field on the Property Panel to control the colour of thebackground strip .
+		 	*/
+		 	[Bindable]
+			protected var bgColour:ColourField = new ColourField("bgcolour", "Colour", 0x666666);
+			
+			/**
+		 	* Stores a true or false value relating to the existence of the play button.
+		 	*/
+			private var _playControl:Boolean = true;
+			
+			/**
+		 	* Stores a true or false value relating to the existence of the jump button.
+		 	*/
+			private var _labelControl:Boolean = true;
+			
+			//private var AVM_lc:LocalConnection = new LocalConnection();
+			
+			/**
+		 	* Called by GLOMaker when the properties need to be defined.
+		 	*/
+			override protected function defineProperties():void
+			{
+				super.defineProperties();
+
+				addEditableProperty(filePath);
+				addEditableProperty(playControl);
+				addEditableProperty(nextLabelControl);
+				addEditableProperty(bgColour);
+				
+				//AVM_lc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurity);
+				//AVM_lc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsynch);
+			}
+			
+			
+			override public function editablePropertyUpdated(prop:PropertyField):void
+			{
+				switch(prop)
+				{
+					case playControl:
+						_playControl = prop.value;
+						buildTransportControls();
+						break;
+						
+					case nextLabelControl:
+						_labelControl = prop.value;
+						buildTransportControls();
+						break;
+				}
+				
+				// Note: other editable properties are updated using data binding
+			}
+			
+			
+			private function onSecurity(evt:SecurityErrorEvent):void
+			{
+				// trace(evt.text);
+			}
+			
+			private function onAsynch(evt:AsyncErrorEvent):void
+			{
+				// trace(evt.text);
+			}
+			
+			
+			/**
+		 	* Causing the loaded movie to play.
+		 	*/
+		 	protected function onStart(evt:MouseEvent):void
+		 	{
+		 		if(swfLoader.content is MovieClip)
+				{
+					(swfLoader.content as MovieClip).play();	
+				}
+		 	}
+		 	
+		 	/**
+		 	* Causing the loaded movie to stop.
+		 	*/
+		 	protected function onStop(evt:MouseEvent):void
+		 	{
+		 		if(swfLoader.content is MovieClip)
+				{
+					(swfLoader.content as MovieClip).stop();	
+				}
+		 	}
+			
+			/**
+		 	* Builds the transport controls.
+		 	*/
+			protected function buildTransportControls():void
+			{
+				// start with a clean sheet
+				controls.removeAllChildren();
+				
+				if(_labelControl == false && _playControl == false)
+				{
+					// no buttons to display. make controls invisible
+					controls.visible = false;
+					
+				}else{
+					
+					controls.visible = true;
+
+					if(_playControl)
+					{	
+						controls.addChild(stop);
+						controls.addChild(play);
+					}
+
+					if(_labelControl)
+					{
+						controls.addChildAt(back, 0);
+						controls.addChild(fwd);
+					}
+				}
+			}
+			
+			
+			/**
+		 	* Responds to when the user clicks on the forward button. Jumps to the next available label.
+		 	*/
+			protected function onFwd(evt:MouseEvent):void
+			{
+				var nextFrameLabel:FrameLabel = getNextFrameLabel();
+				
+				if(nextFrameLabel != null)
+				{
+					// play.visible = true;
+					// stop.visible = false;
+					(swfLoader.content as MovieClip).gotoAndStop(getNextFrameLabel().frame);
+				}
+				
+			}
+			
+			/**
+		 	* Responds to when the user clicks on the back button. Jumps to the previous label.
+		 	*/
+			protected function onBack(evt:Event):void
+			{
+				var previousFrameLabel:FrameLabel = getPreviousFrameLabel();
+				
+				if(previousFrameLabel != null)
+				{
+					// play.visible = true;
+					// stop.visible = false;
+					(swfLoader.content as MovieClip).gotoAndStop(getPreviousFrameLabel().frame);
+				}
+			}
+			
+			/**
+		 	* Returns the next available FrameLabel or null if one cannot be found.
+		 	*/
+			protected function getNextFrameLabel():FrameLabel
+			{		
+				var fl:FrameLabel = null;
+				
+				if(getCurrentLabelIndex() < 0){
+					return fl;
+				}
+				
+				if(getCurrentLabelIndex() == labels.length -1)
+				{
+					fl = labels[0] as FrameLabel;
+
+				}else
+				{
+					fl = labels[getCurrentLabelIndex() + 1] as FrameLabel;
+
+				}
+				
+				return fl;
+			}
+			
+			/**
+		 	* Returns the previous FrameLabel or null if one cannot be found.
+		 	*/
+			protected function getPreviousFrameLabel():FrameLabel
+			{
+				var fl:FrameLabel = null;
+				
+				if(getCurrentLabelIndex() < 0){
+					return fl;
+				}	
+				
+				if(getCurrentLabelIndex() == 0)
+				{
+					fl = labels[labels.length -1] as FrameLabel;
+
+				}else
+				{
+					fl = labels[getCurrentLabelIndex() - 1] as FrameLabel;
+
+				}
+				
+				return fl;
+			}
+			
+			/**
+		 	* Returns the index of the current label in the labels array. Returns -1 if no index can be found.
+		 	*/
+			protected function getCurrentLabelIndex():int
+			{
+				if(labels != null && (swfLoader.content as MovieClip) != null)
+				{
+					for(var i:uint=0; i<labels.length; i++)
+					{
+						if((swfLoader.content as MovieClip).currentLabel == (labels[i] as FrameLabel).name)
+						{
+							return i;
+						}
+					}
+				}
+				
+				return -1;
+			}
+			
+			/**
+		 	* Responds to the loading of a new SWF or image.
+		 	*/
+			protected function onLoadSWF(evt:Event):void
+			{
+				var info:LoaderInfo = swfLoader.loaderInfo;
+				
+				if(info != null)
+				{
+					if(info.contentType != "application/x-shockwave-flash" || swfLoader.content is MovieClip == false  && container.getChildByName("controls") != null)
+					{
+						// no need for transport controls, this is not a MovieClip
+						playControl.value = false;
+						nextLabelControl.value = false;
+						container.removeChild(controls);
+						
+						return;
+					}
+					
+					if(info.contentType != "application/x-shockwave-flash" && container.getChildByName("controls") == null)
+					{
+						// transport controls already gone. Get out of here
+						playControl.value = false;
+						nextLabelControl.value = false;
+						
+						return;
+					} 
+					
+					if(info.contentType == "application/x-shockwave-flash" && container.getChildByName("controls") == null)
+					{
+						// we haven't got the controls but we need them, if the SWF is a MovieClip
+						
+						if(swfLoader.content is MovieClip)
+						{
+							playControl.value = true;
+							nextLabelControl.value = true;
+							container.addChild(controls);
+						}
+						
+					}
+				}
+
+				if(swfLoader.content is MovieClip)
+				{
+					labels = (swfLoader.content as MovieClip).currentLabels;
+				}
+			}
+			
+			/**
+		 	* Called each time the display list is updated.
+		 	*/
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+			{
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+				
+				// ensures the movie clip is cropped to the window size
+				scrollRect = new Rectangle(0, 0, width, height);
+
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%" 
+		id="container">
+		
+		<mx:SWFLoader width="100%" height="100%"
+			id="swfLoader"
+			source="{filePath.value}"
+			complete="onLoadSWF(event)"	
+			brokenImageSkin="{placeholder}"/>
+		
+		<mx:HBox width="100%" backgroundColor="{bgColour.value}"
+			id="controls" horizontalGap="2"
+			paddingTop="2"
+			paddingBottom="2"
+			paddingLeft="2"
+			paddingRight="2">
+			
+				<mx:Button width="32"
+					id="back" 
+					upSkin="{backBtn}"
+					overSkin="{backRolloverBtn}"
+					downSkin="{backRolloverBtn}"
+					click="onBack(event)"/>
+					
+				<mx:Button width="32"
+					id="stop" 
+					upSkin="{pauseBtn}"
+					overSkin="{pauseRolloverBtn}"
+					downSkin="{pauseRolloverBtn}"
+					click="onStop(event)"/>
+					
+				<mx:Button width="32"
+					id="play" 
+					upSkin="{playBtn}"
+					overSkin="{playRolloverBtn}"
+					downSkin="{playRolloverBtn}"
+					click="onStart(event)"/>
+									
+				<mx:Button width="32"
+					id="fwd" 
+					upSkin="{fwdBtn}"
+					overSkin="{fwdRolloverBtn}"
+					downSkin="{fwdRolloverBtn}"
+					click="onFwd(event)"/>
+			
+		</mx:HBox>
+		
+	</mx:VBox>
+
+	
+</BaseComponent>

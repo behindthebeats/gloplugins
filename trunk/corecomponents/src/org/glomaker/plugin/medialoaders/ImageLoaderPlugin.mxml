@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<BaseComponent
+	xmlns="org.glomaker.shared.component.*"
+	xmlns:mx="http://www.adobe.com/2006/mxml">
+	
+	<mx:Script>
+		<![CDATA[
+			import org.glomaker.shared.properties.PropertyField;
+	
+			import org.glomaker.shared.properties.FilePathField;
+			import org.glomaker.shared.component.BaseComponent;
+			
+
+			protected var sourceField:FilePathField;
+
+			/**
+			 * Define components custom properties.
+			 */
+			override protected function defineProperties():void
+			{
+				super.defineProperties();
+				
+				sourceField = new FilePathField("source", "Image path", ""); 
+				addEditableProperty(sourceField);
+			}
+			
+			override public function propertyValuesInitialised():void
+			{
+				imageSource = sourceField.value;
+			}
+			
+			override public function editablePropertyUpdated(prop:PropertyField):void
+			{
+				if(prop == sourceField)
+					imageSource = sourceField.value;
+			}
+			
+
+
+			/**
+			 * Default image embed
+			 */
+			[Bindable]
+			[Embed(source="missing_image.png", scaleGridTop="63", scaleGridBottom="74", scaleGridLeft="112", scaleGridRight="124")]
+			protected var missingImage:Class;
+			
+			
+			[Bindable]
+			/**
+			 * Getter / setter for the imageSource property.
+			 * If the source value is empty/null, the default image is shown instead.
+			 */
+			public function set imageSource(value:String):void
+			{
+				if(value == null || value == "")
+					image.source = missingImage;
+				else
+					image.source = value;
+			}
+			public function get imageSource():String
+			{
+				if(image.source is String)
+					return image.source as String;
+					
+				return "";
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Image id="image" width="100%" height="100%" maintainAspectRatio="false" source="{missingImage}"/>
+	
+</BaseComponent>
