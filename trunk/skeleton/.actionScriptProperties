@@ -9,10 +9,11 @@
 <sourceAttachmentPath/>
 </compiler>
 <applications>
+<application path="PluginOptimiserApp.mxml"/>
 <application path="SkeletonGLOProject.mxml"/>
 </applications>
 <modules>
-<module application="src/SkeletonGLOProject.mxml" destPath="org/glomaker/plugin/start/StarterPlugin.swf" optimize="false" sourcePath="src/org/glomaker/plugin/start/StarterPlugin.mxml"/>
+<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/start/StarterPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/start/StarterPlugin.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>
