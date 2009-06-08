@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<BaseComponent xmlns="org.glomaker.shared.component.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	layout="absolute"
+	horizontalScrollPolicy="off" verticalScrollPolicy="off"
+ 	themeColor="haloSilver" xmlns:utils="org.glomaker.plugin.utils.*" xmlns:editbutton="org.glomaker.shared.ui.editbutton.*">
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import org.glomaker.shared.properties.PropertyField;
+			import mx.controls.Alert;
+			import mx.controls.Button;
+			import mx.collections.ArrayCollection;
+			import org.glomaker.shared.properties.StringField;
+			import org.glomaker.shared.properties.StringArrayCollectionField;
+
+
+			[Embed(source="assets/cross.png")]
+			protected static const INCORRECT_IMAGE:Class;
+
+			[Embed(source="assets/tick.png")]
+			protected static const CORRECT_IMAGE:Class;
+			
+			
+			// ------------------
+			// INSTANCE PROPERTIES
+			// ------------------
+
+			[Bindable]
+			protected var _textList:StringArrayCollectionField;
+			
+			[Bindable]
+			protected var _submitButtonText:StringField;
+			
+			[Bindable]
+			protected var _resetButtonText:StringField;
+			
+			[Bindable]
+			protected var _correctFeedback:StringField;
+			
+			[Bindable]
+			protected var _wrongFeedback:StringField;
+			
+			
+			[Bindable]
+			protected var _isInEditState:Boolean = false;
+			
+			
+			override protected function defineProperties():void
+			{
+				super.defineProperties();
+			
+				// list of answers
+				_textList = new StringArrayCollectionField("textList", "", new ArrayCollection());
+				addElement();
+				addInternalProperty(_textList);
+				
+				// submit button text
+				_submitButtonText = new StringField("submit", "", "Submit");
+				addInternalProperty(_submitButtonText);
+
+				// reset button text
+				_resetButtonText = new StringField("reset", "", "Reset");
+				addInternalProperty(_resetButtonText);
+				
+				// correct feedback text
+				_correctFeedback = new StringField("correct", "", "That is correct - well done!");
+				addInternalProperty(_correctFeedback);
+				
+				// wrong feedback text
+				_wrongFeedback = new StringField("wrong", "", "Not quite - try again!");
+				addInternalProperty(_wrongFeedback);
+				
+				//
+				updateRepeaterData();
+			}
+			
+			override public function propertyValuesInitialised():void
+			{
+				submitButton.label = _submitButtonText.value;
+				resetButton.label = _resetButtonText.value;
+				updateRepeaterData();
+			}
+			
+			override public function prepareValuesForSave():void
+			{
+				saveLabelsToCollection();
+				_submitButtonText.value = submitButton.label;
+				_resetButtonText.value = resetButton.label;
+			}
+			
+			override public function destroy():void
+			{
+			}
+			
+			override public function setEditMode(f:Boolean):void
+			{
+				_isInEditState = f;
+				f ? toEditState() : toDisplayState();
+			}
+			
+			
+			// Set currentState to Display state
+			protected function toDisplayState():void
+			{
+				saveLabelsToCollection();
+				updateRepeaterData();
+				currentState = "";
+			}
+		 	
+			// Set currentState to Edit state
+			protected function toEditState():void
+			{
+				sentenceTextField.text = "";
+				updateRepeaterData();
+				currentState = "editState";
+			}
+			
+			protected function addElement():void
+			{
+				saveLabelsToCollection();
+				_textList.collection.addItem("Phrase " + (_textList.collection.length + 1));
+				updateRepeaterData();
+			}
+			
+			protected function removeElement():void
+			{
+				saveLabelsToCollection();
+				_textList.collection.removeItemAt(_textList.collection.length - 1);
+				updateRepeaterData();
+			}
+			
+			protected function addPhraseToSentence(event:MouseEvent):void
+			{
+				if(_isInEditState)
+					return;
+					
+				var bt:Button = event.target as Button;
+				bt.enabled = false;
+				
+				if(sentenceTextField.text != "")
+					sentenceTextField.text += " ";
+
+				sentenceTextField.text += bt.label;
+			}
+			
+			protected function saveLabelsToCollection():void
+			{
+				var btn:EditableButton;
+				for(var i:uint = 0;i<buttonContainer.numChildren;i++)
+				{
+					try{
+						btn = EditableButton(buttonContainer.getChildAt(i));
+						_textList.collection.setItemAt(btn.label, i);
+					}catch(e:Error){}
+				}
+			}
+
+			protected function showCorrectFeedbackEditor():void
+			{
+				Feedback.show(this, _correctFeedback, "Correct Solution Feedback");
+			}
+			
+			protected function showWrongFeedbackEditor():void
+			{
+				Feedback.show(this, _wrongFeedback, "Wrong Solution Feedback");
+			}
+
+			protected function showCorrectResult():void
+			{
+				Result.show(this, _correctFeedback.value, CORRECT_IMAGE);
+			}
+			
+			protected function showWrongResult():void
+			{
+				Result.show(this, _wrongFeedback.value, INCORRECT_IMAGE);
+			}
+			
+
+			protected function updateRepeaterData():void
+			{
+				if(_isInEditState)
+				{
+					buttonRp.dataProvider = getPhraseArray();
+				}else{
+					buttonRp.dataProvider = getShuffledPhrases();
+				}
+			}
+			
+			protected function getPhraseArray():Array
+			{
+				return _textList.collection.source;
+			}
+			
+			protected function getShuffledPhrases():Array
+			{
+				var list:Array = [];
+				var source:Array = getPhraseArray().concat();
+				var r:uint;
+				
+				while(source.length > 0)
+				{
+					r = Math.floor(Math.random() * source.length);
+					list.push(source.splice(r, 1)[0]);
+				}
+				
+				return list;
+			}
+			
+			protected function onSubmitClick():void
+			{
+				if(_isInEditState)
+					return;
+					
+				var merged:String = _textList.collection.source.join(" ");
+				var isCorrect:Boolean = (sentenceTextField.text == merged);
+				
+				isCorrect ? showCorrectResult() : showWrongResult();
+			}
+			
+			protected function onResetClick():void
+			{
+				if(_isInEditState)
+					return;
+
+				sentenceTextField.text = "";
+				
+				for(var i:uint = 0;i<buttonContainer.numChildren;i++)
+				{
+					EditableButton(buttonContainer.getChildAt(i)).enabled = true;
+				}
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:Style>
+		
+		.sentenceText {
+			border-style: solid;
+			border-color: #333333;
+			border-thickness: 1;
+			background-alpha: 0;
+			theme-color: #333333;
+			focus-thickness: 1;
+			text-align: center;
+			
+			padding-top: 10;
+			padding-bottom: 10;
+			padding-left: 10;
+			padding-right: 10;
+		}
+
+		.snippetButton {
+			font-size: 9;
+			font-weight: normal;
+		}
+
+		.goodFeedbackButton {
+			font-size: 9;
+			font-weight: normal;
+			icon: Embed("assets/tick.png");
+		}
+
+		.wrongFeedbackButton {
+			font-size: 9;
+			font-weight: normal;
+			icon: Embed("assets/cross.png");
+		}
+		
+		.addButton {
+			font-size: 9;
+			font-weight: normal;
+			icon: Embed("assets/add.png");
+		}
+		
+		.deleteButton {
+			font-size: 9;
+			font-weight: normal;
+			icon: Embed("assets/delete.png");
+		}
+
+		
+	</mx:Style>
+
+	<mx:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="300"/>
+
+	<states>
+		<mx:State name="editState">
+			<mx:AddChild relativeTo="{buttonBar}">
+				<mx:Button styleName="deleteButton" addedEffect="{fadeIn}" enabled="{_textList.collection.length > 1}" click="removeElement()"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{buttonBar}">
+				<mx:Button click="addElement()" styleName="addButton" addedEffect="{fadeIn}"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{buttonBar}">
+				<mx:Button styleName="goodFeedbackButton" label="Feedback" addedEffect="{fadeIn}" click="showCorrectFeedbackEditor()"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{buttonBar}">
+				<mx:Button styleName="wrongFeedbackButton" label="Feedback" addedEffect="{fadeIn}" click="showWrongFeedbackEditor()"/>
+			</mx:AddChild>
+		</mx:State>
+	</states>
+	
+	<mx:VBox width="100%" height="100%" id="mainContainer" verticalGap="20">
+	
+		<mx:Canvas backgroundColor="#f1f1f1" borderColor="#c5c5c5" borderStyle="solid" clipContent="false" width="100%">
+			<mx:Text
+				width="100%"
+				minHeight="40"
+				styleName="sentenceText"
+				id="sentenceTextField"
+				selectable="false"
+				text=""
+			/>
+		</mx:Canvas>
+		
+		<utils:GLOToolBar id="buttonContainer" width="80%">
+			<mx:Repeater id="buttonRp">
+				<editbutton:EditableButton
+					label="{buttonRp.currentItem}"
+					styleName="snippetButton"
+					isEditable="{_isInEditState}"
+					click="addPhraseToSentence(event)"
+				/>
+			</mx:Repeater>
+		</utils:GLOToolBar>
+		
+		<mx:HBox id="buttonBar">
+			<editbutton:EditableButton
+				id="submitButton"
+				click="onSubmitClick()"
+				isEditable="{_isInEditState}"
+			/>
+			<editbutton:EditableButton
+				id="resetButton"
+				click="onResetClick()"
+				isEditable="{_isInEditState}"
+			/>
+		</mx:HBox>
+		
+	</mx:VBox>
+	
+</BaseComponent>

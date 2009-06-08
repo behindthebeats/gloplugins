@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<BaseComponent xmlns="org.glomaker.shared.component.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	layout="absolute"
+	horizontalScrollPolicy="off" verticalScrollPolicy="off"
+ 	currentState="DisplayState"
+ 	creationComplete="init()"
+ 	themeColor="haloSilver" xmlns:mcq="org.glomaker.plugin.mcq.*" xmlns:editbutton="org.glomaker.shared.ui.editbutton.*">
+    
+	<mx:Script>
+		<![CDATA[
+			import mx.utils.DisplayUtil;
+			import org.glomaker.shared.properties.NumericStepperField;
+			import mx.controls.Spacer;
+			import mx.containers.ControlBar;
+			import mx.containers.Panel;
+			import mx.containers.TitleWindow;
+			import mx.managers.PopUpManager;
+			import mx.controls.Alert;
+			import mx.containers.Canvas;
+			import mx.states.AddChild;
+			import mx.core.UIComponent;
+			import org.glomaker.shared.properties.StringArrayCollectionField;
+			import mx.collections.ArrayCollection;
+			import org.glomaker.shared.properties.ArrayField;
+		
+			import org.glomaker.shared.properties.StringField;
+			import mx.controls.RadioButton;
+			import org.glomaker.shared.properties.IntegerField;
+			
+			import flash.events.FocusEvent;
+
+			/**
+			 * Default images embed
+			 */
+			[Bindable]
+			[Embed(source="tick.png")]
+			protected var tick:Class;
+			
+			[Bindable]
+			[Embed(source="cross.png")]
+			protected var cross:Class;
+			
+			// ------------------
+			// QUIZ PROPERTIES
+			// ------------------
+ 
+			[Bindable]
+			protected var _question:StringField = new StringField("question", "Question:", "Type your question here...");
+
+			[Bindable]
+			protected var _correctAnswer:IntegerField = new IntegerField("correct", "Correct Answer (0, 1, 2, ...)", -1);
+
+			[Bindable]
+			protected var _answers:StringArrayCollectionField = new StringArrayCollectionField("answers", "Answers");
+
+			[Bindable]
+			protected var _feedbacks:StringArrayCollectionField = new StringArrayCollectionField("feedbacks", "Feedbacks");
+
+			[Bindable]
+			protected var _fontSize:NumericStepperField = new NumericStepperField("fontSize","Font Size",15,10,60);
+ 
+ 			[Bindable]
+			protected var _submitTitle:StringField = new StringField("submit", "Submit", "Submit");
+
+            // currently selected answer
+            protected var _currentAnswer:int = -1; 
+            
+            // User interface panels
+            private var feedback:Feedback;
+            private var result:Result;
+            
+            // Used to aid adding feedback
+            private var currentIndex:int;
+            
+            // Initilize
+			public function init():void{
+					
+				// Initialize the Feedback panel
+				feedback = new Feedback();
+				feedback.addEventListener(Feedback.FEEDBACKCHANGED,feedbackChanged, false, 0, true);
+
+				result = new Result();
+
+			}
+			
+			override public function destroy():void
+			{
+				if(feedback)
+					feedback.removeEventListener(Feedback.FEEDBACKCHANGED,feedbackChanged);
+			}
+			
+			override protected function defineProperties():void
+			{
+				super.defineProperties();
+			
+				// add quiz properties (no binding - this will take place in the state transition handlers)
+				addInternalProperty(_question);
+				addInternalProperty(_submitTitle);
+				addInternalProperty(_correctAnswer);
+
+				addEditableProperty(_fontSize);
+
+				// initial answers				
+				_answers.isEditable = false;
+				var answerList:ArrayCollection = new ArrayCollection();
+
+				answerList.addItem("Answer 0");
+				answerList.addItem("Answer 1");
+				answerList.addItem("Answer 2");
+				
+				_answers.value = answerList;
+
+				addInternalProperty(_answers);
+				
+				// initial feedbacks				
+				_feedbacks.isEditable = false;
+				var feedbackList:ArrayCollection = new ArrayCollection();
+
+				feedbackList.addItem("Feedback 0");
+				feedbackList.addItem("Feedback 1");
+				feedbackList.addItem("Feedback 2");
+			
+				_feedbacks.value = feedbackList;
+
+				addInternalProperty(_feedbacks);
+				
+				toDisplayState();
+			}
+			
+			// Switch between Edit and Display states
+			public function toggleState():void
+			{
+				if(currentState == "EditState")
+				{
+					toDisplayState();
+				}else
+				{
+					toEditState();
+				}
+			}
+		 	
+			// Set currentState to Display state
+			public function toDisplayState():void
+			{
+				currentState = "DisplayState";
+			}
+		 	
+			// Set currentState to Edit state
+			public function toEditState():void
+			{
+				currentState = "EditState";
+			}
+			
+			// Add new line of Answer (option) including the feedback!
+			protected function onAddAnswer(evt:MouseEvent):void
+			{
+				var coll:ArrayCollection = _answers.collection;
+				var col2:ArrayCollection = _feedbacks.collection;
+
+				var index:int = coll.length + 1;
+				
+				var newAnswer:String = "Answer " + index;
+				var newFeedback:String ="Feedback " + index;
+				
+				coll.addItem(newAnswer);
+				col2.addItem(newFeedback);
+			}
+
+            // Submit an answer and recieve the feedback
+			protected function onSubmitFeedback(evt:MouseEvent):void
+			{
+				result.show(this);
+				
+				if(_currentAnswer != -1 && _currentAnswer == _correctAnswer.value){
+					result.answerImage.source = tick;
+					result.text = _feedbacks.collection.getItemAt(_currentAnswer) as String;
+				}
+				 else{
+					result.answerImage.source = cross;
+					result.text = _feedbacks.collection.getItemAt(_currentAnswer) as String;
+
+				 }
+			
+			}
+            
+            // Modify the hidden component to the value of the new feedback (use the currentIndex set at editFeedback)
+			public function feedbackChanged(evt:Event):void{
+				// change the text area content   
+				_feedbacks.collection.setItemAt(feedback.text,currentIndex);
+				feedback.clickCancel();
+			}
+
+            // Edit a feedback
+			protected function editFeedback(evt:MouseEvent):void
+			{
+				currentIndex = (editFeedbackButton as Array).indexOf(evt.target);
+				feedback.show(this,_feedbacks.collection.getItemAt(currentIndex) as String);
+				}
+
+            // Delete and answer/feedback
+			protected function deleteAnswer(evt:MouseEvent):void
+			{ 
+				// Use the same pointer to modify the answers and feedback arrays (they must always have same number of elements)
+				var index:int = (editDeleteArray as Array).indexOf(evt.target);
+
+				var ac1:ArrayCollection = _answers.collection;
+				var ac2:ArrayCollection = _feedbacks.collection;
+				
+				if(index >= 0 && ac1.length >1)
+				{
+					ac1.removeItemAt(index);
+					ac2.removeItemAt(index);
+				}
+			}
+			
+			// show the feedback, delete buttons
+			protected function showButtons(evt:FocusEvent):void
+			{
+				var index:int = (editAnswerArray as Array).indexOf(evt.currentTarget);
+
+				var i:uint;
+				var total:uint = editFeedbackButton.length;
+				var moreThanOne:Boolean = (total > 1);
+				
+				for(i=0;i<total;i++)
+				{
+					editFeedbackButton[i].visible = (i == index);
+					editDeleteArray[i].visible = moreThanOne && (i == index);
+				}	
+			}
+
+
+			// hide the feedback, delete buttons
+			protected function hideButtons():void
+			{
+				var uic:UIComponent;
+				for each(uic in editFeedbackButton)
+					uic.visible = false;
+					
+				for each(uic in editDeleteArray)
+					uic.visible = false;
+			}
+
+
+			// Set the current answer (awaiting submission, edit mode)
+			protected function editAnswerRadioSelect(evt:MouseEvent):void
+			{
+				var index:int = (editRadioArray as Array).indexOf(evt.target);
+				
+				if(index >= 0)
+				{
+					_correctAnswer.value = index;
+				}
+			}
+			
+            // Enable the submit button once an answer has been chosen
+			protected function displayAnswerRadioSelect(evt:MouseEvent):void
+			{
+				var index:int = (displayRadioArray as Array).indexOf(evt.target);
+				
+				if(index >= 0)
+				{
+					_currentAnswer = index;
+				}
+				
+				submitButton.enabled = true;
+
+			}
+
+		// Change the mode of the component between edit (true) and display (false) modes 
+		override public function setEditMode(f:Boolean):void{
+		 if(f){
+		 	toEditState();
+		 } else {
+		 	toDisplayState();
+		 }
+		}
+		
+		// Copy values of the controls to the properties
+		public function onExitEditState():void{
+		 
+			 _question.value = questionEdit.text;
+			 _submitTitle.value = editableSubmitButton.label;
+
+			// copy answers from repeater	
+			var list:Array = [];
+			var ti:TextInput;
+			
+			for each(ti in editAnswerArray)
+				list.push(ti.text);
+				
+			// make sure you assign value at the end, otherwise repeater will redraw textfields prematurely
+			_answers.value = new ArrayCollection(list);
+		}			
+		]]>
+	</mx:Script>
+
+	<mx:Style>
+		
+		.editInput {
+			background-alpha: 0;
+			border-style: none;
+			theme-color: #333333;
+			focus-thickness: 1;
+		}
+		
+		.feedbackButton {
+			font-size: 9;
+			font-weight: normal;
+		}
+		
+		.deleteButton {
+			font-size: 9;
+			font-weight: normal;
+			color: #ff0000;
+			skin: Embed("org/glomaker/plugin/mcq/delete.png");
+		}
+
+		
+	</mx:Style>
+
+	<states>
+		<mx:State name="DisplayState">
+			<mx:AddChild position="lastChild">
+				<mx:VBox width="100%" height="100%">
+					<mx:Label
+						id="questionDisplay"
+						fontSize="{_fontSize.value}"
+						selectable="false"
+						width="100%"
+						text="{_question.value}"/>
+					<mx:VBox width="100%" height="100%">
+						<mx:Repeater id="answerDisplayRP" dataProvider="{_answers.value}">
+							<mx:HBox verticalAlign="middle" height="100%">
+								<mx:RadioButton id="displayRadioArray" fontSize="{_fontSize.value}" groupName="displayGroup" click="displayAnswerRadioSelect(event)"/>
+								<mx:Label width="100%" fontSize="{_fontSize.value}" text="{answerDisplayRP.currentItem}"/>
+							</mx:HBox>
+						</mx:Repeater>
+					</mx:VBox>
+					<mx:Button id="submitButton" click="onSubmitFeedback(event)"  label="{_submitTitle.value}" enabled="false"/>
+				</mx:VBox>
+			</mx:AddChild>
+		</mx:State>
+		  
+		<mx:State name="EditState" exitState="onExitEditState()" >
+			<mx:AddChild position="lastChild">
+				<mx:VBox width="100%"  height="100%">
+				<mx:VBox width="100%" height="100%">
+					<mx:TextInput
+						id="questionEdit"
+						styleName="editInput"
+						fontSize="{_fontSize.value}"
+						width="100%"
+						focusIn="hideButtons()"
+						text="{_question.value}"/>
+					<mx:Repeater id="answerEditRP" dataProvider="{_answers.value}">
+						<mx:HBox verticalAlign="middle" height="100%" width="100%">
+							<mx:RadioButton id="editRadioArray" fontSize="{_fontSize.value}" groupName="editGroup" click="editAnswerRadioSelect(event)"/>
+							<mx:TextInput
+								id="editAnswerArray"
+								styleName="editInput"
+								fontSize="{_fontSize.value}"
+								text="{String(answerEditRP.currentItem)}"
+								width="100%"
+								focusIn="showButtons(event)"
+								/>
+							<mx:Button
+								id="editFeedbackButton"
+								styleName="feedbackButton"
+								label="Feedback"
+								click="editFeedback(event)"
+								visible="false"/>
+							<mx:Button
+								id="editDeleteArray"
+								styleName="deleteButton"
+								buttonMode="true"
+								click="deleteAnswer(event)"
+								visible="false"/>
+						</mx:HBox>
+					</mx:Repeater>
+				</mx:VBox>
+	             <mx:HBox>
+	             <editbutton:EditableButton id="editableSubmitButton" isEditable="true" label="{_submitTitle.value}"/>
+				 <mx:Button click="onAddAnswer(event)" label="Add Option"  />
+				 </mx:HBox>
+				</mx:VBox>
+			</mx:AddChild>
+		</mx:State>
+	</states>
+</BaseComponent>
