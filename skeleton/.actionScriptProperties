@@ -11,6 +11,8 @@
 <applications>
 <application path="SkeletonGLOProject.mxml"/>
 </applications>
-<modules/>
+<modules>
+<module application="src/SkeletonGLOProject.mxml" destPath="org/glomaker/plugin/start/StarterPlugin.swf" optimize="false" sourcePath="src/org/glomaker/plugin/start/StarterPlugin.mxml"/>
+</modules>
 <buildCSSFiles/>
 </actionScriptProperties>
