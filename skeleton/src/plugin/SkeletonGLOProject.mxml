@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute">
+
+	<!--
+	
+	This is a basic component. It extends BaseComponent. When you create your own components,
+	you will need to extend from the BaseComponent class as well. This will provide you with the
+	methods needed to communicate successfully with GLO Maker.
+	
+	-->
+	
+	<!--
+	
+	The .swf file associated with this component can be found in 
+	bin-release > org > glomaker > plugin > start.
+	
+	-->
+	
+	<!--
+	
+	GLO Maker will also need info.xml and icon.png to work correctly.
+	
+	-->
+	
+</mx:Application>

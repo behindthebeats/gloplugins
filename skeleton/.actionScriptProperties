@@ -8,12 +8,7 @@
 </libraryPath>
 <sourceAttachmentPath/>
 </compiler>
-<applications>
-<application path="PluginOptimiserApp.mxml"/>
-<application path="SkeletonGLOProject.mxml"/>
-</applications>
-<modules>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/start/StarterPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/start/StarterPlugin.mxml"/>
-</modules>
+<applications/>
+<modules/>
 <buildCSSFiles/>
 </actionScriptProperties>
