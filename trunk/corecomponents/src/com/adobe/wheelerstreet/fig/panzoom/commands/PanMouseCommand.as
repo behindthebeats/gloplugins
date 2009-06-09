@@ -223,7 +223,7 @@ package com.adobe.wheelerstreet.fig.panzoom.commands
 					addEventListener(PanZoomEvent.COMMAND_COMPLETE, handleSpringComplete);
 										
 					_panTimer.start();
-					_mouseTracker.start();
+					_mouseTracker.StartPlugin();
 					
 					
 					
