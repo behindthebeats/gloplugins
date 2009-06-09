@@ -20,7 +20,7 @@ package com.adobe.wheelerstreet.fig.panzoom.utils
 		public var maxVelocity : Number = 3.0;
 		public var sensitivity : Number = 200;
 		
-		public function start() : void
+		public function StartPlugin() : void
 		{
 			_lastTime = NaN;
 			vx = vy = 0;
