@@ -46,6 +46,8 @@
 			[Bindable]
 			protected var _isInEditState:Boolean = false;
 			
+			protected var _repeaterIsShuffled:Boolean = false;
+			
 			
 			override protected function defineProperties():void
 			{
@@ -80,6 +82,7 @@
 			{
 				submitButton.label = _submitButtonText.value;
 				resetButton.label = _resetButtonText.value;
+				
 				updateRepeaterData();
 			}
 			
@@ -147,14 +150,23 @@
 			
 			protected function saveLabelsToCollection():void
 			{
+				// only allow saves if the current repeater data hasn't been shuffled
+				if(_repeaterIsShuffled)
+					return;
+				
+				// loop through each button and save its values to the actual GLOMaker property field
 				var btn:EditableButton;
-				for(var i:uint = 0;i<buttonContainer.numChildren;i++)
+				var coll:ArrayCollection = new ArrayCollection();
+				
+				for each(btn in editButtonArray)
 				{
-					try{
-						btn = EditableButton(buttonContainer.getChildAt(i));
-						_textList.collection.setItemAt(btn.label, i);
-					}catch(e:Error){}
+					coll.addItem(btn.label);
 				}
+			
+				// there is always at least one button by design
+				// so if coll.length == 0, then the repeater can't have had a dataProvider assigned yet
+				if(coll.length > 0)	
+					_textList.value = coll;
 			}
 
 			protected function showCorrectFeedbackEditor():void
@@ -183,8 +195,10 @@
 				if(_isInEditState)
 				{
 					buttonRp.dataProvider = getPhraseArray();
+					_repeaterIsShuffled = false;
 				}else{
 					buttonRp.dataProvider = getShuffledPhrases();
+					_repeaterIsShuffled = true;
 				}
 			}
 			
@@ -319,6 +333,7 @@
 		<utils:GLOToolBar id="buttonContainer" width="80%">
 			<mx:Repeater id="buttonRp">
 				<editbutton:EditableButton
+					id="editButtonArray"
 					label="{buttonRp.currentItem}"
 					styleName="snippetButton"
 					isEditable="{_isInEditState}"
