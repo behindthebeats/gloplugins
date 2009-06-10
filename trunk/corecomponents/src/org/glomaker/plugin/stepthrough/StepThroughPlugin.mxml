@@ -7,7 +7,7 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.listClasses.IDropInListItemRenderer;
+			import org.glomaker.shared.properties.NumericStepperField;
 			import org.glomaker.shared.properties.StringArrayCollectionField;
 			import org.glomaker.shared.properties.FileFilterData;
 			import org.glomaker.shared.properties.FilePathField;
@@ -17,6 +17,9 @@
     
             [Bindable]
             protected var filePath:FilePathField = new FilePathField("swfFile", "Animation:", "", new FileFilterData("SWF Files (*.swf)", "*.swf"));
+            
+            [Bindable]
+            protected var fontSizeField:NumericStepperField = new NumericStepperField("fontSize", "Font Size:", 15, 9, 20);
             
             protected var dataList:StringArrayCollectionField = new StringArrayCollectionField("dataList","", new ArrayCollection());
             
@@ -44,6 +47,7 @@
 			{
 				super.defineProperties();
 				
+				addEditableProperty(fontSizeField);
 				addEditableProperty(filePath);
 				addInternalProperty(dataList);
 			}
@@ -323,10 +327,10 @@
 			<mx:HDividedBox borderStyle="solid" width="100%" height="100%" backgroundAlpha="0">
 			
 				<mx:SWFLoader source="{filePath.value}" styleName="missingImageStyle" maintainAspectRatio="true" width="100%" height="100%"/>
-				<mx:HBox borderStyle="sold" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" horizontalGap="0" verticalGap="0"  width="200" height="100%">
+				<mx:HBox borderStyle="solid" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" horizontalGap="0" verticalGap="0"  width="200" height="100%">
 					<mx:List id="list" height="100%" dataProvider="{internalDataList}" paddingRight="-5" backgroundAlpha="0" borderStyle="none" itemRenderer="org.glomaker.plugin.stepthrough.StepThroughItemRenderer"/>
 					<mx:VBox id="textAreaBox" backgroundColor="#d5d5d5" width="100%" height="100%" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
-						<mx:TextArea id="textArea" width="100%" height="100%" cornerRadius="5"/>
+						<mx:TextArea id="textArea" fontSize="{fontSizeField.value}" width="100%" height="100%" cornerRadius="5"/>
 						<mx:Button label="Add" click="addNewItem()"/>
 					</mx:VBox>
 				</mx:HBox>
@@ -340,7 +344,7 @@
 		 	<mx:HBox width="100%" height="100%">
 				<mx:SWFLoader id="swfPlayer" source="{filePath.value}" styleName="missingImageStyle" maintainAspectRatio="true" width="100%" height="100%"/>
 				<mx:VBox backgroundColor="#d5d5d5" width="{textAreaBox.width}" height="100%" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
-					<mx:TextArea id="textAreaDisplay" selectable="true" editable="false" focusEnabled="false" width="100%" height="100%" cornerRadius="5"/>
+					<mx:TextArea id="textAreaDisplay" fontSize="{fontSizeField.value}" selectable="true" editable="false" focusEnabled="false" width="100%" height="100%" cornerRadius="5"/>
 					<mx:LinkButton label="Show" click="nextItem()"/>
 				</mx:VBox>
 			</mx:HBox>
