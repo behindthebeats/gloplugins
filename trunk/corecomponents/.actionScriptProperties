@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actionScriptProperties mainApplicationPath="CoreComponents.mxml" version="3">
-<compiler additionalCompilerArguments="-locale en_US" copyDependentFiles="true" enableModuleDebug="true" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersion="9.0.124" htmlPlayerVersionCheck="true" outputFolderPath="bin-debug" sourceFolderPath="src" strict="true" useApolloConfig="false" verifyDigests="true" warn="true">
+<compiler additionalCompilerArguments="-locale en_US" copyDependentFiles="true" enableModuleDebug="true" flexSDK="Flex 3.2" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="true" htmlPlayerVersion="9.0.124" htmlPlayerVersionCheck="true" outputFolderPath="bin-debug" sourceFolderPath="src" strict="true" useApolloConfig="false" verifyDigests="true" warn="true">
 <compilerSourcePath/>
 <libraryPath defaultLinkType="1">
-<libraryPathEntry kind="4" path=""/>
+<libraryPathEntry kind="4" path="">
+<modifiedEntries>
+<libraryPathEntry kind="3" linkType="4" path="${PROJECT_FRAMEWORKS}/libs/framework.swc" useDefaultLinkType="true">
+<crossDomainRsls>
+<crossDomainRslEntry autoExtract="true" policyFileUrl="" rslUrl="framework_3.0.0.477.swz"/>
+<crossDomainRslEntry autoExtract="true" policyFileUrl="" rslUrl="framework_3.0.0.477.swf"/>
+</crossDomainRsls>
+</libraryPathEntry>
+</modifiedEntries>
+</libraryPathEntry>
 <libraryPathEntry kind="1" linkType="1" path="libs"/>
 </libraryPath>
 <sourceAttachmentPath/>
@@ -22,6 +31,8 @@
 <module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/textarea/TextAreaPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/textarea/TextAreaPlugin.mxml"/>
 <module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/videoplayer/VideoPlayerPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/videoplayer/VideoPlayerPlugin.mxml"/>
 <module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/wordassembly/WordAssemblyPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/wordassembly/WordAssemblyPlugin.mxml"/>
+<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/stage/londonmet/LondonMetNavBar.swf" optimize="true" sourcePath="src/org/glomaker/stage/londonmet/LondonMetNavBar.mxml"/>
+<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/stage/swirl/SwirlNavBar.swf" optimize="true" sourcePath="src/org/glomaker/stage/swirl/SwirlNavBar.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>

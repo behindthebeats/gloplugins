@@ -11,6 +11,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.glomaker.shared.component.utils.MissingImageSkin;
 			import org.glomaker.shared.properties.PropertyField;
 			import org.glomaker.shared.properties.ColourField;
 			import org.glomaker.shared.properties.BooleanField;
@@ -74,13 +75,6 @@
 			public var backRolloverBtn:Class;
 			
 			/**
-		 	* Embed placeholder.
-		 	*/
-			[Bindable]
-			[Embed(source="org/glomaker/plugin/swfloader/assets/content_placeholder.png")]	
-			public var placeholder:Class;
-			
-			/**
 		 	* Stores any labels within the current scene of a MovieClip.
 		 	*/
 			protected var labels:Array;
@@ -98,8 +92,7 @@
 			/**
 		 	* Stores the file path to the loaded asset.
 		 	*/
-		 	[Bindable]
-			protected var filePath:FilePathField = new FilePathField("source", "File Path:", "dummy", ff);
+			protected var filePath:FilePathField = new FilePathField("source", "File Path:", "", ff);
 			
 			/**
 		 	* Sets up a field on the Property Panel to control the existence of the play button.
@@ -145,11 +138,24 @@
 				//AVM_lc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsynch);
 			}
 			
+			override public function propertyValuesInitialised():void
+			{
+				swfLoader.source = filePath.value;
+				_playControl = playControl.value;
+				_labelControl = nextLabelControl.value;
+				
+				buildTransportControls();
+			}
+			
 			
 			override public function editablePropertyUpdated(prop:PropertyField):void
 			{
 				switch(prop)
 				{
+					case filePath:
+						swfLoader.source = filePath.value;
+						break;
+						
 					case playControl:
 						_playControl = prop.value;
 						buildTransportControls();
@@ -385,20 +391,26 @@
 				
 				// ensures the movie clip is cropped to the window size
 				scrollRect = new Rectangle(0, 0, width, height);
-
 			}
 
 		]]>
 	</mx:Script>
+
+	<mx:Style>
+		.missingImageStyle {
+			broken-image-skin: ClassReference("org.glomaker.shared.component.utils.MissingImageSkin");
+			broken-image-border-skin: ClassReference(null);
+		}
+	</mx:Style>
 	
 	<mx:VBox width="100%" height="100%" 
 		id="container">
 		
 		<mx:SWFLoader width="100%" height="100%"
 			id="swfLoader"
-			source="{filePath.value}"
-			complete="onLoadSWF(event)"	
-			brokenImageSkin="{placeholder}"/>
+			complete="onLoadSWF(event)"
+			styleName="missingImageStyle"	
+		/>
 		
 		<mx:HBox width="100%" backgroundColor="{bgColour.value}"
 			id="controls" horizontalGap="2"
