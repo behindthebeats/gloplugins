@@ -12,7 +12,7 @@
 	xmlns:videoplayer="org.glomaker.plugin.videoplayer.*" 
 	xmlns:rectangle="org.glomaker.plugin.rectangle.*" 
 	xmlns:londonmet="org.glomaker.stage.londonmet.*" 
-	xmlns:wordassembly="org.glomaker.plugin.wordassembly.*">
+	xmlns:wordassembly="org.glomaker.plugin.wordassembly.*" xmlns:stepthrough="org.glomaker.plugin.stepthrough.*">
 	
 	<mx:Script>
 		<![CDATA[
@@ -43,6 +43,7 @@
 				_isEditState = !_isEditState;
 				plugin.setEditMode(_isEditState);
 			}
+			
 		]]>
 	</mx:Script>
 	
@@ -50,7 +51,8 @@
 	
 	<mx:VBox width="100%" height="100%">
 		<mx:Button label="Toggle" click="onToggleViewState(event)"/>
-		<wordassembly:WordAssemblyPlugin width="100%" height="60%" id="plugin"/>
+		<mx:Button label="Init" click="plugin.propertyValuesInitialised()"/>
+		<swfloader:SWFLoaderPlugin id="plugin" width="50%" height="50%"/>
 	</mx:VBox>
 
 	<swirl:SwirlNavBar/>

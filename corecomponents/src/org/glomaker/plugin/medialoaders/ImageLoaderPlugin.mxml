@@ -10,7 +10,6 @@
 			import org.glomaker.shared.properties.FilePathField;
 			import org.glomaker.shared.component.BaseComponent;
 			
-
 			protected var sourceField:FilePathField;
 
 			/**
@@ -20,54 +19,32 @@
 			{
 				super.defineProperties();
 				
-				sourceField = new FilePathField("source", "Image path", ""); 
+				sourceField = new FilePathField("source", "Image path", "");
 				addEditableProperty(sourceField);
 			}
 			
 			override public function propertyValuesInitialised():void
 			{
-				imageSource = sourceField.value;
+				image.source = sourceField.value;
 			}
 			
 			override public function editablePropertyUpdated(prop:PropertyField):void
 			{
 				if(prop == sourceField)
-					imageSource = sourceField.value;
+					image.source = sourceField.value;
 			}
 			
-
-
-			/**
-			 * Default image embed
-			 */
-			[Bindable]
-			[Embed(source="missing_image.png", scaleGridTop="63", scaleGridBottom="74", scaleGridLeft="112", scaleGridRight="124")]
-			protected var missingImage:Class;
-			
-			
-			[Bindable]
-			/**
-			 * Getter / setter for the imageSource property.
-			 * If the source value is empty/null, the default image is shown instead.
-			 */
-			public function set imageSource(value:String):void
-			{
-				if(value == null || value == "")
-					image.source = missingImage;
-				else
-					image.source = value;
-			}
-			public function get imageSource():String
-			{
-				if(image.source is String)
-					return image.source as String;
-					
-				return "";
-			}
 			
 		]]>
 	</mx:Script>
 	
-	<mx:Image id="image" width="100%" height="100%" maintainAspectRatio="false" source="{missingImage}"/>
+	<mx:Style>
+		.missingImageStyle {
+			broken-image-skin: ClassReference("org.glomaker.shared.component.utils.MissingImageSkin");
+			broken-image-border-skin: ClassReference(null);
+		}
+	</mx:Style>
+	
+	<mx:Image id="image" source="none" styleName="missingImageStyle" width="100%" height="100%" scaleContent="true" maintainAspectRatio="true"/>
 	
 </BaseComponent>
