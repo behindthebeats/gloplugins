@@ -33,8 +33,8 @@
 				// add to properties list
 				textValue = new RichTextField(textArea, "htmlText", "Label text", "Enter text");
 
-				addInternalProperty(textValue);
-				addEditableProperty(border);
+				addSaveableProperty(textValue);
+				addProperty(border);
 			}
 			
 			override public function propertyValuesInitialised():void

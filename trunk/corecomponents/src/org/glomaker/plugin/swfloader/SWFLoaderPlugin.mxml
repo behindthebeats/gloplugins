@@ -129,10 +129,11 @@
 			{
 				super.defineProperties();
 
-				addEditableProperty(filePath);
-				addEditableProperty(playControl);
-				addEditableProperty(nextLabelControl);
-				addEditableProperty(bgColour);
+				addProperty(filePath);
+				addProperty(bgColour);
+
+				addSaveableProperty(playControl);
+				addSaveableProperty(nextLabelControl);
 				
 				//AVM_lc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurity);
 				//AVM_lc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsynch);

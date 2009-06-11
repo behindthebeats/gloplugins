@@ -18,8 +18,8 @@
 		{
 			super.defineProperties();
 			
-			addEditableProperty(_cornerRadius);
-			addEditableProperty(_bgColour);			
+			addProperty(_cornerRadius);
+			addProperty(_bgColour);			
 		}
 
 	]]>

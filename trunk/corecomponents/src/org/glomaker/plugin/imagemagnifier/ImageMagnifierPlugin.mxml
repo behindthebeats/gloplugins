@@ -16,7 +16,7 @@
 				super.defineProperties();
 				
 				sourceField = new FilePathField("source", "Image path", "http://upload.wikimedia.org/wikipedia/commons/4/4d/Chiho_Aoshima_Gloucester_Road_Tube_Station.jpg"); 
-	 			addEditableProperty(sourceField);
+	 			addProperty(sourceField);
 			}
 			
 			override public function propertyValuesInitialised():void
