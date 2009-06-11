@@ -56,23 +56,23 @@
 				// list of answers
 				_textList = new StringArrayCollectionField("textList", "", new ArrayCollection());
 				addElement();
-				addInternalProperty(_textList);
+				addSaveableProperty(_textList);
 				
 				// submit button text
 				_submitButtonText = new StringField("submit", "", "Submit");
-				addInternalProperty(_submitButtonText);
+				addSaveableProperty(_submitButtonText);
 
 				// reset button text
 				_resetButtonText = new StringField("reset", "", "Reset");
-				addInternalProperty(_resetButtonText);
+				addSaveableProperty(_resetButtonText);
 				
 				// correct feedback text
 				_correctFeedback = new StringField("correct", "", "That is correct - well done!");
-				addInternalProperty(_correctFeedback);
+				addSaveableProperty(_correctFeedback);
 				
 				// wrong feedback text
 				_wrongFeedback = new StringField("wrong", "", "Not quite - try again!");
-				addInternalProperty(_wrongFeedback);
+				addSaveableProperty(_wrongFeedback);
 				
 				//
 				updateRepeaterData();

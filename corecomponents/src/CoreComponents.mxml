@@ -19,20 +19,14 @@
 			
 			import org.glomaker.shared.component.optimisation.PluginOptimiser;
 			import org.glomaker.plugin.imagemagnifier.ImageMagnifierPlugin;
-			import testing.DummyApplication;
 			import org.glomaker.plugin.mcq.MultipleChoiceQuestionPlugin;
 			import org.glomaker.shared.component.interfaces.IComponentPlugin;
 
-			private var _dummyApp:DummyApplication;
 			private var _optimization:Object = PluginOptimiser;
 			private var _isEditState:Boolean = false;
 			
 			protected function init():void
 			{
-				// initialise dummy app.
-//				 _dummyApp = new DummyApplication(quiz.child as IComponentPlugin, this);
-				//_dummyApp = new DummyApplication(rte as IComponentPlugin, this);
-				
 			}
 			
 			
@@ -52,7 +46,7 @@
 	<mx:VBox width="100%" height="100%">
 		<mx:Button label="Toggle" click="onToggleViewState(event)"/>
 		<mx:Button label="Init" click="plugin.propertyValuesInitialised()"/>
-		<swfloader:SWFLoaderPlugin id="plugin" width="50%" height="50%"/>
+		<medialoaders:ImageLoaderPlugin id="plugin" width="100" height="100"/>
 	</mx:VBox>
 
 	<swirl:SwirlNavBar/>

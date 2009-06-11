@@ -20,7 +20,7 @@
 				super.defineProperties();
 				
 				sourceField = new FilePathField("source", "Image path", "");
-				addEditableProperty(sourceField);
+				addProperty(sourceField);
 			}
 			
 			override public function propertyValuesInitialised():void

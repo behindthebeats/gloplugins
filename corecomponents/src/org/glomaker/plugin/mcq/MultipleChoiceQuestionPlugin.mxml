@@ -9,6 +9,9 @@
     
 	<mx:Script>
 		<![CDATA[
+			import org.glomaker.shared.properties.PropertyField;
+			import org.glomaker.shared.properties.ColourField;
+			import org.glomaker.shared.utils.MutableArray;
 			import mx.utils.DisplayUtil;
 			import org.glomaker.shared.properties.NumericStepperField;
 			import mx.controls.Spacer;
@@ -95,11 +98,11 @@
 				super.defineProperties();
 			
 				// add quiz properties (no binding - this will take place in the state transition handlers)
-				addInternalProperty(_question);
-				addInternalProperty(_submitTitle);
-				addInternalProperty(_correctAnswer);
+				addSaveableProperty(_question);
+				addSaveableProperty(_submitTitle);
+				addSaveableProperty(_correctAnswer);
 
-				addEditableProperty(_fontSize);
+				addProperty(_fontSize);
 
 				// initial answers				
 				_answers.isEditable = false;
@@ -111,7 +114,7 @@
 				
 				_answers.value = answerList;
 
-				addInternalProperty(_answers);
+				addSaveableProperty(_answers);
 				
 				// initial feedbacks				
 				_feedbacks.isEditable = false;
@@ -123,7 +126,7 @@
 			
 				_feedbacks.value = feedbackList;
 
-				addInternalProperty(_feedbacks);
+				addSaveableProperty(_feedbacks);
 				
 				toDisplayState();
 			}

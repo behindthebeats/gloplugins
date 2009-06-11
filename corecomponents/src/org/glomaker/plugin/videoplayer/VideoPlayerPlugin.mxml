@@ -22,7 +22,7 @@ xmlns:controls="com.fxcomponents.controls.*">
 			override protected function defineProperties():void
 			{
 				super.defineProperties();
-				addEditableProperty(videoSource);
+				addProperty(videoSource);
 			}
 			
 			

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <BaseComponent xmlns="org.glomaker.shared.component.*" xmlns:mx="http://www.adobe.com/2006/mxml"
-	currentState="DisplayState" 	
 	horizontalScrollPolicy="off" 
 	verticalScrollPolicy="off"
 	themeColor="haloSilver">
@@ -47,9 +46,9 @@
 			{
 				super.defineProperties();
 				
-				addEditableProperty(fontSizeField);
-				addEditableProperty(filePath);
-				addInternalProperty(dataList);
+				addProperty(fontSizeField);
+				addProperty(filePath);
+				addSaveableProperty(dataList);
 			}
 			
 			
@@ -72,6 +71,9 @@
 				// update textfield to show first value
 				displayCounter = 0;
 				updateTextField();
+				
+				// go into display state
+				toDisplayState();
 			}
 			
 			override public function prepareValuesForSave():void
@@ -99,7 +101,7 @@
  				
  				// unload content
  				try{
- 					swfPlayer.unloadAndStop(true);
+ 					displaySWFLoader.unloadAndStop(true);
  				}catch(e:Error){}
  			 	 
 			}
@@ -218,10 +220,10 @@
 			// next item
 			private function nextItem():void
 			{
-				// was: if(swfPlayer.content)
+				// was: if(displaySWFLoader.content)
 				// however with introduction of the missing image skin, the content was always defined
 				try{
-					MovieClip(swfPlayer.content).play();
+					MovieClip(displaySWFLoader.content).play();
 				}catch(e:Error){}
 
                 incrementDisplayCounter();
@@ -306,7 +308,7 @@
 				
 				// rewind animation
 				try{
-					MovieClip(swfPlayer.content).gotoAndStop(1);
+					MovieClip(displaySWFLoader.content).gotoAndStop(1);
 				}catch(e:Error){}
 			}
 	
@@ -326,7 +328,8 @@
 		<mx:AddChild position="lastChild">	
 			<mx:HDividedBox borderStyle="solid" width="100%" height="100%" backgroundAlpha="0">
 			
-				<mx:SWFLoader source="{filePath.value}" styleName="missingImageStyle" maintainAspectRatio="true" width="100%" height="100%"/>
+				<mx:SWFLoader id="editSwfLoader" source="{filePath.value}" styleName="missingImageStyle" maintainAspectRatio="true" width="100%" height="100%"/>
+				
 				<mx:HBox borderStyle="solid" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" horizontalGap="0" verticalGap="0"  width="200" height="100%">
 					<mx:List id="list" height="100%" dataProvider="{internalDataList}" paddingRight="-5" backgroundAlpha="0" borderStyle="none" itemRenderer="org.glomaker.plugin.stepthrough.StepThroughItemRenderer"/>
 					<mx:VBox id="textAreaBox" backgroundColor="#d5d5d5" width="100%" height="100%" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
@@ -342,7 +345,9 @@
 	<mx:State name="DisplayState" enterState="onEnterDisplay()">
 		<mx:AddChild position="lastChild">
 		 	<mx:HBox width="100%" height="100%">
-				<mx:SWFLoader id="swfPlayer" source="{filePath.value}" styleName="missingImageStyle" maintainAspectRatio="true" width="100%" height="100%"/>
+		 	
+				<mx:SWFLoader id="displaySWFLoader" source="{filePath.value}" styleName="missingImageStyle" maintainAspectRatio="true" width="100%" height="100%"/>
+			
 				<mx:VBox backgroundColor="#d5d5d5" width="{textAreaBox.width}" height="100%" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
 					<mx:TextArea id="textAreaDisplay" fontSize="{fontSizeField.value}" selectable="true" editable="false" focusEnabled="false" width="100%" height="100%" cornerRadius="5"/>
 					<mx:LinkButton label="Show" click="nextItem()"/>
