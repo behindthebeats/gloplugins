@@ -62,7 +62,13 @@
      public function set listData(value:BaseListData):void
      {
        _listData = value;
-       itemLabel.text = String(_listData.rowIndex);
+       
+       // clearing dataprovider might result in null listData
+       // added to resolve issue 155
+       if(_listData)
+       	itemLabel.text = String(_listData.rowIndex);
+       else
+       	itemLabel.text = "";
      }
      
      	override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
