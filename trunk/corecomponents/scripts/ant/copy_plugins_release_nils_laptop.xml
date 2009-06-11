@@ -1,7 +1,7 @@
 <project name="Copy Plugins to Glomaker" basedir="..\..\.">
 
 	<!-- EDIT TO MATCH YOUR SYSTEM -->
-	<property name="GLOMAKER_HOME" value="D:\WORK\CLIENTS\ltri\glo\dev\svn\GLO_Project_v2"/>
+	<property name="GLOMAKER_HOME" value="D:\NILS\data\clients\ltri\svn\GLO_Project_v2"/>
 
 
 	<!-- DON'T EDIT BELOW -->
