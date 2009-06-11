@@ -73,6 +73,10 @@
 				// deselect text if switching out of edit mode
 				if(!f)
 					textArea.selectionBeginIndex = textArea.selectionEndIndex = 0;
+					
+				// focus textArea if switching into edit mode
+				if(f)
+					textArea.setFocus();
 			}
 			
 
