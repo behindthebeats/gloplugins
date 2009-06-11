@@ -4,22 +4,23 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.events.ChildExistenceChangedEvent;
+			import mx.events.FlexEvent;
 			import org.glomaker.shared.properties.PropertyField;
 			import org.glomaker.shared.properties.StringField;
 			import org.glomaker.shared.properties.BooleanField;
 			import org.glomaker.shared.properties.RichTextField;
- 
-			// custom component properties
-			// component architecture uses databinding - so make sure this is bindable!
-			[Bindable]
-			protected var textValue:RichTextField; 
-			
-			[Bindable]
-			protected var _borderStyle:String = "solid";
-			
-			protected var border:BooleanField = new BooleanField("borderStyle", "Border", true);
 
- 
+			// required to attach event listeners to textArea's internal textfield			
+			import mx.core.mx_internal;
+			
+			// custom component properties
+			protected var textValue:RichTextField; 
+			protected var border:BooleanField = new BooleanField("borderStyle", "Border", true);
+			
+			// used by fix for Issue 149 to reapply htmlText after border property was changed
+			protected var preStyleChangeHTML:String;
+			
 
 			// ***************************************
 			// BaseComponent overrides
@@ -39,16 +40,23 @@
 			override public function propertyValuesInitialised():void
 			{
 				textArea.htmlText = textValue.value;
-				border.value ? _borderStyle = "solid" : _borderStyle = "none";
+				updateBorder();
 			}
 			
 			override public function editablePropertyUpdated(prop:PropertyField):void
 			{
 				if(prop == border)
 				{
-					border.value ? _borderStyle = "solid" : _borderStyle = "none";
+					updateBorder();
 				}
+				
+				if(prop == textValue)
+				{
+					textArea.htmlText = prop.value;
+				}
+				
 			}
+
 			
 			override public function prepareValuesForSave():void
 			{
@@ -67,15 +75,56 @@
 					textArea.selectionBeginIndex = textArea.selectionEndIndex = 0;
 			}
 			
+
+			
+			/**
+			 * Update the textArea border to match value stored in 'border' property field.
+			**/
+			protected function updateBorder():void
+			{
+				// there is a problem with the html formatting disappearing when changing border styles
+				// we avoid it by listening to the textFieldStyleChange event and re-applying the html text
+				// see glomaker issue 149
+				preStyleChangeHTML = textArea.htmlText;
+				textArea.mx_internal::getTextField().addEventListener("textFieldStyleChange", onStyleChange, false, 0, true);
+				
+				// apply border styles
+				if(border.value)
+				{
+					textArea.setStyle("borderStyle", "solid");
+				}else{
+					textArea.setStyle("borderStyle", "none");
+				}
+			}
+			
+					
+			/**
+			 * Event listener - the textFieldStyleChange has been triggered on the text field as a result of border-property changes.
+			 * We need to reapply the htmlText property (see glomaker Issue 149).
+			 * @param evt
+			**/ 
+			protected function onStyleChange(evt:Event):void
+			{
+				// don't need the listener anymore
+				textArea.mx_internal::getTextField().removeEventListener("textFieldStyleChange", onStyleChange);
+				
+				if(preStyleChangeHTML)
+				{
+					textArea.htmlText = preStyleChangeHTML;
+					preStyleChangeHTML = null;
+				}
+			}
+			
 		]]>
 	</mx:Script>
+	
+	
 	
 	<mx:TextArea id="textArea" width="100%" height="100%" 
 		fontSize="14"
 		editable="false"
 		selectable="false"
 		focusEnabled="false"
-		borderStyle="{_borderStyle}"
 		backgroundAlpha="0"/>
 
 </BaseComponent>
