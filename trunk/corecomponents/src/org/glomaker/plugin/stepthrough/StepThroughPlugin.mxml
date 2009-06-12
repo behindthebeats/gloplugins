@@ -6,26 +6,21 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.glomaker.shared.properties.NumericStepperField;
-			import org.glomaker.shared.properties.StringArrayCollectionField;
-			import org.glomaker.shared.properties.FileFilterData;
-			import org.glomaker.shared.properties.FilePathField;
+			import org.glomaker.shared.properties.IComponentProperty;
 			import mx.collections.ArrayCollection;
+			import org.glomaker.shared.properties.FilePathProperty;
+			import org.glomaker.shared.properties.ArrayProperty;
+			import org.glomaker.shared.properties.NumericStepperProperty;
 			import mx.events.ListEvent;
     
     
-            [Bindable]
-            protected var filePath:FilePathField = new FilePathField("swfFile", "Animation:", "", new FileFilterData("SWF Files (*.swf)", "*.swf"));
-            
-            [Bindable]
-            protected var fontSizeField:NumericStepperField = new NumericStepperField("fontSize", "Font Size:", 15, 9, 20);
-            
-            protected var dataList:StringArrayCollectionField = new StringArrayCollectionField("dataList","", new ArrayCollection());
+            protected var filePath:FilePathProperty;
+            protected var fontSizeField:NumericStepperProperty;
+            protected var dataList:ArrayProperty = new ArrayProperty("dataList","", []);
             
             
-            
-            [Bindable]
             // array used internally to manage data
+            [Bindable]
           	protected var internalDataList:ArrayCollection;
           
     	    // index of the item currently being displayed in the text field (in edit and in display mode)
@@ -34,6 +29,14 @@
      	    // previously selected list index in the edit list
      	    // used to save values when user selects a new list entry
      	    protected var previousEditListIndex:int = -1;
+     	    
+     	    
+     	    // bindable properties updated via the component property values
+     	    [Bindable]
+     	    protected var currentFontSize:Number;
+     	    
+     	    [Bindable]
+     	    protected var currentFilePath:String;
      	    
 
 			// ***************************************
@@ -46,20 +49,31 @@
 			{
 				super.defineProperties();
 				
+				fontSizeField = new NumericStepperProperty("fontSize", "Font Size:", 15);
+				fontSizeField.minimum = 9;
+				fontSizeField.maximum = 20;
 				addProperty(fontSizeField);
+				
+				filePath = new FilePathProperty("swfFile", "Animation:", "");
+				filePath.fileTypeLabel = "SWF Files (*.swf)"; 
+				filePath.fileExtensions = "*.swf";
 				addProperty(filePath);
+				
 				addSaveableProperty(dataList);
 			}
 			
 			
 			override public function propertyValuesInitialised():void
 			{
+				currentFilePath = filePath.propValue;
+				currentFontSize = fontSizeField.propValue;
+				
 				//
 				internalDataList = new ArrayCollection();
 								
-				// copy arraycollection entries into our internal array
+				// copy dataList entries into our internal ArrayCollection
 				// each entry is stored as a PageItem instance, as duplicate text entries will cause problems in the edit-state's List
-				for each(var str:String in dataList.collection.source)
+				for each(var str:String in dataList.valueArray)
 				{
 					internalDataList.addItem(new PageItem(str));	
 				}
@@ -76,6 +90,21 @@
 				toDisplayState();
 			}
 			
+			override public function editablePropertyUpdated(prop:IComponentProperty):void
+			{
+				switch(prop)
+				{
+					case filePath:
+						currentFilePath = filePath.propValue;
+						break;
+						
+					case fontSizeField:
+						currentFontSize = fontSizeField.propValue;
+						break;
+				}
+			}
+			
+			
 			override public function prepareValuesForSave():void
 			{
 				// if in edit mode, make sure current item is properly saved
@@ -83,11 +112,11 @@
 					saveEditTextFieldValue();
 					
 				// copy internal data back into the arraycollection
-				var collection:ArrayCollection = new ArrayCollection();
-				for each(var item:PageItem in internalDataList)
-					collection.addItem(item.textValue);
+				var list:Array = [];
+				for each(var item:PageItem in internalDataList.source)
+					list.push(item.textValue);
 					
-				dataList.value = collection;
+				dataList.propValue = list;
 			}
 			
 			override public function destroy():void
@@ -328,12 +357,12 @@
 		<mx:AddChild position="lastChild">	
 			<mx:HDividedBox borderStyle="solid" width="100%" height="100%" backgroundAlpha="0">
 			
-				<mx:SWFLoader id="editSwfLoader" source="{filePath.value}" styleName="missingImageStyle" maintainAspectRatio="true" width="100%" height="100%"/>
+				<mx:SWFLoader id="editSwfLoader" source="{currentFilePath}" styleName="missingImageStyle" maintainAspectRatio="true" width="100%" height="100%"/>
 				
 				<mx:HBox borderStyle="solid" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" horizontalGap="0" verticalGap="0"  width="200" height="100%">
 					<mx:List id="list" height="100%" dataProvider="{internalDataList}" paddingRight="-5" backgroundAlpha="0" borderStyle="none" itemRenderer="org.glomaker.plugin.stepthrough.StepThroughItemRenderer"/>
 					<mx:VBox id="textAreaBox" backgroundColor="#d5d5d5" width="100%" height="100%" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
-						<mx:TextArea id="textArea" fontSize="{fontSizeField.value}" width="100%" height="100%" cornerRadius="5"/>
+						<mx:TextArea id="textArea" fontSize="{currentFontSize}" width="100%" height="100%" cornerRadius="5"/>
 						<mx:Button label="Add" click="addNewItem()"/>
 					</mx:VBox>
 				</mx:HBox>
@@ -346,10 +375,10 @@
 		<mx:AddChild position="lastChild">
 		 	<mx:HBox width="100%" height="100%">
 		 	
-				<mx:SWFLoader id="displaySWFLoader" source="{filePath.value}" styleName="missingImageStyle" maintainAspectRatio="true" width="100%" height="100%"/>
+				<mx:SWFLoader id="displaySWFLoader" source="{currentFilePath}" styleName="missingImageStyle" maintainAspectRatio="true" width="100%" height="100%"/>
 			
 				<mx:VBox backgroundColor="#d5d5d5" width="{textAreaBox.width}" height="100%" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
-					<mx:TextArea id="textAreaDisplay" fontSize="{fontSizeField.value}" selectable="true" editable="false" focusEnabled="false" width="100%" height="100%" cornerRadius="5"/>
+					<mx:TextArea id="textAreaDisplay" fontSize="{currentFontSize}" selectable="true" editable="false" focusEnabled="false" width="100%" height="100%" cornerRadius="5"/>
 					<mx:LinkButton label="Show" click="nextItem()"/>
 				</mx:VBox>
 			</mx:HBox>

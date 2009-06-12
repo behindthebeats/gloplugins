@@ -5,29 +5,29 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.glomaker.shared.properties.PropertyField;
+			import org.glomaker.shared.properties.IComponentProperty;
 	
-			import org.glomaker.shared.properties.FilePathField;
+			import org.glomaker.shared.properties.FilePathProperty;
 
-			protected var sourceField:FilePathField; 
+			protected var sourceField:FilePathProperty; 
 			
 			override protected function defineProperties():void
 			{
 				super.defineProperties();
 				
-				sourceField = new FilePathField("source", "Image path", "http://upload.wikimedia.org/wikipedia/commons/4/4d/Chiho_Aoshima_Gloucester_Road_Tube_Station.jpg"); 
+				sourceField = new FilePathProperty("source", "Image path", "http://upload.wikimedia.org/wikipedia/commons/4/4d/Chiho_Aoshima_Gloucester_Road_Tube_Station.jpg"); 
 	 			addProperty(sourceField);
 			}
 			
 			override public function propertyValuesInitialised():void
 			{
-				imageViewer.imageURL = sourceField.value;
+				imageViewer.imageURL = sourceField.propValue;
 			}
 			
-			override public function editablePropertyUpdated(prop:PropertyField):void
+			override public function editablePropertyUpdated(prop:IComponentProperty):void
 			{
 				if(prop == sourceField)
-					imageViewer.imageURL = sourceField.value;
+					imageViewer.imageURL = sourceField.propValue;
 			}
 			
 		]]>

@@ -11,12 +11,11 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.glomaker.shared.properties.ColourProperty;
+			import org.glomaker.shared.properties.BooleanProperty;
 			import org.glomaker.shared.component.utils.MissingImageSkin;
-			import org.glomaker.shared.properties.PropertyField;
-			import org.glomaker.shared.properties.ColourField;
-			import org.glomaker.shared.properties.BooleanField;
-			import org.glomaker.shared.properties.FileFilterData;
-			import org.glomaker.shared.properties.FilePathField;
+			import org.glomaker.shared.properties.IComponentProperty;
+			import org.glomaker.shared.properties.FilePathProperty;
 			
 			/**
 		 	* Embed play button up skin.
@@ -85,30 +84,24 @@
 			protected var startMode:Boolean = true;
 			
 			/**
-		 	* Used to set the file types and descriptions when browsing for content.
-		 	*/
-			protected var ff:FileFilterData = new FileFilterData("SWFs and Images", "*.jpg;*.gif;*.png;*.swf");
-			
-			/**
 		 	* Stores the file path to the loaded asset.
 		 	*/
-			protected var filePath:FilePathField = new FilePathField("source", "File Path:", "", ff);
+			protected var filePath:FilePathProperty;
 			
 			/**
 		 	* Sets up a field on the Property Panel to control the existence of the play button.
 		 	*/
-			protected var playControl:BooleanField = new BooleanField("playControlValue", "Play button ?", true);
+			protected var playControl:BooleanProperty = new BooleanProperty("playControlValue", "Play button ?", true);
 			
 			/**
 		 	* Sets up a field on the Property Panel to control the existence of the jump button.
 		 	*/
-			protected var nextLabelControl:BooleanField = new BooleanField("labelControlValue", "Jump button ?", true);
+			protected var nextLabelControl:BooleanProperty = new BooleanProperty("labelControlValue", "Jump button ?", true);
 			
 			/**
 		 	* Sets up a field on the Property Panel to control the colour of thebackground strip .
 		 	*/
-		 	[Bindable]
-			protected var bgColour:ColourField = new ColourField("bgcolour", "Colour", 0x666666);
+			protected var bgColour:ColourProperty = new ColourProperty("bgcolour", "Colour", 0x666666);
 			
 			/**
 		 	* Stores a true or false value relating to the existence of the play button.
@@ -129,11 +122,15 @@
 			{
 				super.defineProperties();
 
+				filePath = new FilePathProperty("source", "File Path:", "");
+				filePath.fileTypeLabel = "SWFs and Images"; 
+				filePath.fileExtensions = "*.jpg;*.gif;*.png;*.swf"; 
+
 				addProperty(filePath);
 				addProperty(bgColour);
 
-				addSaveableProperty(playControl);
-				addSaveableProperty(nextLabelControl);
+				addProperty(playControl);
+				addProperty(nextLabelControl);
 				
 				//AVM_lc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurity);
 				//AVM_lc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsynch);
@@ -141,34 +138,38 @@
 			
 			override public function propertyValuesInitialised():void
 			{
-				swfLoader.source = filePath.value;
-				_playControl = playControl.value;
-				_labelControl = nextLabelControl.value;
+				swfLoader.source = filePath.propValue;
+				_playControl = playControl.propValue;
+				_labelControl = nextLabelControl.propValue;
+				controls.setStyle("backgroundColor", bgColour.propValue);
 				
 				buildTransportControls();
 			}
 			
 			
-			override public function editablePropertyUpdated(prop:PropertyField):void
+			override public function editablePropertyUpdated(prop:IComponentProperty):void
 			{
 				switch(prop)
 				{
 					case filePath:
-						swfLoader.source = filePath.value;
+						swfLoader.source = filePath.propValue;
 						break;
 						
 					case playControl:
-						_playControl = prop.value;
+						_playControl = prop.propValue;
 						buildTransportControls();
 						break;
 						
 					case nextLabelControl:
-						_labelControl = prop.value;
+						_labelControl = prop.propValue;
 						buildTransportControls();
 						break;
+						
+					case bgColour:
+						controls.setStyle("backgroundColor", prop.propValue);
+						break;
+						
 				}
-				
-				// Note: other editable properties are updated using data binding
 			}
 			
 			
@@ -347,8 +348,8 @@
 					if(info.contentType != "application/x-shockwave-flash" || swfLoader.content is MovieClip == false  && container.getChildByName("controls") != null)
 					{
 						// no need for transport controls, this is not a MovieClip
-						playControl.value = false;
-						nextLabelControl.value = false;
+						playControl.propValue = false;
+						nextLabelControl.propValue = false;
 						container.removeChild(controls);
 						
 						return;
@@ -357,8 +358,8 @@
 					if(info.contentType != "application/x-shockwave-flash" && container.getChildByName("controls") == null)
 					{
 						// transport controls already gone. Get out of here
-						playControl.value = false;
-						nextLabelControl.value = false;
+						playControl.propValue = false;
+						nextLabelControl.propValue = false;
 						
 						return;
 					} 
@@ -369,8 +370,8 @@
 						
 						if(swfLoader.content is MovieClip)
 						{
-							playControl.value = true;
-							nextLabelControl.value = true;
+							playControl.propValue = true;
+							nextLabelControl.propValue = true;
 							container.addChild(controls);
 						}
 						
@@ -413,7 +414,7 @@
 			styleName="missingImageStyle"	
 		/>
 		
-		<mx:HBox width="100%" backgroundColor="{bgColour.value}"
+		<mx:HBox width="100%"
 			id="controls" horizontalGap="2"
 			paddingTop="2"
 			paddingBottom="2"

@@ -6,14 +6,10 @@ xmlns:controls="com.fxcomponents.controls.*">
 	
 	<mx:Script>
 		<![CDATA[
-			import org.glomaker.shared.properties.PropertyField;
-			import org.glomaker.shared.properties.FileFilterData;
-			import org.glomaker.shared.properties.FilePathField;
-			import org.glomaker.shared.component.BaseComponent;
+			import org.glomaker.shared.properties.IComponentProperty;
+			import org.glomaker.shared.properties.FilePathProperty;
 			
-			
-			[Bindable]
-			protected var videoSource:FilePathField = new FilePathField("source", "Video File:", "", new FileFilterData("Flash Videos (*.flv, *.f4v)", "*.flv;*.f4v"));
+			protected var videoSource:FilePathProperty;
 			
 
 			/**
@@ -22,23 +18,28 @@ xmlns:controls="com.fxcomponents.controls.*">
 			override protected function defineProperties():void
 			{
 				super.defineProperties();
+			
+			 	videoSource = new FilePathProperty("source", "Video File:", "");
+			 	videoSource.fileTypeLabel = "Flash Videos (*.flv, *.f4v)";
+			 	videoSource.fileExtensions = "*.flv;*.f4v";
+			 	
 				addProperty(videoSource);
 			}
 			
 			
 			override public function propertyValuesInitialised():void
 			{
-				vidPlayer.source = videoSource.value;
+				vidPlayer.source = videoSource.propValue;
 			}
 		
 		
 			/**
 			 * Update when user has selected a different file in the properties panel.
 			**/
-			override public function editablePropertyUpdated(prop:PropertyField):void
+			override public function editablePropertyUpdated(prop:IComponentProperty):void
 			{
 				if(prop == videoSource)
-					vidPlayer.source = videoSource.value;
+					vidPlayer.source = videoSource.propValue;
 			}	
 			
 
