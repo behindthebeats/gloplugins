@@ -9,28 +9,15 @@
     
 	<mx:Script>
 		<![CDATA[
-			import org.glomaker.shared.properties.PropertyField;
-			import org.glomaker.shared.properties.ColourField;
-			import org.glomaker.shared.utils.MutableArray;
-			import mx.utils.DisplayUtil;
-			import org.glomaker.shared.properties.NumericStepperField;
-			import mx.controls.Spacer;
-			import mx.containers.ControlBar;
-			import mx.containers.Panel;
-			import mx.containers.TitleWindow;
-			import mx.managers.PopUpManager;
-			import mx.controls.Alert;
-			import mx.containers.Canvas;
+			import org.glomaker.shared.properties.NumericStepperProperty;
+			import org.glomaker.shared.properties.ArrayProperty;
+			import org.glomaker.shared.properties.IntegerProperty;
+			import org.glomaker.shared.properties.IComponentProperty;
 			import mx.states.AddChild;
 			import mx.core.UIComponent;
-			import org.glomaker.shared.properties.StringArrayCollectionField;
 			import mx.collections.ArrayCollection;
-			import org.glomaker.shared.properties.ArrayField;
-		
-			import org.glomaker.shared.properties.StringField;
+			import org.glomaker.shared.properties.StringProperty;
 			import mx.controls.RadioButton;
-			import org.glomaker.shared.properties.IntegerField;
-			
 			import flash.events.FocusEvent;
 
 			/**
@@ -48,23 +35,12 @@
 			// QUIZ PROPERTIES
 			// ------------------
  
-			[Bindable]
-			protected var _question:StringField = new StringField("question", "Question:", "Type your question here...");
-
-			[Bindable]
-			protected var _correctAnswer:IntegerField = new IntegerField("correct", "Correct Answer (0, 1, 2, ...)", -1);
-
-			[Bindable]
-			protected var _answers:StringArrayCollectionField = new StringArrayCollectionField("answers", "Answers");
-
-			[Bindable]
-			protected var _feedbacks:StringArrayCollectionField = new StringArrayCollectionField("feedbacks", "Feedbacks");
-
-			[Bindable]
-			protected var _fontSize:NumericStepperField = new NumericStepperField("fontSize","Font Size",15,10,60);
- 
- 			[Bindable]
-			protected var _submitTitle:StringField = new StringField("submit", "Submit", "Submit");
+			protected var _question:StringProperty = new StringProperty("question", "Question:", "Type your question here...");
+			protected var _correctAnswer:IntegerProperty = new IntegerProperty("correct", "Correct Answer (0, 1, 2, ...)", -1);
+			protected var _answers:ArrayProperty = new ArrayProperty("answers", "Answers", []);
+			protected var _feedbacks:ArrayProperty = new ArrayProperty("feedbacks", "Feedbacks", []);
+			protected var _fontSize:NumericStepperProperty = new NumericStepperProperty("fontSize","Font Size",15);
+			protected var _submitTitle:StringProperty = new StringProperty("submit", "Submit", "Submit");
 
             // currently selected answer
             protected var _currentAnswer:int = -1; 
@@ -76,22 +52,42 @@
             // Used to aid adding feedback
             private var currentIndex:int;
             
+            // internal properties
+            // these are used to run the actual component
+            // the Property values from above are copied into these values in 
+            [Bindable]
+            protected var currentFontSize:uint;
+            
+            [Bindable]
+            protected var currentQuestion:String;
+            
+            [Bindable]
+            protected var currentSubmitTitle:String;
+            
+            [Bindable]
+            protected var currentCorrectAnswer:int;
+            
+            [Bindable]
+            protected var answerCollection:ArrayCollection;
+            
+            [Bindable]
+            protected var feedbackCollection:ArrayCollection;
+            
+  			// ------------------
+			// METHODS
+			// ------------------
+			          
             // Initilize
-			public function init():void{
+			public function init():void
+			{
 					
 				// Initialize the Feedback panel
 				feedback = new Feedback();
 				feedback.addEventListener(Feedback.FEEDBACKCHANGED,feedbackChanged, false, 0, true);
 
 				result = new Result();
+			}
 
-			}
-			
-			override public function destroy():void
-			{
-				if(feedback)
-					feedback.removeEventListener(Feedback.FEEDBACKCHANGED,feedbackChanged);
-			}
 			
 			override protected function defineProperties():void
 			{
@@ -102,34 +98,85 @@
 				addSaveableProperty(_submitTitle);
 				addSaveableProperty(_correctAnswer);
 
+				_fontSize.minimum = 10;
+				_fontSize.maximum = 50;
 				addProperty(_fontSize);
 
 				// initial answers				
-				_answers.isEditable = false;
-				var answerList:ArrayCollection = new ArrayCollection();
-
-				answerList.addItem("Answer 0");
-				answerList.addItem("Answer 1");
-				answerList.addItem("Answer 2");
-				
-				_answers.value = answerList;
-
 				addSaveableProperty(_answers);
 				
 				// initial feedbacks				
-				_feedbacks.isEditable = false;
-				var feedbackList:ArrayCollection = new ArrayCollection();
-
-				feedbackList.addItem("Feedback 0");
-				feedbackList.addItem("Feedback 1");
-				feedbackList.addItem("Feedback 2");
-			
-				_feedbacks.value = feedbackList;
-
 				addSaveableProperty(_feedbacks);
 				
+				// show display state
 				toDisplayState();
 			}
+			
+			
+			override public function propertyValuesInitialised():void
+			{
+				currentFontSize = _fontSize.propValue;
+				currentQuestion = _question.propValue;
+				currentSubmitTitle = _submitTitle.propValue;
+				currentCorrectAnswer = _correctAnswer.propValue;
+				
+				// copy array values into bindable collections
+				// if no entries are available, we provide default values
+				if(_answers.valueArray.length == 0)
+				{
+					answerCollection = new ArrayCollection(["Answer 0", "Answer 1", "Answer 2"]);
+				}else{
+					answerCollection = new ArrayCollection(_answers.valueArray.concat());
+				}
+				
+				if(_feedbacks.valueArray.length == 0)
+				{
+					feedbackCollection = new ArrayCollection(["Feedback 0", "Feedback 1", "Feedback 2"]);
+				}else{
+					feedbackCollection = new ArrayCollection(_feedbacks.valueArray.concat());
+				}
+			}
+			
+			
+			override public function editablePropertyUpdated(prop:IComponentProperty):void
+			{
+				// only the fontsize is editable via the properties panel
+				switch(prop)
+				{
+					case _fontSize:
+						currentFontSize = _fontSize.propValue;
+						break;
+				}
+			}
+			
+			override public function prepareValuesForSave():void
+			{
+				saveAnswerFields();
+				
+				_submitTitle.propValue = currentSubmitTitle;
+				_question.propValue = currentQuestion;
+				_correctAnswer.propValue = currentCorrectAnswer;
+				
+				_answers.propValue = answerCollection.source.concat();
+				_feedbacks.propValue = feedbackCollection.source.concat();
+				
+				// fontsize doesn't need updating as it's already an editable property
+			}
+			
+				
+			override public function destroy():void
+			{
+				// cleanup
+				if(feedback)
+				{
+					feedback.removeEventListener(Feedback.FEEDBACKCHANGED,feedbackChanged);
+					feedback = null;
+				}
+				
+				result = null;
+			}
+
+			
 			
 			// Switch between Edit and Display states
 			public function toggleState():void
@@ -158,16 +205,14 @@
 			// Add new line of Answer (option) including the feedback!
 			protected function onAddAnswer(evt:MouseEvent):void
 			{
-				var coll:ArrayCollection = _answers.collection;
-				var col2:ArrayCollection = _feedbacks.collection;
-
-				var index:int = coll.length + 1;
+				// make sure array collection is currently storing correct elements
+				saveAnswerFields();
 				
-				var newAnswer:String = "Answer " + index;
-				var newFeedback:String ="Feedback " + index;
+				// add a new answer and a new feedback item
+				var index:int = answerCollection.length + 1;
 				
-				coll.addItem(newAnswer);
-				col2.addItem(newFeedback);
+				answerCollection.addItem("Answer " + index);
+				feedbackCollection.addItem("Feedback " + index);
 			}
 
             // Submit an answer and recieve the feedback
@@ -175,22 +220,20 @@
 			{
 				result.show(this);
 				
-				if(_currentAnswer != -1 && _currentAnswer == _correctAnswer.value){
+				if(_currentAnswer != -1 && _currentAnswer == currentCorrectAnswer){
 					result.answerImage.source = tick;
-					result.text = _feedbacks.collection.getItemAt(_currentAnswer) as String;
 				}
 				 else{
 					result.answerImage.source = cross;
-					result.text = _feedbacks.collection.getItemAt(_currentAnswer) as String;
-
 				 }
-			
+				 
+				result.text = feedbackCollection.getItemAt(_currentAnswer) as String;
 			}
             
             // Modify the hidden component to the value of the new feedback (use the currentIndex set at editFeedback)
 			public function feedbackChanged(evt:Event):void{
 				// change the text area content   
-				_feedbacks.collection.setItemAt(feedback.text,currentIndex);
+				feedbackCollection.setItemAt(feedback.text, currentIndex);
 				feedback.clickCancel();
 			}
 
@@ -198,22 +241,22 @@
 			protected function editFeedback(evt:MouseEvent):void
 			{
 				currentIndex = (editFeedbackButton as Array).indexOf(evt.target);
-				feedback.show(this,_feedbacks.collection.getItemAt(currentIndex) as String);
-				}
+				feedback.show(this, feedbackCollection.getItemAt(currentIndex) as String);
+			}
 
             // Delete and answer/feedback
 			protected function deleteAnswer(evt:MouseEvent):void
 			{ 
+				// make sure all changes have been saved
+				saveAnswerFields();
+				
 				// Use the same pointer to modify the answers and feedback arrays (they must always have same number of elements)
 				var index:int = (editDeleteArray as Array).indexOf(evt.target);
 
-				var ac1:ArrayCollection = _answers.collection;
-				var ac2:ArrayCollection = _feedbacks.collection;
-				
-				if(index >= 0 && ac1.length >1)
+				if(index >= 0 && answerCollection.length > 1)
 				{
-					ac1.removeItemAt(index);
-					ac2.removeItemAt(index);
+					answerCollection.removeItemAt(index);
+					feedbackCollection.removeItemAt(index);
 				}
 			}
 			
@@ -253,7 +296,7 @@
 				
 				if(index >= 0)
 				{
-					_correctAnswer.value = index;
+					_correctAnswer.propValue = index;
 				}
 			}
 			
@@ -281,21 +324,33 @@
 		}
 		
 		// Copy values of the controls to the properties
-		public function onExitEditState():void{
-		 
-			 _question.value = questionEdit.text;
-			 _submitTitle.value = editableSubmitButton.label;
-
-			// copy answers from repeater	
-			var list:Array = [];
+		protected function onExitEditState():void
+		{
+			 currentQuestion = questionEdit.text;
+			 currentSubmitTitle = editableSubmitButton.label;
+			 
+			 // save text from edit TextInputs into the collection
+			 saveAnswerFields();
+		}
+		
+		
+		protected function saveAnswerFields():void
+		{
+			// only do this if currently in edit mode
+			if(currentState != "EditState")
+				return;
+				
+			var coll:ArrayCollection = new ArrayCollection();
 			var ti:TextInput;
 			
 			for each(ti in editAnswerArray)
-				list.push(ti.text);
-				
-			// make sure you assign value at the end, otherwise repeater will redraw textfields prematurely
-			_answers.value = new ArrayCollection(list);
-		}			
+			{
+				coll.addItem(ti.text);
+			}
+			
+			answerCollection = coll;
+		}
+			
 		]]>
 	</mx:Script>
 
@@ -329,19 +384,19 @@
 				<mx:VBox width="100%" height="100%">
 					<mx:Label
 						id="questionDisplay"
-						fontSize="{_fontSize.value}"
+						fontSize="{currentFontSize}"
 						selectable="false"
 						width="100%"
-						text="{_question.value}"/>
+						text="{currentQuestion}"/>
 					<mx:VBox width="100%" height="100%">
-						<mx:Repeater id="answerDisplayRP" dataProvider="{_answers.value}">
+						<mx:Repeater id="answerDisplayRP" dataProvider="{answerCollection}">
 							<mx:HBox verticalAlign="middle" height="100%">
-								<mx:RadioButton id="displayRadioArray" fontSize="{_fontSize.value}" groupName="displayGroup" click="displayAnswerRadioSelect(event)"/>
-								<mx:Label width="100%" fontSize="{_fontSize.value}" text="{answerDisplayRP.currentItem}"/>
+								<mx:RadioButton id="displayRadioArray" fontSize="{currentFontSize}" groupName="displayGroup" click="displayAnswerRadioSelect(event)"/>
+								<mx:Label width="100%" fontSize="{currentFontSize}" text="{answerDisplayRP.currentItem}"/>
 							</mx:HBox>
 						</mx:Repeater>
 					</mx:VBox>
-					<mx:Button id="submitButton" click="onSubmitFeedback(event)"  label="{_submitTitle.value}" enabled="false"/>
+					<mx:Button id="submitButton" click="onSubmitFeedback(event)"  label="{currentSubmitTitle}" enabled="false"/>
 				</mx:VBox>
 			</mx:AddChild>
 		</mx:State>
@@ -353,17 +408,18 @@
 					<mx:TextInput
 						id="questionEdit"
 						styleName="editInput"
-						fontSize="{_fontSize.value}"
+						fontSize="{currentFontSize}"
 						width="100%"
 						focusIn="hideButtons()"
-						text="{_question.value}"/>
-					<mx:Repeater id="answerEditRP" dataProvider="{_answers.value}">
+						text="{currentQuestion}"/>
+						
+					<mx:Repeater id="answerEditRP" dataProvider="{answerCollection}">
 						<mx:HBox verticalAlign="middle" height="100%" width="100%">
-							<mx:RadioButton id="editRadioArray" fontSize="{_fontSize.value}" groupName="editGroup" click="editAnswerRadioSelect(event)"/>
+							<mx:RadioButton id="editRadioArray" fontSize="{currentFontSize}" groupName="editGroup" click="editAnswerRadioSelect(event)"/>
 							<mx:TextInput
 								id="editAnswerArray"
 								styleName="editInput"
-								fontSize="{_fontSize.value}"
+								fontSize="{currentFontSize}"
 								text="{String(answerEditRP.currentItem)}"
 								width="100%"
 								focusIn="showButtons(event)"
@@ -384,7 +440,7 @@
 					</mx:Repeater>
 				</mx:VBox>
 	             <mx:HBox>
-	             <editbutton:EditableButton id="editableSubmitButton" isEditable="true" label="{_submitTitle.value}"/>
+	             <editbutton:EditableButton id="editableSubmitButton" isEditable="true" label="{currentSubmitTitle}"/>
 				 <mx:Button click="onAddAnswer(event)" label="Add Option"  />
 				 </mx:HBox>
 				</mx:VBox>

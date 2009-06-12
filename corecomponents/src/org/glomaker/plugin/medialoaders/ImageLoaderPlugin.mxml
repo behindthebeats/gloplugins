@@ -5,12 +5,12 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.glomaker.shared.properties.PropertyField;
+			import org.glomaker.shared.properties.IComponentProperty;
 	
-			import org.glomaker.shared.properties.FilePathField;
+			import org.glomaker.shared.properties.FilePathProperty;
 			import org.glomaker.shared.component.BaseComponent;
 			
-			protected var sourceField:FilePathField;
+			protected var sourceField:FilePathProperty;
 
 			/**
 			 * Define components custom properties.
@@ -19,19 +19,19 @@
 			{
 				super.defineProperties();
 				
-				sourceField = new FilePathField("source", "Image path", "");
+				sourceField = new FilePathProperty("source", "Image path", "");
 				addProperty(sourceField);
 			}
 			
 			override public function propertyValuesInitialised():void
 			{
-				image.source = sourceField.value;
+				image.source = sourceField.propValue;
 			}
 			
-			override public function editablePropertyUpdated(prop:PropertyField):void
+			override public function editablePropertyUpdated(prop:IComponentProperty):void
 			{
 				if(prop == sourceField)
-					image.source = sourceField.value;
+					image.source = sourceField.propValue;
 			}
 			
 			

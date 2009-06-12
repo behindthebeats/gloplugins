@@ -4,19 +4,17 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.events.ChildExistenceChangedEvent;
-			import mx.events.FlexEvent;
-			import org.glomaker.shared.properties.PropertyField;
-			import org.glomaker.shared.properties.StringField;
-			import org.glomaker.shared.properties.BooleanField;
-			import org.glomaker.shared.properties.RichTextField;
+			import org.glomaker.shared.properties.BooleanProperty;
+			import org.glomaker.shared.properties.RichTextProperty;
+			import org.glomaker.shared.properties.IComponentProperty;
+			import org.glomaker.shared.properties.StringProperty;
 
 			// required to attach event listeners to textArea's internal textfield			
 			import mx.core.mx_internal;
 			
 			// custom component properties
-			protected var textValue:RichTextField; 
-			protected var border:BooleanField = new BooleanField("borderStyle", "Border", true);
+			protected var textValue:RichTextProperty; 
+			protected var border:BooleanProperty = new BooleanProperty("borderStyle", "Border", true);
 			
 			// used by fix for Issue 149 to reapply htmlText after border property was changed
 			protected var preStyleChangeHTML:String;
@@ -31,7 +29,8 @@
 				super.defineProperties();
 				
 				// add to properties list
-				textValue = new RichTextField(textArea, "htmlText", "Label text", "Enter text");
+				textValue = new RichTextProperty("htmlText", "Label text", "Enter text");
+				textValue.textArea = textArea;
 
 				addSaveableProperty(textValue);
 				addProperty(border);
@@ -39,11 +38,11 @@
 			
 			override public function propertyValuesInitialised():void
 			{
-				textArea.htmlText = textValue.value;
+				textArea.htmlText = textValue.propValue;
 				updateBorder();
 			}
 			
-			override public function editablePropertyUpdated(prop:PropertyField):void
+			override public function editablePropertyUpdated(prop:IComponentProperty):void
 			{
 				if(prop == border)
 				{
@@ -52,7 +51,7 @@
 				
 				if(prop == textValue)
 				{
-					textArea.htmlText = prop.value;
+					textArea.htmlText = prop.propValue;
 				}
 				
 			}
@@ -60,7 +59,7 @@
 			
 			override public function prepareValuesForSave():void
 			{
-				textValue.value = textArea.htmlText;
+				textValue.propValue = textArea.htmlText;
 			}
 			
 			/**
@@ -93,7 +92,7 @@
 				textArea.mx_internal::getTextField().addEventListener("textFieldStyleChange", onStyleChange, false, 0, true);
 				
 				// apply border styles
-				if(border.value)
+				if(border.propValue)
 				{
 					textArea.setStyle("borderStyle", "solid");
 				}else{

@@ -23,12 +23,12 @@
 
  <mx:Script>
  	<![CDATA[
- 		import org.glomaker.shared.properties.StringField;
+ 		import org.glomaker.shared.properties.StringProperty;
  	
  		import mx.core.UIComponent;
  		import mx.managers.PopUpManager;
 
-	 	public static function show(parent:UIComponent, property:StringField, title:String = "Enter Feedback"):Feedback
+	 	public static function show(parent:UIComponent, property:StringProperty, title:String = "Enter Feedback"):Feedback
 	 	{
 	 		var instance:Feedback = PopUpManager.createPopUp(parent, Feedback, true) as Feedback;
 	 		instance.relatedProp = property;
@@ -39,21 +39,21 @@
 	 		return instance;
 		}
 		
-		protected var _relatedProp:StringField;
+		protected var _relatedProp:StringProperty;
 		
-		public function set relatedProp(value:StringField):void
+		public function set relatedProp(value:StringProperty):void
 		{
 			_relatedProp = value;
-			textArea.text = _relatedProp.value;
+			textArea.text = _relatedProp.propValue;
 		}
-		public function get relatedProp():StringField
+		public function get relatedProp():StringProperty
 		{
 			return _relatedProp;
 		}
  	
 	 	public function clickOK(evt:Event):void
 	 	{
-	 		relatedProp.value = textArea.text;
+	 		relatedProp.propValue = textArea.text;
 	 		PopUpManager.removePopUp(this);
 	 	}
 	 	
