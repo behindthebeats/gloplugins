@@ -136,7 +136,7 @@
 			
 			override public function propertyValuesInitialised():void
 			{
-				swfLoader.filePath = filePath.propValue;
+				switchLoader.filePath = filePath.propValue;
 				_playControl = playControl.propValue;
 				_labelControl = nextLabelControl.propValue;
 				controls.setStyle("backgroundColor", bgColour.propValue);
@@ -150,7 +150,7 @@
 				switch(prop)
 				{
 					case filePath:
-						swfLoader.filePath = filePath.propValue;
+						switchLoader.filePath = filePath.propValue;
 						break;
 						
 					case playControl:
@@ -175,7 +175,7 @@
 		 	*/
 		 	protected function onPlay(evt:MouseEvent):void
 		 	{
-				swfLoader.play();
+				switchLoader.play();
 		 	}
 		 	
 		 	/**
@@ -183,7 +183,7 @@
 		 	*/
 		 	protected function onStop(evt:MouseEvent):void
 		 	{
-		 		swfLoader.stop();
+		 		switchLoader.stop();
 		 	}
 			
 			/**
@@ -227,7 +227,7 @@
 				
 				if(nextFrameLabel != null)
 				{
-					(swfLoader.content as MovieClip).gotoAndStop(getNextFrameLabel().frame);
+					(switchLoader.swfLoader.content as MovieClip).gotoAndStop(getNextFrameLabel().frame);
 				}
 				
 			}
@@ -241,7 +241,7 @@
 				
 				if(previousFrameLabel != null)
 				{
-					(swfLoader.content as MovieClip).gotoAndStop(getPreviousFrameLabel().frame);
+					(switchLoader.swfLoader.content as MovieClip).gotoAndStop(getPreviousFrameLabel().frame);
 				}
 			}
 			
@@ -298,11 +298,11 @@
 		 	*/
 			protected function getCurrentLabelIndex():int
 			{
-				if(labels != null && (swfLoader.content as MovieClip) != null)
+				if(labels != null && (switchLoader.swfLoader.content as MovieClip) != null)
 				{
 					for(var i:uint=0; i<labels.length; i++)
 					{
-						if((swfLoader.content as MovieClip).currentLabel == (labels[i] as FrameLabel).name)
+						if((switchLoader.swfLoader.content as MovieClip).currentLabel == (labels[i] as FrameLabel).name)
 						{
 							return i;
 						}
@@ -317,12 +317,12 @@
 		 	*/
 			protected function onLoadSWF(evt:Event):void
 			{
-				var info:LoaderInfo = swfLoader.loaderInfo;
+				var info:LoaderInfo = switchLoader.swfLoader.loaderInfo;
 				
 				if(info != null)
 				{	
 					// what if we have an AVM1 Movie?
-					if(swfLoader.content is AVM1Movie)
+					if(switchLoader.swfLoader.content is AVM1Movie)
 					{				
 						playControl.propValue = true;
 						nextLabelControl.propValue = false;
@@ -330,7 +330,7 @@
 						return;
 					}
 					
-					if(info.contentType != "application/x-shockwave-flash" || swfLoader.content is MovieClip == false  && container.getChildByName("controls") != null)
+					if(info.contentType != "application/x-shockwave-flash" || switchLoader.swfLoader.content is MovieClip == false  && container.getChildByName("controls") != null)
 					{
 						// no need for transport controls, this is not a MovieClip
 						playControl.propValue = false;
@@ -353,7 +353,7 @@
 					{
 						// we haven't got the controls but we need them, if the SWF is a MovieClip
 						
-						if(swfLoader.content is MovieClip)
+						if(switchLoader.swfLoader.content is MovieClip)
 						{
 							playControl.propValue = true;
 							nextLabelControl.propValue = true;
@@ -365,9 +365,9 @@
 					
 				}
 				
-				if(swfLoader.content is MovieClip)
+				if(switchLoader.swfLoader.content is MovieClip)
 				{
-					labels = (swfLoader.content as MovieClip).currentLabels;
+					labels = (switchLoader.swfLoader.content as MovieClip).currentLabels;
 				}
 			}
 			
@@ -404,9 +404,8 @@
 		/>-->
 		
 		<swfloader:SwitchLoader width="100%" height="100%"
-			id="swfLoader"
-			styleName="missingImageStyle"
-			complete="onLoadSWF(event)"/>
+			id="switchLoader"
+			styleName="missingImageStyle"/>
 		
 		<mx:HBox width="100%"
 			id="controls" horizontalGap="2"

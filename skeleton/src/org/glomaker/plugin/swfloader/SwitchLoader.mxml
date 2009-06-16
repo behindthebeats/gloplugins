@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:SWFLoader xmlns:mx="http://www.adobe.com/2006/mxml"
-	complete="onSWFLoaderComplete(event)"
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 	initialize="init()">
 	
 	<mx:Script>
@@ -8,13 +7,14 @@
 		
 			private var _filePath:String;
 			private var _AVM1Mode:Boolean;
+			private var _AVM1Loader:SWFLoader;
 			
 			/**
 		 	* Embed localConnection SWF.
 		 	*/
 			[Bindable]
 			[Embed(source="org/glomaker/plugin/swfloader/assets/localConnection.swf")]	
-			public var localConnection:Class;
+			public var LC:Class;
 			
 			/**
 		 	* Store local connection.
@@ -24,6 +24,10 @@
 			protected function init():void
 			{
 				_AVM1Mode = false;
+				_AVM1Loader = new SWFLoader();
+				_AVM1Loader.id = "swfLoader";
+				_AVM1Loader.source = LC;
+				
 				AVM_lc = new CustomLocalConnection("AVM1toAVM2");
 				AVM_lc.addEventListener(Event.COMPLETE, onAVM1LoaderComplete);
 				AVM_lc.addEventListener(CustomLocalConnection.PING, onPing);
@@ -33,17 +37,25 @@
 			
 			protected function onSWFLoaderComplete(evt:Event):void
 			{
-			trace("-------------------------------"+content, content.name, content.loaderInfo.loaderURL);
-				if(content is AVM1Movie && _AVM1Mode == false)
+				if(swfLoader.content is AVM1Movie && _AVM1Mode == false)
 				{
-					load(localConnection);
+					//removeChild(swfLoader);
+					addChild(_AVM1Loader);
+					AVM_lc.send("AVM2toAVM1", "load", "file:///"+_filePath);
 					
-					// check to see if AVM1 loader is already in place
-					// AVM_lc.send("AVM2toAVM1", "ping");
 					_AVM1Mode = true;
-				}else if(!content is AVM1Movie)
+					
+				}else if(swfLoader.content is AVM1Movie && _AVM1Mode == true)
 				{
-					_AVM1Mode = false;
+					AVM_lc.send("AVM2toAVM1", "load", "file:///"+_filePath);
+					
+				}else if(!swfLoader.content is AVM1Movie)
+				{
+					
+					
+					//addChild(swfLoader);
+					//removeChild(_AVM1Loader)
+					_AVM1Mode = false;;
 				}
 			}
 			
@@ -67,12 +79,12 @@
 			{
 				if(_AVM1Mode)
 				{
-					 AVM_lc.send("AVM2toAVM1", "ping");
+					 AVM_lc.send("AVM2toAVM1", "play");
 				}
 				
-				if(content is MovieClip)
+				if(swfLoader.content is MovieClip)
 				{
-					(content as MovieClip).stop();
+					(swfLoader.content as MovieClip).stop();
 				}
 				//var lc:LocalConnection = localConnection();
 				//lc.send("AVM2toAVM1", "ping");
@@ -87,16 +99,16 @@
 					AVM_lc.send("AVM2toAVM1", "stop");
 				}
 				
-				if(content is MovieClip)
+				if(swfLoader.content is MovieClip)
 				{
-					(content as MovieClip).stop();
+					(swfLoader.content as MovieClip).stop();
 				}
 			}
 			
 			public  function set filePath(path:String):void
 			{
 				_filePath = path;
-				load(path);
+				swfLoader.load(path);
 			}
 			
 			public  function get filePath():String
@@ -108,4 +120,5 @@
 		]]>
 	</mx:Script>
 	
-</mx:SWFLoader>
+	<mx:SWFLoader id="swfLoader" width="100%" height="100%"/>
+</mx:Canvas>
