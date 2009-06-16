@@ -8,14 +8,11 @@ package testing
 	import mx.controls.TextInput;
 	import mx.core.UIComponent;
 	
-	import org.glomaker.shared.component.interfaces.IComponentControl;
 	import org.glomaker.shared.component.interfaces.IComponentPlugin;
-	import org.glomaker.shared.component.plugincontrols.BaseComponentControl;
-	import org.glomaker.shared.component.plugincontrols.PluginTextInputControl;
-	import org.glomaker.shared.properties.FilePathField;
-	import org.glomaker.shared.properties.IntegerField;
-	import org.glomaker.shared.properties.NumberField;
-	import org.glomaker.shared.properties.StringField;
+	import org.glomaker.shared.properties.FilePathProperty;
+	import org.glomaker.shared.properties.IntegerProperty;
+	import org.glomaker.shared.properties.NumberProperty;
+	import org.glomaker.shared.properties.StringProperty;
 	
 	/**
 	 * For testing purposes only. Fakes the main app to test components.
@@ -102,7 +99,7 @@ package testing
 				}
 			}
 		}
-		protected function processNumberField(field:NumberField):void
+		protected function processNumberField(field:NumberProperty):void
 		{
 			// we need to create a field into which numbers can be displayed and edited
 			// the first four relate to width, height, x and y
@@ -121,7 +118,7 @@ package testing
 		
 		}
 		
-		protected function processIntegerField(field:IntegerField):void
+		protected function processIntegerField(field:IntegerProperty):void
 		{
 			// NILS: removed some of this code as the min/max properties have now been removed
 
@@ -197,12 +194,12 @@ package testing
 			
 			_component[propName] = propertyField.pluginPropertyValue; */
 		}
-		protected function processFilePathField(field:FilePathField):void
+		protected function processFilePathField(field:FilePathProperty):void
 		{
 			
 		}
 		
-		protected function processStringField(field:StringField):void
+		protected function processStringField(field:StringProperty):void
 		{
 			var t:TextInput = new TextInput();
 			t.text = field.value;

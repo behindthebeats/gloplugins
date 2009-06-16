@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:SWFLoader xmlns:mx="http://www.adobe.com/2006/mxml"
+	complete="onSWFLoaderComplete(event)"
+	initialize="init()"
+	unload="onUnload(event)">
+	
+	<mx:Script>
+		<![CDATA[
+		
+			private var _filePath:String;
+			private var _AVM1Mode:Boolean;
+			
+			/**
+		 	* Embed localConnection SWF.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/localConnection.swf")]	
+			public var localConnection:Class;
+			
+			/**
+		 	* Store local connection.
+		 	*/
+			protected var AVM_lc:LocalConnection;
+			
+			protected function init():void
+			{
+				_AVM1Mode = false;
+				AVM_lc = new LocalConnection();
+				AVM_lc.connect("AVM1toAVM2");
+				AVM_lc.client
+				AVM_lc.addEventListener(StatusEvent.STATUS, onStatusError);
+				
+			}
+			
+			/*  public function loaded():void
+			{
+				
+			} */ 
+			
+			/* protected function onSWFLoaderInitialised(evt:Event):void
+			{
+				// carry out checks on incoming file to see if it is an AVM1 Movie
+				if(content is AVM1Movie)
+				{
+					source = localConnection;
+				}
+			} */
+			
+			
+			protected function loadAVM1(filepath:String):void 
+			{
+			    AVM_lc.send("AVM2toAVM1", "load", "file:///D:/RLOs/Referencing%20Books_v2/locateRef.swf");
+			
+			}
+			
+			protected function playAVM1():void 
+			{
+			    //AVM_lc.send("AVM2toAVM1", "play");
+			    AVM_lc.send("AVM2toAVM1", "load", "file:///D:/RLOs/Referencing%20Books_v2/locateRef.swf");
+			}
+			
+			protected function onSWFLoaderComplete(evt:Event):void
+			{
+				if(content is AVM1Movie)
+				{
+					source = localConnection;
+					
+					loadAVM1("dummy");
+					
+					_AVM1Mode = true;
+				}
+				else
+				{
+					_AVM1Mode = false;
+				}
+			}
+			
+			protected function onUnload(evt:Event):void
+			{
+				trace("Unload: "+content);
+			}
+			
+			protected function onStatusError(evt:StatusEvent):void
+			{
+				trace("Local Connection Status Error: " + evt);
+			}
+			
+			public function play():void
+			{
+				if(_AVM1Mode)
+				{
+					playAVM1();
+				}
+				else if(content is MovieClip)
+				{
+					(content as MovieClip).play();
+				}
+			}
+			
+			public function stop():void
+			{
+				
+			}
+			
+			public  function set filePath(path:String):void
+			{
+				trace("From SwitchLoader :" + path);
+				_filePath = path;
+				source = path;
+			}
+			
+			public  function get filePath():String
+			{
+				return _filePath;
+			}
+			
+			
+		]]>
+	</mx:Script>
+	
+</mx:SWFLoader>

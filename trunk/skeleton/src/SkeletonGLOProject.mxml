@@ -8,7 +8,7 @@
 			import testing.DummyApplication;
 
 
-			private var _dummyApp:DummyApplication;
+			//private var _dummyApp:DummyApplication;
 			private var _optimization:Object = PluginOptimiser;
 			private var _isEditState:Boolean = false;
 			
