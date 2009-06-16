@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:SWFLoader xmlns:mx="http://www.adobe.com/2006/mxml"
 	complete="onSWFLoaderComplete(event)"
-	initialize="init()"
-	unload="onUnload(event)">
+	initialize="init()">
 	
 	<mx:Script>
 		<![CDATA[
@@ -20,64 +19,43 @@
 			/**
 		 	* Store local connection.
 		 	*/
-			protected var AVM_lc:LocalConnection;
+			protected var AVM_lc:CustomLocalConnection;
 			
 			protected function init():void
 			{
 				_AVM1Mode = false;
-				AVM_lc = new LocalConnection();
-				AVM_lc.connect("AVM1toAVM2");
-				AVM_lc.client
+				AVM_lc = new CustomLocalConnection("AVM1toAVM2");
+				AVM_lc.addEventListener(Event.COMPLETE, onAVM1LoaderComplete);
+				AVM_lc.addEventListener(CustomLocalConnection.PING, onPing);
 				AVM_lc.addEventListener(StatusEvent.STATUS, onStatusError);
 				
 			}
 			
-			/*  public function loaded():void
-			{
-				
-			} */ 
-			
-			/* protected function onSWFLoaderInitialised(evt:Event):void
-			{
-				// carry out checks on incoming file to see if it is an AVM1 Movie
-				if(content is AVM1Movie)
-				{
-					source = localConnection;
-				}
-			} */
-			
-			
-			protected function loadAVM1(filepath:String):void 
-			{
-			    AVM_lc.send("AVM2toAVM1", "load", "file:///D:/RLOs/Referencing%20Books_v2/locateRef.swf");
-			
-			}
-			
-			protected function playAVM1():void 
-			{
-			    //AVM_lc.send("AVM2toAVM1", "play");
-			    AVM_lc.send("AVM2toAVM1", "load", "file:///D:/RLOs/Referencing%20Books_v2/locateRef.swf");
-			}
-			
 			protected function onSWFLoaderComplete(evt:Event):void
 			{
-				if(content is AVM1Movie)
+			trace("-------------------------------"+content, content.name, content.loaderInfo.loaderURL);
+				if(content is AVM1Movie && _AVM1Mode == false)
 				{
-					source = localConnection;
+					load(localConnection);
 					
-					loadAVM1("dummy");
-					
+					// check to see if AVM1 loader is already in place
+					// AVM_lc.send("AVM2toAVM1", "ping");
 					_AVM1Mode = true;
-				}
-				else
+				}else if(!content is AVM1Movie)
 				{
 					_AVM1Mode = false;
 				}
 			}
 			
-			protected function onUnload(evt:Event):void
+			protected function onAVM1LoaderComplete(evt:Event):void
 			{
-				trace("Unload: "+content);
+				trace("GOT TO GET HERE!!!!");
+				AVM_lc.send("AVM2toAVM1", "load", "file:///"+_filePath);
+			}
+			
+			protected function onPing(evt:Event):void
+			{
+				trace("PING");
 			}
 			
 			protected function onStatusError(evt:StatusEvent):void
@@ -89,24 +67,36 @@
 			{
 				if(_AVM1Mode)
 				{
-					playAVM1();
+					 AVM_lc.send("AVM2toAVM1", "ping");
 				}
-				else if(content is MovieClip)
+				
+				if(content is MovieClip)
 				{
-					(content as MovieClip).play();
+					(content as MovieClip).stop();
 				}
+				//var lc:LocalConnection = localConnection();
+				//lc.send("AVM2toAVM1", "ping");
+				//AVM_lc.send();
 			}
 			
 			public function stop():void
 			{
+				if(_AVM1Mode)
+				{
+					trace("STOP");
+					AVM_lc.send("AVM2toAVM1", "stop");
+				}
 				
+				if(content is MovieClip)
+				{
+					(content as MovieClip).stop();
+				}
 			}
 			
 			public  function set filePath(path:String):void
 			{
-				trace("From SwitchLoader :" + path);
 				_filePath = path;
-				source = path;
+				load(path);
 			}
 			
 			public  function get filePath():String

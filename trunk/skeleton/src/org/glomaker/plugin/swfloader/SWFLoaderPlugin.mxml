@@ -76,18 +76,6 @@
 			public var backRolloverBtn:Class;
 			
 			/**
-		 	* Embed localConnection SWF.
-		 	*/
-			/* [Bindable]
-			[Embed(source="org/glomaker/plugin/swfloader/assets/localConnection.swf")]	
-			public var localConnection:Class; */
-			
-			/**
-		 	* Store local connection.
-		 	*/
-			//protected var AVM_lc:LocalConnection;
-			
-			/**
 		 	* Stores any labels within the current scene of a MovieClip.
 		 	*/
 			protected var labels:Array;
@@ -126,11 +114,6 @@
 		 	* Stores a true or false value relating to the existence of the jump button.
 		 	*/
 			private var _labelControl:Boolean = true;
-			
-			/**
-		 	* Stores a true or false value identifying AVM1 movies.
-		 	*/
-			//private var _isAVM1Movie:Boolean = false;
 
 			/**
 		 	* Called by GLOMaker when the properties need to be defined.
@@ -148,9 +131,7 @@
 
 				addProperty(playControl);
 				addProperty(nextLabelControl);
-				
-				//AVM_lc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurity);
-				//AVM_lc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsynch);
+
 			}
 			
 			override public function propertyValuesInitialised():void
@@ -189,31 +170,12 @@
 				}
 			}
 			
-			
-			private function onSecurity(evt:SecurityErrorEvent):void
-			{
-				// trace(evt.text);
-			}
-			
-			private function onAsynch(evt:AsyncErrorEvent):void
-			{
-				// trace(evt.text);
-			}
-			
-			
 			/**
 		 	* Causing the loaded movie to play.
 		 	*/
-		 	protected function onStart(evt:MouseEvent):void
+		 	protected function onPlay(evt:MouseEvent):void
 		 	{
-	
-				//loadAVM1("dummY");
 				swfLoader.play();
-				
-				if(swfLoader.content is AVM1Movie)
-				{
-					
-				}
 		 	}
 		 	
 		 	/**
@@ -221,16 +183,7 @@
 		 	*/
 		 	protected function onStop(evt:MouseEvent):void
 		 	{
-		 		if(swfLoader.content is MovieClip)
-				{
-					(swfLoader.content as MovieClip).play();	
-				}
-		 		if(swfLoader.content is MovieClip)
-				{
-					(swfLoader.content as MovieClip).stop();	
-				}
-				
-				//playAVM1();
+		 		swfLoader.stop();
 		 	}
 			
 			/**
@@ -274,8 +227,6 @@
 				
 				if(nextFrameLabel != null)
 				{
-					// play.visible = true;
-					// stop.visible = false;
 					(swfLoader.content as MovieClip).gotoAndStop(getNextFrameLabel().frame);
 				}
 				
@@ -290,8 +241,6 @@
 				
 				if(previousFrameLabel != null)
 				{
-					// play.visible = true;
-					// stop.visible = false;
 					(swfLoader.content as MovieClip).gotoAndStop(getPreviousFrameLabel().frame);
 				}
 			}
@@ -372,26 +321,13 @@
 				
 				if(info != null)
 				{	
-					// now for the tricky part. What if we have an AVM1 Movie?
+					// what if we have an AVM1 Movie?
 					if(swfLoader.content is AVM1Movie)
-					{
-						// create local connection
-						//if(AVM_lc == null)
-						//{
-							//AVM_lc = new LocalConnection();
-						//	//AVM_lc.addEventListener(StatusEvent.STATUS, onStatusError);
-						//}
-						//trace("--------------"+swfLoader.content, swfLoader.content is MovieClipLoaderAsset, filePath.propValue);
-						// swfLoader.source = ;
-						//swfLoader.load(localConnection);
-						//trace("--------------"+swfLoader.content, swfLoader.content is MovieClipLoaderAsset);
-						//loadAVM1(filePath.propValue);
-						
+					{				
 						playControl.propValue = true;
 						nextLabelControl.propValue = false;
 						
 						return;
-						//_isAVM1Movie = true;	
 					}
 					
 					if(info.contentType != "application/x-shockwave-flash" || swfLoader.content is MovieClip == false  && container.getChildByName("controls") != null)
@@ -400,7 +336,6 @@
 						playControl.propValue = false;
 						nextLabelControl.propValue = false;
 						container.removeChild(controls);
-						//_isAVM1Movie = false;
 						
 						return;
 					}
@@ -410,7 +345,6 @@
 						// transport controls already gone. Get out of here
 						playControl.propValue = false;
 						nextLabelControl.propValue = false;
-						//_isAVM1Movie = false;
 						
 						return;
 					} 
@@ -427,16 +361,13 @@
 							
 						}
 						
-					}
-					
+					}				
 					
 				}
 				
-
 				if(swfLoader.content is MovieClip)
 				{
 					labels = (swfLoader.content as MovieClip).currentLabels;
-					//_isAVM1Movie = false;
 				}
 			}
 			
@@ -474,7 +405,8 @@
 		
 		<swfloader:SwitchLoader width="100%" height="100%"
 			id="swfLoader"
-			styleName="missingImageStyle"/>
+			styleName="missingImageStyle"
+			complete="onLoadSWF(event)"/>
 		
 		<mx:HBox width="100%"
 			id="controls" horizontalGap="2"
@@ -502,7 +434,7 @@
 					upSkin="{playBtn}"
 					overSkin="{playRolloverBtn}"
 					downSkin="{playRolloverBtn}"
-					click="onStart(event)"/>
+					click="onPlay(event)"/>
 									
 				<mx:Button width="32"
 					id="fwd" 
