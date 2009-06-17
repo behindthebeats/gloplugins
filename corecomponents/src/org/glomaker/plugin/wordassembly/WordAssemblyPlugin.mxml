@@ -53,7 +53,6 @@
 			
 				// list of answers
 				_textList = new ArrayProperty("textList", "", []);
-				addElement();
 				addSaveableProperty(_textList);
 				
 				// submit button text
@@ -80,6 +79,14 @@
 			{
 				submitButton.label = _submitButtonText.propValue;
 				resetButton.label = _resetButtonText.propValue;
+
+				// default to 3 buttons				
+				if(_textList.valueArray.length == 0)
+				{
+					addElement();
+					addElement();
+					addElement();
+				}
 				
 				updateRepeaterData();
 			}
