@@ -41,6 +41,10 @@
 					break;
 			}
 		}
+		
+		override public function hasEditMode():Boolean{
+			false;
+		}
 
 	]]>
 </mx:Script>
