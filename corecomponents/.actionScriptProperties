@@ -33,6 +33,7 @@
 <module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/wordassembly/WordAssemblyPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/wordassembly/WordAssemblyPlugin.mxml"/>
 <module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/stage/londonmet/LondonMetNavBar.swf" optimize="true" sourcePath="src/org/glomaker/stage/londonmet/LondonMetNavBar.mxml"/>
 <module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/stage/swirl/SwirlNavBar.swf" optimize="true" sourcePath="src/org/glomaker/stage/swirl/SwirlNavBar.mxml"/>
+<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/stage/cetl/CETLNavBar.swf" optimize="true" sourcePath="src/org/glomaker/stage/cetl/CETLNavBar.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>
