@@ -42,8 +42,9 @@
 			}
 		}
 		
-		override public function hasEditMode():Boolean{
-			false;
+		override public function hasEditMode():Boolean
+		{
+			return false;
 		}
 
 	]]>
