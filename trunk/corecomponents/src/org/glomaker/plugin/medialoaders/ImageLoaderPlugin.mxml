@@ -34,6 +34,11 @@
 					image.source = sourceField.propValue;
 			}
 			
+			override public function hasEditMode():Boolean
+			{
+				return false;
+			}
+			
 			
 		]]>
 	</mx:Script>
