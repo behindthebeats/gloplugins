@@ -11,8 +11,8 @@
 			import org.glomaker.shared.properties.FilePathProperty;
 			import org.glomaker.shared.component.BaseComponent;
 			
-			public var sourceField:FilePathProperty;
-			public var maintainRatioField:BooleanProperty;
+			protected var sourceField:FilePathProperty;
+			protected var maintainRatioField:BooleanProperty;
 
 			/**
 			 * Define components custom properties.
