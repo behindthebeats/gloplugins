@@ -40,8 +40,12 @@ xmlns:controls="com.fxcomponents.controls.*">
 			{
 				if(prop == videoSource)
 					vidPlayer.source = videoSource.propValue;
-			}	
+			}
 			
+			override public function hasEditMode():Boolean
+			{
+				return false;
+			}
 
 		]]>
 	</mx:Script>

@@ -146,6 +146,10 @@
 				buildTransportControls();
 			}
 			
+			override public function hasEditMode():Boolean
+			{
+				return false;
+			}
 			
 			override public function editablePropertyUpdated(prop:IComponentProperty):void
 			{
