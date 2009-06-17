@@ -39,8 +39,8 @@
 			// ****************************************
 
 			[Bindable]
-			[Embed(source="assets/londonmet_logo.png")]
-			protected static var logo:Class;
+			[Embed(source="assets/cetl_logo.png")]
+			protected static var cetlLogo:Class;
 
 
 
@@ -107,6 +107,8 @@
 	<mx:Canvas width="100%" height="100%"
 		backgroundColor="#ffffff">
 
+		<mx:HRule width="100%" strokeWidth="1" strokeColor="#999999" left="10" right="10" top="10"/>
+
 		<mx:Text id="statusField"
 			fontWeight="bold"
 			color="#000000"
@@ -117,8 +119,8 @@
 			mouseChildren="false"
 			width="100%"/>
 			
-		<mx:Image source="{logo}" top="0" left="10"/>
-		<mx:Button id="previous" width="90" top="16" left="100" styleName="navButton" label="Previous" click="goPrevious()"/>
+		<mx:Button id="previous" width="90" top="16" left="10" styleName="navButton" label="Previous" click="goPrevious()"/>
+		<mx:Image source="{cetlLogo}" top="13" right="118"/>
 		<mx:Button id="next" width="90" top="16" right="10" styleName="navButton" label="Next" click="goNext()"/>
 		
 	</mx:Canvas>
