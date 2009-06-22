@@ -201,7 +201,7 @@
 			{
 				currentState = "EditState";
 			}
-			
+			 
 			// Add new line of Answer (option) including the feedback!
 			protected function onAddAnswer(evt:MouseEvent):void
 			{
