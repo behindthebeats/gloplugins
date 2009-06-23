@@ -3,24 +3,21 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	layout="absolute"
 	horizontalScrollPolicy="off" verticalScrollPolicy="off"
- 	currentState="DisplayState"
  	creationComplete="init()"
- 	themeColor="haloSilver" xmlns:mcq="org.glomaker.plugin.mcq.*" xmlns:editbutton="org.glomaker.shared.ui.editbutton.*" xmlns:utils="org.glomaker.shared.component.utils.*">
+ 	themeColor="haloSilver" xmlns:mcq="org.glomaker.plugin.mcq.*" xmlns:editbutton="org.glomaker.shared.ui.editbutton.*" xmlns:utils="org.glomaker.shared.component.utils.*" xmlns:ui="org.glomaker.shared.ui.*">
     
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
+			import mx.messaging.SubscriptionInfo;
 			import org.glomaker.shared.properties.NumericStepperProperty;
 			import org.glomaker.shared.properties.ArrayProperty;
 			import org.glomaker.shared.properties.IntegerProperty;
 			import org.glomaker.shared.properties.IComponentProperty;
-			import mx.states.AddChild;
 			import mx.core.UIComponent;
 			import mx.collections.ArrayCollection;
 			import org.glomaker.shared.properties.StringProperty;
 			import mx.controls.RadioButton;
 			import flash.events.FocusEvent;
-			import mx.controls.TextInput;
 
 			/**
 			 * Default images embed
@@ -32,11 +29,15 @@
 			[Bindable]
 			[Embed(source="cross.png")]
 			protected var cross:Class;
+
+			[Bindable]
+			protected var inEditMode:Boolean = false;		
+
 			
 			// ------------------
 			// QUIZ PROPERTIES
 			// ------------------
- 
+
 			protected var _question:StringProperty = new StringProperty("question", "Question:", "Type your question here...");
 			public var _correctAnswer:IntegerProperty = new IntegerProperty("correct", "Correct Answer (0, 1, 2, ...)", -1);
 			protected var _answers:ArrayProperty = new ArrayProperty("answers", "Answers", []);
@@ -44,9 +45,6 @@
 			protected var _fontSize:NumericStepperProperty = new NumericStepperProperty("fontSize","Font Size",15);
 			protected var _submitTitle:StringProperty = new StringProperty("submit", "Submit", "Submit");
 
-            // currently selected answer
-            protected var _currentAnswer:int = -1; 
-            
             // User interface panels
             private var feedback:Feedback;
             private var result:Result;
@@ -109,9 +107,6 @@
 				
 				// initial feedbacks				
 				addSaveableProperty(_feedbacks);
-				
-				// show display state
-				toDisplayState();
 			}
 			
 			
@@ -155,15 +150,54 @@
 				}
 			}
 			
+		 
+			// Change the mode of the component between edit (true) and display (false) modes
+			override public function setEditMode(f:Boolean):void
+			{
+				if(f == inEditMode)
+					return;
+				
+				// changed
+				// if we're currently in edit mode, save all changed values now
+				if( inEditMode )
+					saveCorrectAnswer();
+
+				// update flag
+				inEditMode = f;
+				
+				// initialise to the correct behaviour
+				if(inEditMode)
+				{
+					// currently in edit mode
+					answerGroup.selectedValue = currentCorrectAnswer;
+				
+				}else{
+					// not in edit mode
+					hideButtons();
+					answerGroup.selection = null;
+				}
+			}			
+			
 			override public function prepareValuesForSave():void
 			{
-				saveAnswerFields();
+				// save correct answer
+				saveCorrectAnswer();
 				
-				_submitTitle.propValue = currentSubmitTitle;
-				_question.propValue = currentQuestion;
+				// save answer fields
+				var list:Array = [];
+				var ta:DynamicTextArea;
+				
+				for each(ta in editAnswerArray)
+				{
+					list.push(ta.text);
+				}
+
+				// update exposed component properties				
+				_submitTitle.propValue = editableSubmitButton.label;
+				_question.propValue = questionEdit.text;
 				_correctAnswer.propValue = currentCorrectAnswer;
 				
-				_answers.propValue = answerCollection.source.concat();
+				_answers.propValue = list;
 				_feedbacks.propValue = feedbackCollection.source.concat();
 				
 				// fontsize doesn't need updating as it's already an editable property
@@ -181,59 +215,80 @@
 				
 				result = null;
 			}
+			
+			
+
+
+			/**
+			 * If the component is currently in edit mode, this method will
+			 * update the value of 'currentCorrectAnswer' with the currently selected radio button.
+			 * 
+			 * NB: If you change the dataprovider of the repeater just before calling this method,
+			 * the radio button instances will have been destroyed and the result stored in currentCorrectAnswer will be incorrect!
+			**/
+			protected function saveCorrectAnswer():void
+			{
+				if(!inEditMode)
+					return;
+					
+				currentCorrectAnswer = answerGroup.selection ? answerGroup.selectedValue as int : -1;
+			}
 
 			
 			
-			// Switch between Edit and Display states
-			public function toggleState():void
-			{
-				if(currentState == "EditState")
-				{
-					toDisplayState();
-				}else
-				{
-					toEditState();
-				}
-			}
 		 	
-			// Set currentState to Display state
-			public function toDisplayState():void
-			{
-				currentState = "DisplayState";
-			}
-		 	
-			// Set currentState to Edit state
-			public function toEditState():void
-			{
-				currentState = "EditState";
-			}
-			 
 			// Add new line of Answer (option) including the feedback!
 			protected function onAddAnswer(evt:MouseEvent):void
 			{
-				// make sure array collection is currently storing correct elements
-				saveAnswerFields();
+				// save correct answer before the repeater's dataprovider is updated
+				saveCorrectAnswer();
 				
 				// add a new answer and a new feedback item
 				var index:int = answerCollection.length + 1;
 				
 				answerCollection.addItem("Answer " + index);
 				feedbackCollection.addItem("Feedback " + index);
+				
+				// the repeater will have updated its values - update the 
 			}
 
             // Submit an answer and recieve the feedback
 			protected function onSubmitFeedback(evt:MouseEvent):void
 			{
-				result.show(this);
+				if(inEditMode)
+					return;
+					
+				// show result for selected answer
+				var selectedIndex:int = (answerGroup.selection ? answerGroup.selectedValue as int : -1);
 				
-				if(_currentAnswer != -1 && _currentAnswer == currentCorrectAnswer){
-					result.answerImage.source = tick;
-				}
-				 else{
-					result.answerImage.source = cross;
-				 }
+				if(selectedIndex > -1)
+				{
+					result.show(this);
+					
+					// show appropriate image in feedback popup
+					if(selectedIndex == currentCorrectAnswer){
+						result.answerImage.source = tick;
+					}else{
+						result.answerImage.source = cross;
+					 }
 				 
-				result.text = feedbackCollection.getItemAt(_currentAnswer) as String;
+					result.text = feedbackCollection.getItemAt(selectedIndex) as String;
+				}
+			}
+			
+			
+			/**
+			 * Repeater has finished creating its elements.
+			**/
+			protected function onRepeatEnd():void
+			{
+				// radiobuttons have been (re)created
+				// update their group to the correct selection
+				// we only do this in edit mode - in normal mode the user has to select the right answer
+				if(inEditMode)
+					answerGroup.selectedValue = currentCorrectAnswer;
+				else
+					answerGroup.selection = null;
 			}
             
             // Modify the hidden component to the value of the new feedback (use the currentIndex set at editFeedback)
@@ -254,9 +309,10 @@
             // Delete and answer/feedback
 			protected function deleteAnswer( event:MouseEvent ):void
 			{ 
-				// make sure all changes have been saved
-				saveAnswerFields();
+				// save selected answer before changing repeater dataprovider
+				saveCorrectAnswer();
 				
+				// update
 				var index:int = Button(event.target).data as int;
 				
 				// Use the same pointer to modify the answers and feedback arrays (they must always have same number of elements)
@@ -272,12 +328,18 @@
 					else if(currentCorrectAnswer > index)
 						currentCorrectAnswer--;
 					
+					// update the radio group
+					answerGroup.selectedValue = currentCorrectAnswer;
+					
 				}catch(evt:Error){}
 			}
 			
 			// show the feedback, delete buttons
 			protected function showButtons(evt:FocusEvent):void
 			{
+				if(!inEditMode)
+					return;
+					
 				var index:int = (editAnswerArray as Array).indexOf(evt.currentTarget);
 
 				var i:uint;
@@ -303,69 +365,6 @@
 					uic.visible = false;
 			}
 
-
-			// Set the current answer (awaiting submission, edit mode)
-			protected function editAnswerRadioSelect(evt:MouseEvent):void
-			{
-				
-				var index:int = (editRadioArray as Array).indexOf(evt.target);
-				
-				if(index >= 0)
-				{
-					currentCorrectAnswer = index;
-				}
-			}
-			
-            // Enable the submit button once an answer has been chosen
-			protected function displayAnswerRadioSelect(evt:MouseEvent):void
-			{
-				var index:int = (displayRadioArray as Array).indexOf(evt.target);
-				
-				if(index >= 0)
-				{
-					_currentAnswer = index;
-				}
-				
-				submitButton.enabled = true;
-
-			}
-
-		// Change the mode of the component between edit (true) and display (false) modes 
-		override public function setEditMode(f:Boolean):void{
-		 if(f){
-		 	toEditState();
-		 } else {
-		 	toDisplayState();
-		 }
-		}
-		
-		// Copy values of the controls to the properties
-		protected function onExitEditState():void
-		{
-			 currentQuestion = questionEdit.text;
-			 currentSubmitTitle = editableSubmitButton.label;
-			 
-			 // save text and selected answer from edit TextInputs into the collection
-			 saveAnswerFields();
-		}
-		
-		protected function saveAnswerFields():void
-		{
-			// only do this if currently in edit mode
-			if(currentState != "EditState")
-				return;
-				
-			// save answer texts
-			var coll:ArrayCollection = new ArrayCollection();
-			var ti:TextInput;
-			
-			for each(ti in editAnswerArray)
-			{
-				coll.addItem(ti.text);
-			}
-			
-			answerCollection = coll;
-		}
 			
 		]]>
 	</mx:Script>
@@ -394,78 +393,69 @@
 		
 	</mx:Style>
 
-	<states>
-		<mx:State name="DisplayState">
-			<mx:AddChild position="lastChild">
-				<mx:VBox width="100%" height="100%">
-					<mx:RadioButtonGroup id="displayGroup"/>
-					<mx:Text
-						id="questionDisplay"
-						fontSize="{currentFontSize}"
-						selectable="false"
-						width="100%"
-						minHeight="25"
-						text="{currentQuestion}"/>
-						<mx:VBox width="100%" height="100%">
-							<mx:Repeater id="answerDisplayRP" dataProvider="{answerCollection}">
-								<mx:HBox verticalAlign="middle" height="100%">
-									<mx:RadioButton id="displayRadioArray" fontSize="{currentFontSize}" groupName="displayGroup" click="displayAnswerRadioSelect(event)"/>
-									<mx:Label width="100%" fontSize="{currentFontSize}" text="{answerDisplayRP.currentItem}"/>
-								</mx:HBox>
-							</mx:Repeater>
-						</mx:VBox>
-					<mx:Button id="submitButton" click="onSubmitFeedback(event)"  label="{currentSubmitTitle}" enabled="false"/>
-				</mx:VBox>
-			</mx:AddChild>
-		</mx:State>
-		  
-		<mx:State name="EditState" exitState="onExitEditState()">
-			<mx:AddChild position="lastChild">
-				<mx:VBox width="100%" height="100%">
-					<utils:DynamicTextArea
-						id="questionEdit"
-						styleName="editInput"
-						fontSize="{currentFontSize}"
-						width="100%"
-						focusIn="hideButtons()"
-						text="{currentQuestion}"
-						minHeight="25"/>
-						
-					<mx:VBox width="100%" height="100%">	
-						<mx:Repeater id="answerEditRP" dataProvider="{answerCollection}">
-							<mx:HBox verticalAlign="middle" height="100%" width="100%">
-								<mx:RadioButton id="editRadioArray" fontSize="{currentFontSize}" selected="{answerEditRP.currentIndex == currentCorrectAnswer}" click="editAnswerRadioSelect(event)"/>
-								<mx:TextInput
-									id="editAnswerArray"
-									styleName="editInput"
-									fontSize="{currentFontSize}"
-									text="{String(answerEditRP.currentItem)}"
-									width="100%"
-									focusIn="showButtons(event)"
-									/>
-								<mx:Button
-									data="{answerEditRP.currentIndex}"
-									id="editFeedbackArray"
-									styleName="feedbackButton"
-									label="Feedback"
-									click="editFeedback(event)"
-									visible="false"/>
-								<mx:Button
-									styleName="deleteButton"
-									id="editDeleteArray"
-									buttonMode="true"
-									data="{answerEditRP.currentIndex}"
-									click="deleteAnswer(event)"
-									visible="false"/>
-							</mx:HBox>
-						</mx:Repeater>
-					</mx:VBox>
-	             <mx:HBox>
-	             	<editbutton:EditableButton id="editableSubmitButton" isEditable="true" label="{currentSubmitTitle}"/>
-					 <mx:Button click="onAddAnswer(event)" label="Add Option"  />
-				 </mx:HBox>
-				</mx:VBox>
-			</mx:AddChild>
-		</mx:State>
-	</states>
+	<mx:RadioButtonGroup id="answerGroup" />
+
+	<mx:VBox width="100%" height="100%">
+			<ui:DynamicTextArea
+				id="questionEdit"
+				styleName="editInput"
+				fontSize="{currentFontSize}"
+				width="100%"
+				focusIn="hideButtons()"
+				text="{currentQuestion}"
+				editable="{inEditMode}"
+				selectable="{inEditMode}"
+				minHeight="25"
+				height="25"/>
+			<mx:VBox width="100%" height="100%">	
+				<mx:Repeater id="answerRP" dataProvider="{answerCollection}" repeatEnd="onRepeatEnd()">
+					<mx:HBox verticalAlign="top" height="100%" width="100%">
+						<mx:RadioButton fontSize="{currentFontSize}" groupName="answerGroup" value="{answerRP.currentIndex}"/>
+						<ui:DynamicTextArea
+							id="editAnswerArray"
+							styleName="editInput"
+							fontSize="{currentFontSize}"
+							text="{String(answerRP.currentItem)}"
+							width="100%"
+							minHeight="25"
+							height="25"
+							editable="{inEditMode}"
+							selectable="{inEditMode}"
+							focusIn="showButtons(event)"
+							/>
+						<mx:Button
+							data="{answerRP.currentIndex}"
+							id="editFeedbackArray"
+							styleName="feedbackButton"
+							label="Feedback"
+							click="editFeedback(event)"
+							visible="false"/>
+						<mx:Button
+							styleName="deleteButton"
+							id="editDeleteArray"
+							buttonMode="true"
+							data="{answerRP.currentIndex}"
+							click="deleteAnswer(event)"
+							visible="false"/>
+					</mx:HBox>
+				</mx:Repeater>
+			</mx:VBox>
+			
+         	<mx:HBox width="100%">
+         		<editbutton:EditableButton
+         			id="editableSubmitButton"
+         			isEditable="{inEditMode}"
+         			enabled="{inEditMode || answerGroup.selection != null}"
+         			label="{currentSubmitTitle}"
+         			click="onSubmitFeedback(event)"
+         		/>
+				<mx:Button
+					click="onAddAnswer(event)"
+					visible="{inEditMode}"
+					includeInLayout="{inEditMode}"
+					label="Add Option"
+				/>
+			 </mx:HBox>
+		</mx:VBox>
+	
 </BaseComponent>
