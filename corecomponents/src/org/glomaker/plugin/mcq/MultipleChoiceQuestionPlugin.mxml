@@ -5,7 +5,7 @@
 	horizontalScrollPolicy="off" verticalScrollPolicy="off"
  	currentState="DisplayState"
  	creationComplete="init()"
- 	themeColor="haloSilver" xmlns:mcq="org.glomaker.plugin.mcq.*" xmlns:editbutton="org.glomaker.shared.ui.editbutton.*">
+ 	themeColor="haloSilver" xmlns:mcq="org.glomaker.plugin.mcq.*" xmlns:editbutton="org.glomaker.shared.ui.editbutton.*" xmlns:utils="org.glomaker.shared.component.utils.*">
     
 	<mx:Script>
 		<![CDATA[
@@ -20,6 +20,7 @@
 			import org.glomaker.shared.properties.StringProperty;
 			import mx.controls.RadioButton;
 			import flash.events.FocusEvent;
+			import mx.controls.TextInput;
 
 			/**
 			 * Default images embed
@@ -398,11 +399,12 @@
 			<mx:AddChild position="lastChild">
 				<mx:VBox width="100%" height="100%">
 					<mx:RadioButtonGroup id="displayGroup"/>
-					<mx:Label
+					<mx:Text
 						id="questionDisplay"
 						fontSize="{currentFontSize}"
 						selectable="false"
 						width="100%"
+						minHeight="25"
 						text="{currentQuestion}"/>
 						<mx:VBox width="100%" height="100%">
 							<mx:Repeater id="answerDisplayRP" dataProvider="{answerCollection}">
@@ -420,13 +422,14 @@
 		<mx:State name="EditState" exitState="onExitEditState()">
 			<mx:AddChild position="lastChild">
 				<mx:VBox width="100%" height="100%">
-					<mx:TextInput
+					<utils:DynamicTextArea
 						id="questionEdit"
 						styleName="editInput"
 						fontSize="{currentFontSize}"
 						width="100%"
 						focusIn="hideButtons()"
-						text="{currentQuestion}"/>
+						text="{currentQuestion}"
+						minHeight="25"/>
 						
 					<mx:VBox width="100%" height="100%">	
 						<mx:Repeater id="answerEditRP" dataProvider="{answerCollection}">
