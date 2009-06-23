@@ -22,6 +22,8 @@ package com.adobe.wheelerstreet.fig.panzoom
 	import mx.events.ResizeEvent;
 	import mx.events.TweenEvent;
 	
+	import org.glomaker.plugin.imagemagnifier.ImageMagnifierDataProperty;
+	
 	
 	public class ImageViewer extends UIComponent
 	{
@@ -36,7 +38,7 @@ package com.adobe.wheelerstreet.fig.panzoom
 				
 		public var viewRect:Rectangle;
 
-		private var _contentRectangle:ContentRectangle;
+		public var _contentRectangle:ContentRectangle;
 
 		
 		private var _bitmap:Bitmap;
@@ -52,6 +54,8 @@ package com.adobe.wheelerstreet.fig.panzoom
 		[Embed(source="icons/iconography.swf", symbol="ProgressThrobber")] 
 		private var _progressThrobber:Class;
 		private var _progressSWF:SWFLoader;	
+		
+
 		
 
 		/////////////////////////////////////////////////////////
@@ -72,6 +76,7 @@ package com.adobe.wheelerstreet.fig.panzoom
 		{
 			return _imageURL;
 		}
+		
 		public function set imageURL(value:String):void
 		{
 			// setting imageURL triggers loading sequence		
@@ -84,7 +89,7 @@ package com.adobe.wheelerstreet.fig.panzoom
             
             formatUI();
             
-			_percentLoadedLabel.text = "";		
+			_percentLoadedLabel.text = "Loading ";		
             invalidateDisplayList();            
             
             // load events 
@@ -184,7 +189,7 @@ package com.adobe.wheelerstreet.fig.panzoom
 		 * is triggerd.  "in" zooms in and conversly "out" zooms out.
 		 */
 		
-		public function zoom(direction:String):void
+		public function zoomInOut(direction:String):void
 		{
 			var _animateProperty:AnimateProperty = new AnimateProperty(this);		
 			_animateProperty.property = "bitmapScaleFactor";
@@ -319,6 +324,20 @@ package com.adobe.wheelerstreet.fig.panzoom
 			
 		}
 		
+		public function getZoom():Number
+		{
+			return _contentRectangle.zoom;
+			
+		}
+		
+		public function set zoom(scale:int):void{
+			setZoom(scale as Number);
+		}
+		
+		public function get zoom():int{
+			return getZoom() as int;
+		}
+		
 		public function centerView():void
 		{
 			_contentRectangle.viewAll(viewRect);
@@ -387,10 +406,10 @@ package com.adobe.wheelerstreet.fig.panzoom
 
 			if (_bitmap == null)
 			{
-				// if there's no bitmapData fill the component with black
-				graphics.beginFill(0x000000,1)
+				// if there's no bitmapData fill the component with black (change to white)
+				/*graphics.beginFill(0x000000,1)
 				graphics.drawRect(0,0,unscaledWidth,unscaledHeight);								
-			
+			*/
 			} else if (viewRect != null)
 			{	
 							   
