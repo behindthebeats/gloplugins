@@ -1,124 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:SWFLoader xmlns:mx="http://www.adobe.com/2006/mxml"
+	complete="onSWFLoaderComplete(event)"
 	initialize="init()">
 	
 	<mx:Script>
 		<![CDATA[
-		
-			private var _filePath:String;
-			private var _AVM1Mode:Boolean;
-			private var _AVM1Loader:SWFLoader;
 			
 			/**
-		 	* Embed localConnection SWF.
+		 	* Store a reference to the filePath.
 		 	*/
-			[Bindable]
-			[Embed(source="org/glomaker/plugin/swfloader/assets/localConnection.swf")]	
-			public var LC:Class;
+			private var _filePath:String;
+			
+			/**
+		 	* Remember whether an AVM1 movie has been loaded.
+		 	*/
+			private var _AVM1Mode:Boolean;
+			
+			/**
+		 	* A unique ID is required to identify specific instances of LocalConnection SWF.
+		 	*/
+			private var _connectionID:String;
+			
+			private var _LC:CustomLocalConnection;
+			
+			private var _AVM1Instance:DisplayObject;
 			
 			/**
 		 	* Store local connection.
 		 	*/
-			protected var AVM_lc:CustomLocalConnection;
+			//protected var AVM_lc:CustomLocalConnection;
 			
+			/**
+		 	* Set up local connection.
+		 	*/
 			protected function init():void
 			{
 				_AVM1Mode = false;
-				_AVM1Loader = new SWFLoader();
-				_AVM1Loader.id = "swfLoader";
-				_AVM1Loader.source = LC;
 				
-				AVM_lc = new CustomLocalConnection("AVM1toAVM2");
-				AVM_lc.addEventListener(Event.COMPLETE, onAVM1LoaderComplete);
-				AVM_lc.addEventListener(CustomLocalConnection.PING, onPing);
-				AVM_lc.addEventListener(StatusEvent.STATUS, onStatusError);
+				//if(AVM_lc == null)
+				//{
+					
+				//}
+				
 				
 			}
 			
+			/**
+		 	* Once an object has been loaded, its type is determined. If it is an AVM1 movie, 
+		 	* the localConnection SWF is loaded to handle it using a local connection.
+		 	*/
 			protected function onSWFLoaderComplete(evt:Event):void
 			{
-				if(swfLoader.content is AVM1Movie && _AVM1Mode == false)
+				
+				trace("-------------------------------"+content, content.name, content.loaderInfo.loaderURL);
+				// the content may be AVM1 for two reasons. Either the user has loaded an AVM1 movie or 
+				// the localConnection SWF has been loaded. The _AVM1Mode flag is used to determine which has happened.
+				// if an AVM1 movie has been loaded by the user, we need the localConnection SWF. This puts us into _AVM1Mode == true
+				if(content is AVM1Movie && _AVM1Mode == false)
 				{
-					//removeChild(swfLoader);
-					addChild(_AVM1Loader);
-					AVM_lc.send("AVM2toAVM1", "load", "file:///"+_filePath);
+					//trace("ONExxx"+localConnection, new localConnection());
+					source = _AVM1Instance;
 					
+					_LC.send(_connectionID, "load", _filePath);
+
 					_AVM1Mode = true;
-					
-				}else if(swfLoader.content is AVM1Movie && _AVM1Mode == true)
+				
+				
+				// if both the content is AVM1 and the _AVM1Mode flag is true, the localConnection SWF is already
+				// loaded. In which case, send the filePth
+				}else if(content is AVM1Movie && _AVM1Mode == true)
 				{
-					AVM_lc.send("AVM2toAVM1", "load", "file:///"+_filePath);
-					
-				}else if(!swfLoader.content is AVM1Movie)
+					trace("TWO");
+					//AVM_lc.send(String(_id), "load", "file:///"+_filePath);
+				
+				// if the content is not an AVM1 movie, set _AVM1Mode to false. Leave the content as is
+				}else if(content is Bitmap || content is MovieClip)
 				{
-					
-					
-					//addChild(swfLoader);
-					//removeChild(_AVM1Loader)
-					_AVM1Mode = false;;
+					trace("NOT AVM1");
+					_AVM1Mode = false;
 				}
 			}
-			
-			protected function onAVM1LoaderComplete(evt:Event):void
-			{
-				trace("GOT TO GET HERE!!!!");
-				AVM_lc.send("AVM2toAVM1", "load", "file:///"+_filePath);
-			}
-			
-			protected function onPing(evt:Event):void
-			{
-				trace("PING");
-			}
-			
-			protected function onStatusError(evt:StatusEvent):void
-			{
-				trace("Local Connection Status Error: " + evt);
-			}
-			
+
+			/**
+		 	* AVM1 movies and movie clips need to be handled differently.
+		 	*/
 			public function play():void
 			{
 				if(_AVM1Mode)
 				{
-					 AVM_lc.send("AVM2toAVM1", "play");
+					_LC.send(_connectionID, "play");
 				}
 				
-				if(swfLoader.content is MovieClip)
+				if(content is MovieClip)
 				{
-					(swfLoader.content as MovieClip).stop();
+					(content as MovieClip).play();
 				}
-				//var lc:LocalConnection = localConnection();
-				//lc.send("AVM2toAVM1", "ping");
-				//AVM_lc.send();
 			}
 			
+			/**
+		 	* AVM1 movies and movie clips need to be handled differently.
+		 	*/
 			public function stop():void
 			{
 				if(_AVM1Mode)
 				{
-					trace("STOP");
-					AVM_lc.send("AVM2toAVM1", "stop");
+					_LC.send(_connectionID, "stop");
 				}
 				
-				if(swfLoader.content is MovieClip)
+				if(content is MovieClip)
 				{
-					(swfLoader.content as MovieClip).stop();
+					(content as MovieClip).stop();
 				}
+			}
+			
+			public function set LC(lc:CustomLocalConnection):void
+			{
+				_LC = lc;
+			}
+			
+			public function set AVM1Instance(instance:DisplayObject):void
+			{
+				_AVM1Instance = instance;
+			}
+			
+			public function set connectionID(id:String):void
+			{
+				_connectionID = id;
 			}
 			
 			public  function set filePath(path:String):void
 			{
 				_filePath = path;
-				swfLoader.load(path);
+				load(path);
 			}
 			
 			public  function get filePath():String
 			{
 				return _filePath;
-			}
+			} 
 			
 			
 		]]>
 	</mx:Script>
 	
-	<mx:SWFLoader id="swfLoader" width="100%" height="100%"/>
-</mx:Canvas>
+</mx:SWFLoader>
