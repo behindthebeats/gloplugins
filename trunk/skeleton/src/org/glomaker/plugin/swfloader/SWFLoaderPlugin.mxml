@@ -85,6 +85,11 @@
 			public var AVM1Loader:Class;
 			
 			/**
+		 	* Stores the file path to the loaded asset.
+		 	*/
+			public var filePath:FilePathProperty;
+			
+			/**
 		 	* Stores a permanent instance of the AVM1Loader, together with its internal uniqueID.
 		 	*/
 			protected var AVM1LoaderInstance:DisplayObject;
@@ -98,11 +103,6 @@
 		 	* Used to toggle play / pause button.
 		 	*/
 			protected var startMode:Boolean = true;
-			
-			/**
-		 	* Stores the file path to the loaded asset.
-		 	*/
-			protected var filePath:FilePathProperty;
 			
 			/**
 		 	* Sets up a field on the Property Panel to control the existence of the play button.
@@ -133,11 +133,6 @@
 		 	* Stores a true or false value relating to the existence of the jump button.
 		 	*/
 			private var _labelControl:Boolean = true;
-			
-			/**
-		 	* Stores a unique id for the local connection object.
-		 	*/
-			private var _id:String;
 			
 			
 			///////////////////////////////////////////////////////
@@ -270,6 +265,8 @@
 				// the SWF to initialise its unique connection
 				swfLoader.load(AVM1Loader);
 				
+				swfLoader.addEventListener(SwitchLoader.AVM1_LOADED, onAVM1Loaded);
+				
 			}
 			
 			/**
@@ -277,7 +274,7 @@
 		 	*/
 		 	protected function onPlay(evt:MouseEvent):void
 		 	{
-				//swfLoader.play();
+				swfLoader.play();
 		 	}
 		 	
 		 	/**
@@ -285,7 +282,7 @@
 		 	*/
 		 	protected function onStop(evt:MouseEvent):void
 		 	{
-		 		//swfLoader.stop();
+		 		swfLoader.stop();
 		 	}
 			
 			/**
@@ -315,6 +312,22 @@
 				}
 			}
 			
+			protected function onAVM1Loaded(evt:Event = null):void
+			{
+				playControl.propValue = true;
+				nextLabelControl.propValue = false;
+				
+				_playControl = true;
+				_labelControl = false;
+				
+				buildTransportControls();
+				
+				if(container.getChildByName("controls") == null)
+				{
+					container.addChild(controls);
+				}	
+			}
+			
 			/**
 		 	* Responds to the loading of a new SWF or image.
 		 	*/
@@ -325,13 +338,12 @@
 				if(info != null)
 				{	
 					// what if we have an AVM1 Movie?
-					if(swfLoader.content is AVM1Movie)
+					if(swfLoader.content is AVM1Movie || swfLoader.content == AVM1LoaderInstance)
 					{				
-						playControl.propValue = true;
-						nextLabelControl.propValue = false;
+						onAVM1Loaded();
 						
 						return;
-					}
+					} 
 					
 					if(info.contentType != "application/x-shockwave-flash" || swfLoader.content is MovieClip == false  && container.getChildByName("controls") != null)
 					{
@@ -360,6 +372,12 @@
 						{
 							playControl.propValue = true;
 							nextLabelControl.propValue = true;
+							
+							_playControl = true;
+							_labelControl = true;
+							
+							buildTransportControls();
+							
 							container.addChild(controls);
 							
 						}
@@ -384,24 +402,22 @@
 				AVM1LoaderInstance = swfLoader.content;
 				
 				// store the unique ID
-				_id = AVM_lc.id;
+				var id:String = AVM_lc.id;
 				
 				// now we have the unique ID, destroy the original connection...
 				AVM_lc.close();
 				
 				// ...and connect via the unique ID	
-				AVM_lc = new CustomLocalConnection("host"+String(_id));
+				AVM_lc = new CustomLocalConnection("host"+ id);
 				
 				// finally tell the SwitchLoader to use this ID...
-				swfLoader.connectionID = String(_id);
+				swfLoader.connectionID = id;
 				
 				// ...and this instance of the AVM1Loader...
 				swfLoader.AVM1Instance = AVM1LoaderInstance;
 				
 				// ...and this connection
 				swfLoader.LC = AVM_lc;
-				
-				trace(String(_id), AVM1LoaderInstance);
 			}
 			
 			/**
@@ -510,7 +526,15 @@
 				scrollRect = new Rectangle(0, 0, width, height);
 			}
 			
-			
+			override public function destroy():void
+			{
+				super.destroy();
+				trace("DES");
+				swfLoader.removeEventListener(SwitchLoader.AVM1_LOADED, onAVM1Loaded);
+				swfLoader.destroy();
+				
+				
+			}
 		]]>
 	</mx:Script>
 
@@ -523,13 +547,6 @@
 	
 	<mx:VBox width="100%" height="100%" 
 		id="container">
-		
-		<!--<mx:SWFLoader width="100%" height="100%"
-			id="swfLoader"
-			source="{localConnection}"
-			complete="onLoadSWF(event)"
-			styleName="missingImageStyle"	
-		/>-->
 		
 		<swfloader:SwitchLoader width="100%" height="100%"
 			id="swfLoader"
