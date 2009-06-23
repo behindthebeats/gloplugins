@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:SWFLoader xmlns:mx="http://www.adobe.com/2006/mxml"
-	complete="onSWFLoaderComplete(event)"
-	initialize="init()">
+	complete="onSWFLoaderComplete(event)">
 	
 	<mx:Script>
 		<![CDATA[
@@ -12,73 +11,50 @@
 			private var _filePath:String;
 			
 			/**
-		 	* Remember whether an AVM1 movie has been loaded.
-		 	*/
-			private var _AVM1Mode:Boolean;
-			
-			/**
 		 	* A unique ID is required to identify specific instances of LocalConnection SWF.
 		 	*/
 			private var _connectionID:String;
 			
-			private var _LC:CustomLocalConnection;
-			
-			private var _AVM1Instance:DisplayObject;
+			/**
+		 	* A local reference to the local connection object.
+		 	*/
+			private var AVM_lc:CustomLocalConnection;
 			
 			/**
-		 	* Store local connection.
+		 	* A local reference to AVM1 loader instance.
 		 	*/
-			//protected var AVM_lc:CustomLocalConnection;
+			private var _AVM1LoaderInstance:DisplayObject;
 			
 			/**
-		 	* Set up local connection.
+		 	* Custom event identifier.
 		 	*/
-			protected function init():void
-			{
-				_AVM1Mode = false;
-				
-				//if(AVM_lc == null)
-				//{
-					
-				//}
-				
-				
-			}
+			public static const AVM1_LOADED:String = "AVM1Loaded";
+
 			
 			/**
 		 	* Once an object has been loaded, its type is determined. If it is an AVM1 movie, 
 		 	* the localConnection SWF is loaded to handle it using a local connection.
 		 	*/
 			protected function onSWFLoaderComplete(evt:Event):void
-			{
-				
-				trace("-------------------------------"+content, content.name, content.loaderInfo.loaderURL);
-				// the content may be AVM1 for two reasons. Either the user has loaded an AVM1 movie or 
-				// the localConnection SWF has been loaded. The _AVM1Mode flag is used to determine which has happened.
-				// if an AVM1 movie has been loaded by the user, we need the localConnection SWF. This puts us into _AVM1Mode == true
-				if(content is AVM1Movie && _AVM1Mode == false)
+			{		
+				if(content is Bitmap || content is MovieClip)
 				{
-					//trace("ONExxx"+localConnection, new localConnection());
-					source = _AVM1Instance;
-					
-					_LC.send(_connectionID, "load", _filePath);
-
-					_AVM1Mode = true;
-				
-				
-				// if both the content is AVM1 and the _AVM1Mode flag is true, the localConnection SWF is already
-				// loaded. In which case, send the filePth
-				}else if(content is AVM1Movie && _AVM1Mode == true)
-				{
-					trace("TWO");
-					//AVM_lc.send(String(_id), "load", "file:///"+_filePath);
-				
-				// if the content is not an AVM1 movie, set _AVM1Mode to false. Leave the content as is
-				}else if(content is Bitmap || content is MovieClip)
-				{
-					trace("NOT AVM1");
-					_AVM1Mode = false;
+					// easy, nothing to do
+					return;
 				}
+
+				if(content is AVM1Movie)
+				{
+					// load the AVM1Loader instance
+					source = _AVM1LoaderInstance;
+					
+					// send load command
+					AVM_lc.send(_connectionID, "load","file:///"+ _filePath);
+					
+					// send an event to notify SWFLoaderPlugin
+					dispatchEvent(new Event(AVM1_LOADED));	
+				}
+
 			}
 
 			/**
@@ -86,9 +62,10 @@
 		 	*/
 			public function play():void
 			{
-				if(_AVM1Mode)
-				{
-					_LC.send(_connectionID, "play");
+				
+				if(content == _AVM1LoaderInstance)
+				{	
+					AVM_lc.send(_connectionID, "play");
 				}
 				
 				if(content is MovieClip)
@@ -102,9 +79,9 @@
 		 	*/
 			public function stop():void
 			{
-				if(_AVM1Mode)
+				if(content == _AVM1LoaderInstance)
 				{
-					_LC.send(_connectionID, "stop");
+					AVM_lc.send(_connectionID, "stop");
 				}
 				
 				if(content is MovieClip)
@@ -113,24 +90,38 @@
 				}
 			}
 			
+			/**
+		 	* Sets a reference to the local connection object.
+		 	*/
 			public function set LC(lc:CustomLocalConnection):void
 			{
-				_LC = lc;
+				AVM_lc = lc;
 			}
 			
+			/**
+		 	* Sets a reference to the AVM1 loader instance.
+		 	*/
 			public function set AVM1Instance(instance:DisplayObject):void
 			{
-				_AVM1Instance = instance;
+				_AVM1LoaderInstance = instance;
 			}
 			
+			/**
+		 	* Sets a reference to the unique connection ID.
+		 	*/
 			public function set connectionID(id:String):void
 			{
 				_connectionID = id;
 			}
 			
+			/**
+		 	* Stores a reference to the filePath.
+		 	*/
 			public  function set filePath(path:String):void
 			{
 				_filePath = path;
+				
+				// may as well load the thing!
 				load(path);
 			}
 			
@@ -139,7 +130,11 @@
 				return _filePath;
 			} 
 			
-			
+			public function destroy():void
+			{
+				AVM_lc.send(_connectionID, "destroy");
+				AVM_lc.close();
+			}
 		]]>
 	</mx:Script>
 	

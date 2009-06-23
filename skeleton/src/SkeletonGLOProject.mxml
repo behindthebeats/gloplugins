@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
-	initialize="init()">
+	initialize="init()" xmlns:swfloader="org.glomaker.plugin.swfloader.*">
 	
 	<mx:Script>
 		<![CDATA[
+			import org.glomaker.shared.properties.FilePathProperty;
 		
 			/**
 		 	* Embed AVM1Loader.
@@ -68,9 +69,17 @@
 				//trace(_instance);
 
 			}
+			
+			protected function change():void
+			{
+				var fp:FilePathProperty = plugin.filePath;
+				fp.propValue = "myfile.swf";
+				plugin.editablePropertyUpdated( fp );
+			}
 		]]>
 	</mx:Script>
 	<mx:SWFLoader id="loader" complete="onComplete(event)" valueCommit="onComplete(event)"/>
+	<swfloader:SWFLoaderPlugin id="plugin"/>
 	<mx:VBox width="100%" height="100%">
 		<mx:Button label="Toggle" click="onToggleViewState(event)"/>
 		<mx:Button label="Image" click="onImg(event)"/>
