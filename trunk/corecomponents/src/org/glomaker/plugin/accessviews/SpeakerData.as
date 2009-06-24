@@ -1,5 +1,7 @@
 package org.glomaker.plugin.accessviews
 {
+	import flash.utils.Dictionary;
+	
 	public class SpeakerData
 	{
 		[Bindable]
@@ -12,9 +14,12 @@ package org.glomaker.plugin.accessviews
 		[Bindable]
 		public var imageSource:String = "http://www.interloc.org/NoFace.jpg";
 		
+		public var sounds:Dictionary;
+		
 		public function SpeakerData(t:String)
 		{
 			title = t;
+			sounds = new Dictionary();
 		}
 
 	}
