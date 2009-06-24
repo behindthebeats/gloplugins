@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<BaseComponent xmlns="org.glomaker.shared.component.*" xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" xmlns:accessviews="org.glomaker.plugin.accessviews.*"
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	width="400" height="300" xmlns:accessviews="org.glomaker.plugin.accessviews.*"
 	horizontalScrollPolicy="off" verticalScrollPolicy="off"
 	currentState="DisplayState"
 	 backgroundColor="#bbbbbb"
 	 borderStyle="none"
 	 borderColor="#87ceeb"
 	 backgroundAlpha="0" 
+	 horizontalAlign="center"
 >
 <mx:Script>
         <![CDATA[
+        	import org.glomaker.shared.properties.FilePathProperty;
         	import mx.containers.VBox;
             // Code from Flex 3 Cookbook
             import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			[Embed(source="files/NoFace.jpg")]
+			protected var noFace:Class;
 			
 			[Bindable]
 			[Embed(source="files/control_pause.png")]
@@ -61,36 +68,97 @@
 			[Embed(source="files/control_script_grey.png")]
 			protected var scriptg:Class;
 			
-			protected var playPause:Boolean = true;
-			
-			// is this object selected
-			[Bindable]
-			protected var _selected:Boolean = false;
-			
 			public static const PLAY_PAUSE_EVENT:String = "SpeakerBox.PlayPause";
 			public static const STOP_EVENT:String = "SpeakerBox.Stop";
 			public static const SCRIPT_EVENT:String = "SpeakerBox.Script";
 			public static const DELETE_EVENT:String = "SpeakerBox.Delete";
+
+			protected var playPause:Boolean = true;
+
+			// is this object selected
+			[Bindable]
+			protected var _selected:Boolean = false;
 			
 			[Bindable]
-			public var speakerData:SpeakerData;
-            
-          	// List of all sounds related to each topic
-			public var sounds:ArrayCollection = new ArrayCollection();
-		
-			// List of all the scripts related to each topic
-			public var scripts:ArrayCollection = new ArrayCollection();
-
-			// Reference to speakers titles array collection 
-            private var _speakers:ArrayCollection;
-            
-            // Index of this object inside a repeater
+			private var _speakerData:SpeakerData;
+			
+			// Index of this object inside a repeater
             public var index:int;
             
+            // If false, hide delete button
             [Bindable]
-            public var imageSource:String = "http://www.londonmet.ac.uk/ltri/staff/images_staff/pic_claire2.jpg";
+            public var deletable:Boolean; 
+			
+			public function saveData():void{
+			     _speakerData.title = titleTextArea.text;
+                _speakerData.imageSource = imageSource;		
+			}
+			
+			public function set speakerData(sd:SpeakerData):void
+			{
+				_speakerData = sd;
+				imageSource = sd.imageSource;
+			}
+			
+			public function get speakerData():SpeakerData
+			{
+				return _speakerData
+			}
+			
+			public function set imageSource(value:String):void
+			{
+				if(!value || value == FilePathProperty.NO_URL_VALUE)
+				{
+					speakerImage.source = noFace;
+				}else{
+					speakerImage.source = value;
+				}
+			}
+			
+			public function get imageSource():String
+			{
+				if(speakerImage.source is String)
+					return speakerImage.source as String;
+				else
+					return "";
+			}
+			
+			// Change the mode of the component between edit (true) and display (false) modes 
+			public function setEditMode(f:Boolean):void{
+			 
+			 if(f){
+		 		currentState = "EditState";
+			 } else {
+			 	currentState = "DisplayState";
+			 	titleTextArea.selectionBeginIndex = titleTextArea.selectionEndIndex = 0;
+			 }
+			 
+			 titleTextArea.editable = titleTextArea.selectable = titleTextArea.focusEnabled = f;
+				
+			}
+			
+			// used as a property on the XML element
+			public function set editMode(f:Boolean):void{
+				setEditMode(f);
+			}
+			
+		    // Set this to selected, topic index as parameter!
+			// Set to unselected if topicIndex == -1
+			 public function set selected(ti:Boolean):void{
+			 	_selected = ti;
+			 	
+			 	if(_selected){
+			        	this.setStyle("backgroundAlpha","1");
+			  }else {
+			        	this.setStyle("backgroundAlpha","0");
+			        	
+			   playPause = true;
+			   
+			   setPlayPausebuttonStyle(); 
+			   
+			  }
+            }
             
-
             private function onDelete(event:MouseEvent):void   {
             	event.stopImmediatePropagation();
             	event.stopPropagation();
@@ -128,7 +196,7 @@
                 setPlayPausebuttonStyle();
             }
             
-            private function setPlayPausebuttonStyle():void{
+               private function setPlayPausebuttonStyle():void{
             	
             	if(currentState != "DisplayState") 
             		return;
@@ -142,156 +210,45 @@
                 }
             }
             
-                      	
-            // Switch between Edit and Display states
-			public function toggleState():void
-			{
-				if(currentState == "EditState")
-				{
-					toDisplayState();
-				}else
-				{
-					toEditState();
-				}
-			}
-		 	
-			// Set currentState to Display state
-			public function toDisplayState():void
-			{
-				currentState = "DisplayState";
-			}
-		 	
-			// Set currentState to Edit state
-			public function toEditState():void
-			{
-				currentState = "EditState";
-			}
-			
-			// Change the mode of the component between edit (true) and display (false) modes 
-			override public function setEditMode(f:Boolean):void{
-			 if(f){
-		 		toEditState();
-			 } else {
-			 	toDisplayState();
-			 	setPlayPausebuttonStyle();
-			 }
-			 
-			 titleTextArea.editable = titleTextArea.selectable = titleTextArea.focusEnabled = f;
-				
-			 // deselect text if switching out of edit mode
-			 if(!f)
-			 	titleTextArea.selectionBeginIndex = titleTextArea.selectionEndIndex = 0;
-			 	
-			}	
-			
-			// used as a property on the XML element
-			public function set editMode(f:Boolean):void{
-				setEditMode(f);
-			}
-			
-			// Set this to selected, topic index as parameter!
-			// Set to unselected if topicIndex == -1
-			 public function set selected(ti:Boolean):void{
-			 	_selected = ti;
-			 	
-			 	if(_selected){
-			        	this.setStyle("backgroundAlpha","1");
-			  }else {
-			        	this.setStyle("backgroundAlpha","0");
-			        	
-			   playPause = true;
-			   
-			   setPlayPausebuttonStyle(); 
-			   
-			  }
-            }
-            
-            public function get selected():Boolean{
-            	return _selected;
-            }
-             
-            public function addSound(ti:int,sound:String):void{
-             
-             if(ti>sounds.length)
-            	 for(var i:int = sounds.length;i<ti;i++)            	 
-            	 	sounds.addItem(null);
-            	 	
-            	sounds.addItem(sound);
-            }
-            
-            public function addScript(ti:int,script:String):void{
-            	if(ti>scripts.length)
-            	 for(var i:int = scripts.length;i<ti;i++)            	 
-            	 	scripts.addItem(null);
-            	 	 
-            	scripts.addItem(script);
-            }
-            
-            public function getSound(topicIndex:int):String{
-            	var ret:String = null;
-            try{
-            	if(topicIndex>=0 && topicIndex <= sounds.length)
-            		ret = sounds.getItemAt(topicIndex) as String;
-            } catch (r:Error){;}		
-                return ret;
-            }
-            
-            public function getScript(topicIndex:int):String{
-            	var ret:String = null;
-            try{
-            	if(topicIndex>=0 && topicIndex <= sounds.length)
-            		ret = scripts.getItemAt(topicIndex) as String;
-            } catch (r:Error){;}		
-                return ret;
-            }
-            
-            public function enabledPlay(b:Boolean):void{
+               public function enabledPlay(b:Boolean):void{
             	if(currentState == "DisplayState"){
             		pausePlayBtn.enabled = b;
             		stopPlayBtn.enabled = b;
             	}
             }
             
-            public function getSpeakerData():SpeakerData{
-            	return new SpeakerData(titleTextArea.text);
-            }
-
-                   
-
         ]]>
     </mx:Script>	
     
-<mx:TextArea id="titleTextArea"  text="{speakerData.title}" width="100%" backgroundAlpha="0" textAlign="center" fontSize="14" fontWeight="bold" borderStyle="none"  enabled="{_selected}" disabledColor="black"/>
-<states>
+<mx:TextArea id="titleTextArea"  text="{_speakerData.title}" width="100%" backgroundAlpha="0" textAlign="center" fontSize="14" fontWeight="bold" borderStyle="none"  enabled="{_selected}" disabledColor="black"/>
+<mx:states>
       <mx:State name="DisplayState">
-            <mx:AddChild position="lastChild">
-                  <mx:VBox horizontalAlign="center" width="100%" height="100%">
-                        <mx:HBox backgroundColor="red">
-                              <mx:Image id="speakerImage" width="100%" maintainAspectRatio="true" source="{speakerData.imageSource}"/>
-                        </mx:HBox>
-                        <mx:HBox horizontalGap="8" visible="{_selected}">
-                              <mx:Button id="pausePlayBtn" click="playPauseHandler(event) " disabledIcon="{playg}" overIcon="{playb}" icon="{play}" width="16" height="16"/>
-                              <mx:Button id="stopPlayBtn"  click="stopPlayHandler(event)" disabledIcon="{stopg}" overIcon="{stopb}" icon="{stop}" width="16" height="16"/>
-                              <mx:Button disabledIcon="{scriptg}" overIcon="{scriptb}"  click="onScript(event)" icon="{script}" width="16" height="16"/>
-                        </mx:HBox>
-                  </mx:VBox>
-            </mx:AddChild>
+  		<mx:AddChild relativeTo="{controlsContainer}">
+ 			<mx:Button id="pausePlayBtn"  click="playPauseHandler(event)" disabledIcon="{playg}" overIcon="{playb}" icon="{play}" width="16" height="16"/>     			
+  		</mx:AddChild>
+      		
+  		<mx:AddChild relativeTo="{controlsContainer}">
+            <mx:Button id="stopPlayBtn"  click="stopPlayHandler(event)" disabledIcon="{stopg}" overIcon="{stopb}" icon="{stop}" width="16" height="16"/>
+   		</mx:AddChild>
+      		
+  		<mx:AddChild relativeTo="{controlsContainer}">
+			<mx:Button disabledIcon="{scriptg}" click="onScript(event)" overIcon="{scriptb}"  icon="{script}" width="16" height="16"/>
+  		</mx:AddChild>
       </mx:State>
       
       <mx:State name="EditState">
-            <mx:AddChild position="lastChild">
-                  <mx:VBox horizontalAlign="center" width="100%" height="100%">
-                        <mx:HBox>
-                              <mx:Image width="100%" maintainAspectRatio="true" source="{speakerData.imageSource}"/>
-                        </mx:HBox>
-                        <mx:HBox horizontalGap="8" visible="{_selected}">
-                              <mx:Button id="edit" label=" Delete " height="16" click="onDelete(event)"/>
-                        </mx:HBox>
-                  </mx:VBox>
-            </mx:AddChild>
+ 		<mx:AddChild relativeTo="{controlsContainer}">
+          <mx:Button label=" Delete " height="16" visible="{deletable}" click="onDelete(event)"/>
+        </mx:AddChild>
       </mx:State>
-</states>
+</mx:states>
+
+    <mx:HBox backgroundColor="red">
+          <mx:Image id="speakerImage" width="100%" maintainAspectRatio="true" source="{noFace}"/>
+    </mx:HBox>
+    <mx:HBox id="controlsContainer" horizontalGap="8" visible="{_selected}">
+    </mx:HBox>
 
 
-</BaseComponent>
+</mx:VBox>
 
