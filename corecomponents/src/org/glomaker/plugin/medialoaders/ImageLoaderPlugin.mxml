@@ -23,11 +23,9 @@
 				
 				sourceField = new FilePathProperty("source", "Image path", "");
 				addProperty(sourceField);
-				applyFilePath();
 				
 				maintainRatioField = new BooleanProperty("maintainRatio", "Maintain aspect ratio:", false);
 				addProperty(maintainRatioField);
-				applyMaintainRatio();
 			}
 			
 			override public function propertyValuesInitialised():void
