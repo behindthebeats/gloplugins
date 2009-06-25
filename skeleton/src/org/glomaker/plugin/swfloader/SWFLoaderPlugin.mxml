@@ -160,6 +160,12 @@
 
 			}
 			
+			override public function hasEditMode():Boolean
+			{
+				// this component doesn't have an edit mode
+				return false;
+			}
+			
 			/**
 		 	* Called by GLOMaker when the properties need to be initialised.
 		 	*/
@@ -264,7 +270,6 @@
 				// ok, local connection object in place. Now we need to load 
 				// the SWF to initialise its unique connection
 				swfLoader.load(AVM1Loader);
-				
 				swfLoader.addEventListener(SwitchLoader.AVM1_LOADED, onAVM1Loaded);
 				
 			}
@@ -529,11 +534,22 @@
 			override public function destroy():void
 			{
 				super.destroy();
-				trace("DES");
+				
+				// listens for the local connection SWF sending an event indicating it has loaded
+				// and is operational
+				if( AVM_lc)
+				{
+					AVM_lc.removeEventListener(Event.INIT, onAVM1LoaderInitialised);
+					AVM_lc.removeEventListener(CustomLocalConnection.PING, onPing);
+					AVM_lc.removeEventListener(StatusEvent.STATUS, onStatusError);
+				}					
+				
 				swfLoader.removeEventListener(SwitchLoader.AVM1_LOADED, onAVM1Loaded);
 				swfLoader.destroy();
 				
-				
+				try{
+					swfLoader.unloadAndStop(true);
+				}catch(e:Error){}
 			}
 		]]>
 	</mx:Script>

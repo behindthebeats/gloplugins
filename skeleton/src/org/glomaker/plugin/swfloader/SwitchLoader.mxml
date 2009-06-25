@@ -132,8 +132,11 @@
 			
 			public function destroy():void
 			{
-				AVM_lc.send(_connectionID, "destroy");
-				AVM_lc.close();
+				if(AVM_lc)
+				{
+					AVM_lc.send(_connectionID, "destroy");
+					AVM_lc.close();
+				}
 			}
 		]]>
 	</mx:Script>
