@@ -122,8 +122,12 @@
 			override public function destroy():void
 			{
 				// remove list listeners
- 				list.removeEventListener(StepThroughItemRenderer.DELETE_EVENT,deleteItem);
- 				list.removeEventListener(ListEvent.CHANGE,listChanged);
+				// 'list' is only defined when in edit state
+				if(list)
+				{
+	 				list.removeEventListener(StepThroughItemRenderer.DELETE_EVENT,deleteItem);
+	 				list.removeEventListener(ListEvent.CHANGE,listChanged);
+	 			}
  				
  				// clean up internal data storage
  				internalDataList = null;
