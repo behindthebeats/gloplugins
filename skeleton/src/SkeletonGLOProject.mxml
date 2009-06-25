@@ -4,25 +4,6 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.glomaker.shared.properties.FilePathProperty;
-		
-			/**
-		 	* Embed AVM1Loader.
-		 	*/
-			[Bindable]
-			[Embed(source="org/glomaker/plugin/swfloader/assets/localConnection.swf")]	
-			public var AVM1Loader:Class;
-			
-			/**
-		 	* Embed back rollover skin.
-		 	*/
-			[Bindable]
-			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_rewind_rollover.png")]	
-			public var backRolloverBtn:Class;
-			
-			
-			private var _instance:DisplayObject;
-			
 			import org.glomaker.shared.component.optimisation.PluginOptimiser;
 			import testing.DummyApplication;
 
@@ -33,8 +14,6 @@
 			
 			protected function init():void
 			{
-				loader.load(AVM1Loader);
-				_instance = loader.content;
 			}
 			
 			
@@ -43,47 +22,15 @@
 				_isEditState = !_isEditState;
 
 			}
-			protected function onImg(evt:MouseEvent):void
-			{
-				loader.load(backRolloverBtn);
-
-			}
-			
-			protected function onAVM1(evt:MouseEvent):void
-			{
-				trace("Instance: "+_instance);
-				loader.load(_instance);
-
-			}
-			protected function onComplete(evt:*):void
-			{
-				if((evt.target as SWFLoader).content is AVM1Movie)
-				{
-					_instance = (evt.target as SWFLoader).content as AVM1Movie;
-					
-					
-				}
-				
-				
-				
-				//trace(_instance);
-
-			}
 			
 			protected function change():void
 			{
-				var fp:FilePathProperty = plugin.filePath;
+				/* var fp:FilePathProperty = plugin.filePath;
 				fp.propValue = "myfile.swf";
-				plugin.editablePropertyUpdated( fp );
+				plugin.editablePropertyUpdated( fp ); */
 			}
 		]]>
 	</mx:Script>
-	<mx:SWFLoader id="loader" complete="onComplete(event)" valueCommit="onComplete(event)"/>
-	<swfloader:SWFLoaderPlugin id="plugin"/>
-	<mx:VBox width="100%" height="100%">
-		<mx:Button label="Toggle" click="onToggleViewState(event)"/>
-		<mx:Button label="Image" click="onImg(event)"/>
-		<mx:Button label="AVM1" click="onAVM1(event)"/>
-	</mx:VBox>
+	<mx:Button label="Toggle" click="onToggleViewState(event)"/>
 
 </mx:Application>

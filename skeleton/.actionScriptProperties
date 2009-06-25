@@ -21,8 +21,6 @@
 <application path="PluginOptimiserApp.mxml"/>
 <application path="SkeletonGLOProject.mxml"/>
 </applications>
-<modules>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/swfloader/SWFLoaderPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/swfloader/SWFLoaderPlugin.mxml"/>
-</modules>
+<modules/>
 <buildCSSFiles/>
 </actionScriptProperties>
