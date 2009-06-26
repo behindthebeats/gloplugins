@@ -25,9 +25,7 @@ package org.glomaker.plugin.accessviews
         
         private var speakerCount:Number = 1;
         private var topicCount:Number = 1;
-
-
-
+        
 		public function AccessViewsDataProperty(name:String, label:String=null, value:Object=null)
 		{
 			super(name, label, value);
@@ -99,10 +97,15 @@ package org.glomaker.plugin.accessviews
 
 					// serialise sounds for each topic avaiable
 		    		for each(topic in _topics){
-						var subTag:XML = <sound id={JSON.encode(topic.id)} source={JSON.encode(speaker.sounds[topic.id])}></sound>;
+		    			var subTag:XML
+		    			if(speaker.sounds[topic.id])
+		    				subTag = serialiseFilePath(speaker.sounds[topic.id],"sound");
+		    			else
+		    				subTag = serialiseFilePath("","sound");
+		    			subTag.@id = JSON.encode(topic.id)
 						tag.appendChild( subTag );
 					}
-									
+
 				parentNode.appendChild( tag );
 			}
 
@@ -124,10 +127,10 @@ package org.glomaker.plugin.accessviews
 			for each(var speaker:XML in value.speaker){
 				var sData:SpeakerData = new SpeakerData(JSON.decode(speaker.@title));
 				//sData.imageSource = deserialiseFilePath(speaker.image);
-				sData.imageSource = JSON.decode(speaker.image);
+				sData.imageSource = JSON.decode(speaker.image.text());
 				
 						for each(var sound:XML in speaker.sound){
-							sData.sounds[JSON.decode(sound.@id)] = JSON.decode(sound.@source);
+							sData.sounds[JSON.decode(sound.@id)] = JSON.decode(sound.text());
 						}
 
 				_speakers.addItem(sData);

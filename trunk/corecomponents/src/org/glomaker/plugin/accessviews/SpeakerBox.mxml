@@ -27,7 +27,7 @@
             import mx.collections.ArrayCollection;
 			
 			[Bindable]
-			[Embed(source="files/NoFace.jpg")]
+			[Embed(source="files/noface.png")]
 			protected var noFace:Class;
 			
 			[Bindable]
@@ -214,9 +214,11 @@
             	 if(playPause){
                     pausePlayBtn.setStyle("icon",play);
                     pausePlayBtn.setStyle("overIcon",playb);
+                    pausePlayBtn.toolTip="Play";
                 } else {
                     pausePlayBtn.setStyle("icon",pause);
                     pausePlayBtn.setStyle("overIcon",pauseb);
+                    pausePlayBtn.toolTip="Pause";
                 }
             }
             
@@ -224,31 +226,37 @@
             	if(currentState == "DisplayState"){
             		pausePlayBtn.enabled = b;
             		stopPlayBtn.enabled = b;
+					// Set tooltip
+            		if(b){
+            		    pausePlayBtn.toolTip="Play";
+            		}else{
+            		    pausePlayBtn.toolTip="Play (No Sound!)";
+            		}
             	}
             }
             
         ]]>
     </mx:Script>	
     
-<mx:TextArea id="titleTextArea"  text="{_speakerData.title}" width="100%" backgroundAlpha="0" textAlign="center" fontSize="14" fontWeight="bold" borderStyle="none"  enabled="{_selected}" disabledColor="black"/>
+<mx:TextArea id="titleTextArea"  text="{_speakerData.title}" width="100%" backgroundAlpha="0" textAlign="center" fontSize="14" fontWeight="bold" borderStyle="none"  disabledColor="black"/>
 <mx:states>
       <mx:State name="DisplayState">
   		<mx:AddChild relativeTo="{controlsContainer}">
- 			<mx:Button id="pausePlayBtn"  click="playPauseHandler(event)" disabledIcon="{playg}" overIcon="{playb}" icon="{play}" width="16" height="16"/>     			
+ 			<mx:Button id="pausePlayBtn"  click="playPauseHandler(event)" disabledIcon="{playg}" overIcon="{playb}" icon="{play}" width="16" height="16" toolTip="Play"/>     			
   		</mx:AddChild>
       		
   		<mx:AddChild relativeTo="{controlsContainer}">
-            <mx:Button id="stopPlayBtn"  click="stopPlayHandler(event)" disabledIcon="{stopg}" overIcon="{stopb}" icon="{stop}" width="16" height="16"/>
+            <mx:Button id="stopPlayBtn"  click="stopPlayHandler(event)" disabledIcon="{stopg}" overIcon="{stopb}" icon="{stop}" width="16" height="16" toolTip="Stop"/>
    		</mx:AddChild>
       		
-  		<mx:AddChild relativeTo="{controlsContainer}">
-			<mx:Button disabledIcon="{scriptg}" click="onScript(event)" overIcon="{scriptb}"  icon="{script}" width="16" height="16"/>
+		<mx:AddChild relativeTo="{controlsContainer}">
+			<mx:Button disabledIcon="{scriptg}" click="onScript(event)" overIcon="{scriptb}"  icon="{script}" width="16" height="16" enabled="false" toolTip="Script feature is not implemented!"/>
   		</mx:AddChild>
       </mx:State>
       
       <mx:State name="EditState">
  		<mx:AddChild relativeTo="{controlsContainer}">
-          <mx:Button label=" Delete " height="16" visible="{deletable}" click="onDelete(event)"/>
+          <mx:Button label=" Delete " height="16" visible="{deletable}" click="onDelete(event)" toolTip="Remove speaker!"/>
         </mx:AddChild>
       </mx:State>
 </mx:states>
