@@ -59,9 +59,19 @@ xmlns:controls="com.fxcomponents.controls.*">
 			
 			override public function destroy():void
 			{
-				vidPlayer.stop();
-				vidPlayer.close();
-				vidPlayer.source = null;
+				// some of these might throw exceptions
+				try{
+					vidPlayer.stop();
+				}catch(e:Error){}
+				
+				try{
+					vidPlayer.source = null;
+				}catch(e:Error){}
+
+				try{
+					vidPlayer.close();
+				}catch(e:Error){}
+				
 			}
 
 		]]>
