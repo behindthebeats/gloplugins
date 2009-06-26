@@ -14,6 +14,8 @@
        
     <mx:Script>
         <![CDATA[
+        	import mx.containers.dividedBoxClasses.BoxDivider;
+        	import org.glomaker.shared.properties.IntegerProperty;
         	import org.glomaker.plugin.accessviews.files.TopicData;
         	import org.glomaker.shared.properties.ArrayProperty;
         	import org.glomaker.shared.properties.NumericStepperProperty;
@@ -38,6 +40,8 @@
 			
 			[Bindable]
             protected var _accessVDP:AccessViewsDataProperty = new AccessViewsDataProperty("AccessVDP");
+            
+            protected var dividerWidth:IntegerProperty = new IntegerProperty("DividerWidth","",100);
 
             [Bindable]
             protected var isEditMode:Boolean = false;
@@ -61,6 +65,8 @@
                 super.defineProperties();
                 
 				addSaveableProperty(_accessVDP);
+				addSaveableProperty(dividerWidth);
+				
 				addEditableProperty(_imageSourceField);
 				addEditableProperty(_soundSourceField);
 				addEditableProperty(_scriptSourceField);
@@ -70,7 +76,8 @@
                 speakersGroupDisplay.addEventListener(SpeakerBox.PLAY_PAUSE_EVENT,playPauseHandler);
                 speakersGroupDisplay.addEventListener(SpeakerBox.STOP_EVENT,stopHandler);
                 speakersGroupDisplay.addEventListener(SpeakerBox.SCRIPT_EVENT,scriptHandler);
-  
+                
+                disableDividers();  
             }
             
              // Remove all events
@@ -80,11 +87,13 @@
                  speakersGroupDisplay.removeEventListener(SpeakerBox.PLAY_PAUSE_EVENT,playPauseHandler);
                 speakersGroupDisplay.removeEventListener(SpeakerBox.STOP_EVENT,stopHandler);
                 speakersGroupDisplay.removeEventListener(SpeakerBox.SCRIPT_EVENT,scriptHandler);
-            	
+            	// Stop Mp3Player
+            	mp3Player.stop();
             } 
             
             override public function propertyValuesInitialised():void
             {
+            	dividerBox.width = dividerWidth.propValue;
              }
 
             override public function editablePropertyUpdated(prop:IComponentProperty):void
@@ -101,6 +110,8 @@
             {
               saveSpeakerData();
               saveTopicData();
+              
+              dividerWidth.propValue = dividerBox.width;
             }
             
 
@@ -157,6 +168,11 @@
            // Change the mode of the component between edit (true) and display (false) modes
             override public function setEditMode(f:Boolean):void{
               isEditMode = f;
+              
+              if(f)
+              enableDividers();
+              else
+              disableDividers();
             }  
             
             protected function onSpeakerBoxClick(evt:MouseEvent=null):void
@@ -317,7 +333,30 @@
 				   }
                 }
  
-           
+        // hide show dividers handles, by nils
+        
+        protected function disableDividers():void
+        {
+            var div:BoxDivider;
+            for(var i:uint = 0;i<dividerComponent.numDividers;i++)
+            {
+                div = dividerComponent.getDividerAt(i);
+                div.enabled = false;
+                div.visible = false;
+            }
+        }
+
+		protected function enableDividers():void
+        {
+            var div:BoxDivider;
+            for(var i:uint = 0;i<dividerComponent.numDividers;i++)
+            {
+                div = dividerComponent.getDividerAt(i);
+                div.enabled = true;
+                div.visible = true;
+            }
+        }
+
            
         ]]>
     </mx:Script>
@@ -347,8 +386,8 @@
                                     <accessviews:SpeakerBox id="speakerBoxArray" speakerData="{speakersRepeater.currentItem}"  deletable="{_accessVDP._speakers.length>1}" index="{speakersRepeater.currentIndex}" width="100%" height="145" editMode="{isEditMode}" click="onSpeakerBoxClick(event)"/>
                               </mx:Repeater>
                         </mx:HBox>
-                        <mx:HBox width="100%" height="100%">
-                              <mx:HBox width="100%" height="100%"/>
+                        <mx:HDividedBox id="dividerComponent" width="100%" height="100%">
+                              <mx:HBox  id="dividerBox" width="100%" height="100%"/>
 								<mx:VBox width="30%" height="100%">
                                     <mx:Repeater id="topicsRP" dataProvider="{_accessVDP._topics}" repeatEnd="refresh();">
                                           <mx:HBox verticalAlign="middle" height="100%" width="100%">
@@ -358,11 +397,11 @@
                                           </mx:HBox>
                                     </mx:Repeater>
                               </mx:VBox>
-                        </mx:HBox>
+                        </mx:HDividedBox>
                         <mx:HBox>
 							  <mx:Button label="Add Topic" click="onAddTopic(event)" visible="{isEditMode}"/>
                               <mx:Button label="Add Speaker" click="onAddSpeaker(event)" visible="{isEditMode}"/>                        
-                              </mx:HBox>
+                        </mx:HBox>
                   </mx:VBox>
 </BaseComponent>
  

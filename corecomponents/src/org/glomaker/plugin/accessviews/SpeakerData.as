@@ -12,14 +12,14 @@ package org.glomaker.plugin.accessviews
 	public class SpeakerData
 	{
 		[Bindable]
-		[Embed(source="files/NoFace.jpg")]
+		[Embed(source="files/noface.png")]
 		protected var noface:Class;
 			
 		[Bindable]
 		public var title:String;
 		
 		[Bindable]
-		public var imageSource:String = "http://www.interloc.org/NoFace.jpg";
+		public var imageSource:String;
 		
 		public var sounds:Dictionary;
 		
