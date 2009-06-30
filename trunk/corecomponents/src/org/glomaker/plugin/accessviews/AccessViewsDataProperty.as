@@ -10,6 +10,7 @@ package org.glomaker.plugin.accessviews
 	import com.adobe.serialization.json.JSON;
 	
 	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
 	
 	import org.glomaker.plugin.accessviews.files.TopicData;
 	import org.glomaker.shared.properties.AbstractCustomProperty;
@@ -36,13 +37,15 @@ package org.glomaker.plugin.accessviews
 		
 		public function addSpeaker():void{
 			 var i:int = ++speakerCount;
-			_speakers.addItem(new SpeakerData("Speaker " + i)); 
+			//_speakers.addItem(new SpeakerData("Speaker " + i)); 
+			_speakers.addItem(new SpeakerData("Speaker " + (_speakers.length+1))); 
 			               
 		}
 		
 		public function addTopic():void{
 			 var i:int = ++topicCount;
-			_topics.addItem(new TopicData("Topic " + i,"Topic_"+i)); 
+			//_topics.addItem(new TopicData("Topic " + i,"Topic_"+i)); 
+			_topics.addItem(new TopicData("Topic " + (_topics.length+1),"Topic_"+i)); 
 			               
 		}
 		
@@ -60,12 +63,18 @@ package org.glomaker.plugin.accessviews
 			_topics.removeItemAt(index);
 		}
 		
-
-		public function changeSpeakerImage(index:int,source:String):void{
-			SpeakerData(_speakers.getItemAt(index)).imageSource = source;
-			                
+		
+		public function changeSpeakerImage(speakerIndex:int,source:String):void{
+			var speakerData:SpeakerData = SpeakerData(_speakers.getItemAt(speakerIndex));
+			speakerData.imageSource = source;
 		}
 		
+		public function changeSpeakerTopicScript(speakerIndex:int,topicIndex:int,source:String):void{
+			var speakerData:SpeakerData = SpeakerData(_speakers.getItemAt(speakerIndex));
+			var topicData:TopicData = TopicData(_topics.getItemAt(topicIndex));
+			speakerData.scripts[topicData.id] = source;
+		}
+
 		public function changeSpeakerTopicSound(speakerIndex:int,topicIndex:int,source:String):void{
 			var speakerData:SpeakerData = SpeakerData(_speakers.getItemAt(speakerIndex));
 			var topicData:TopicData = TopicData(_topics.getItemAt(topicIndex));
@@ -73,6 +82,14 @@ package org.glomaker.plugin.accessviews
 			speakerData.sounds[topicData.id] = source;
 		}
 		 
+		public function getSpeakerTopicScript(speakerIndex:int,topicIndex:int): String{
+			
+			var speakerData:SpeakerData = SpeakerData(_speakers.getItemAt(speakerIndex));
+			var topicData:TopicData = TopicData(_topics.getItemAt(topicIndex));
+
+			return speakerData.scripts[topicData.id];
+		}
+
 		public function getSpeakerTopicSound(speakerIndex:int,topicIndex:int): String{
 			
 			var speakerData:SpeakerData = SpeakerData(_speakers.getItemAt(speakerIndex));
@@ -94,14 +111,23 @@ package org.glomaker.plugin.accessviews
 		    for each(var speaker:SpeakerData in _speakers){
 				tag = <speaker title={JSON.encode(speaker.title)}></speaker>;
 				tag.appendChild(serialiseFilePath(speaker.imageSource,"image"));
-
+				var subTag:XML;
 					// serialise sounds for each topic avaiable
 		    		for each(topic in _topics){
-		    			var subTag:XML
 		    			if(speaker.sounds[topic.id])
 		    				subTag = serialiseFilePath(speaker.sounds[topic.id],"sound");
 		    			else
 		    				subTag = serialiseFilePath("","sound");
+		    			subTag.@id = JSON.encode(topic.id)
+						tag.appendChild( subTag );
+					}
+
+					// serialise script for each topic avaiable
+		    		for each(topic in _topics){
+		    			if(speaker.scripts[topic.id])
+		    				subTag = serialiseFilePath(speaker.scripts[topic.id],"script");
+		    			else
+		    				subTag = serialiseFilePath("","script");
 		    			subTag.@id = JSON.encode(topic.id)
 						tag.appendChild( subTag );
 					}
@@ -128,9 +154,14 @@ package org.glomaker.plugin.accessviews
 				var sData:SpeakerData = new SpeakerData(JSON.decode(speaker.@title));
 				//sData.imageSource = deserialiseFilePath(speaker.image);
 				sData.imageSource = JSON.decode(speaker.image.text());
-				
+				        // deserialise sounds
 						for each(var sound:XML in speaker.sound){
 							sData.sounds[JSON.decode(sound.@id)] = JSON.decode(sound.text());
+						}
+						
+				        // deserialise scripts
+						for each(var script:XML in speaker.script){
+							sData.scripts[JSON.decode(script.@id)] = JSON.decode(script.text());
 						}
 
 				_speakers.addItem(sData);

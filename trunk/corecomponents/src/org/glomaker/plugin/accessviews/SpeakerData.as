@@ -23,10 +23,13 @@ package org.glomaker.plugin.accessviews
 		
 		public var sounds:Dictionary;
 		
+		public var scripts:Dictionary;
+		
 		public function SpeakerData(t:String)
 		{
 			title = t;
 			sounds = new Dictionary();
+			scripts = new Dictionary();
 		}
 
 	}

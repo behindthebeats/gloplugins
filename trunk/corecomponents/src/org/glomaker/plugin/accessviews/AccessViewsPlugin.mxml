@@ -4,7 +4,6 @@
 /////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2007-09 LTRI, London Metropolitan Uni. All rights reserved.
 // An Open Source Release under the GPL v3 licence  (see http://www.gnu.org/licenses/).
-// Authors: Tom Boyle, Nils Millahn, Musbah Sagar, Martin Agombar.
 // See http://www.glomaker.org for full details
 /////////////////////////////////////////////////////////////////////////
 -->
@@ -14,6 +13,7 @@
        
     <mx:Script>
         <![CDATA[
+        	import mx.messaging.AbstractConsumer;
         	import mx.containers.dividedBoxClasses.BoxDivider;
         	import org.glomaker.shared.properties.IntegerProperty;
         	import org.glomaker.plugin.accessviews.files.TopicData;
@@ -54,7 +54,11 @@
             // Current selected topic from property panel
             [Bindable]
             private var selectedTopicIndex:int = -1;
- 
+            
+            private var currentScript:String = "";
+            
+            private var myURLLoader:URLLoader = new URLLoader();
+
             
             // ***************************************
             // BaseComponent overrides
@@ -72,11 +76,13 @@
 				addEditableProperty(_scriptSourceField);
 
                 // Register all events
-                 speakersGroupDisplay.addEventListener(SpeakerBox.DELETE_EVENT,onDeleteSpeaker); 
+                speakersGroupDisplay.addEventListener(SpeakerBox.DELETE_EVENT,onDeleteSpeaker); 
                 speakersGroupDisplay.addEventListener(SpeakerBox.PLAY_PAUSE_EVENT,playPauseHandler);
                 speakersGroupDisplay.addEventListener(SpeakerBox.STOP_EVENT,stopHandler);
                 speakersGroupDisplay.addEventListener(SpeakerBox.SCRIPT_EVENT,scriptHandler);
                 
+                myURLLoader.addEventListener(Event.COMPLETE, loadingScriptHandler);
+
                 disableDividers();  
             }
             
@@ -87,6 +93,9 @@
                  speakersGroupDisplay.removeEventListener(SpeakerBox.PLAY_PAUSE_EVENT,playPauseHandler);
                 speakersGroupDisplay.removeEventListener(SpeakerBox.STOP_EVENT,stopHandler);
                 speakersGroupDisplay.removeEventListener(SpeakerBox.SCRIPT_EVENT,scriptHandler);
+                
+                myURLLoader.removeEventListener(Event.COMPLETE, loadingScriptHandler);
+
             	// Stop Mp3Player
             	mp3Player.stop();
             } 
@@ -101,8 +110,11 @@
             	if(prop == _imageSourceField)
 					imageSource = _imageSourceField.propValue;
 					
-           	if(prop == _soundSourceField)
+           		if(prop == _soundSourceField)
 					soundSource = _soundSourceField.propValue;
+
+           		if(prop == _scriptSourceField)
+					scriptSource = _scriptSourceField.propValue;
 			   
             }
            
@@ -122,14 +134,15 @@
 			public function set imageSource(value:String):void
 			{
 				if(value != null && value != ""){
+				 // update the data 
 				 _accessVDP.changeSpeakerImage(selectedSpeakerIndex,value);
+				 // update the view
 				 SpeakerBox(speakerBoxArray[selectedSpeakerIndex]).imageSource = value;
 				}
  			}
  			
             /**
 			 * Getter / setter for the soundSource property.
-			 * If the source value is empty/null, the default image is shown instead.
 			 */
 			public function set soundSource(value:String):void
 			{
@@ -137,6 +150,17 @@
 				 _accessVDP.changeSpeakerTopicSound(selectedSpeakerIndex,selectedTopicIndex,value);
 			}
 			
+            /**
+			 * Getter / setter for the scriptSource property.
+			 */
+			public function set scriptSource(value:String):void
+			{
+			if(value != null && value != "")
+				_accessVDP.changeSpeakerTopicScript(selectedSpeakerIndex,selectedTopicIndex,value);
+				
+			}
+			
+
         // MP3 Player functions 
         
         public function playPauseHandler(event:Event):void{
@@ -149,11 +173,7 @@
         
         public function scriptHandler(event:Event):void{
         	
-        	var sp:SpeakerBox = event.target as SpeakerBox;
-			//var script:String = sp.getScript(selectedTopicIndex);
-			
-			//if(script)
-				Alert.show("Not Working Yet!");
+			Alert.show(currentScript,"Script");
         }
         
             // Add new Speaker
@@ -175,51 +195,7 @@
               disableDividers();
             }  
             
-            protected function onSpeakerBoxClick(evt:MouseEvent=null):void
-            {
-            	if(selectedTopicIndex==-1){
-            		Alert.show("Please choose a topic first!");
-            		return;
-            	}
-            	 
-           		// Get the clikced speaker
-            	var clickedSpeaker:SpeakerBox = SpeakerBox(evt.currentTarget);
-            	
-            	// Retrive the previously selected speaker
-            	var lastSpeaker:SpeakerBox = speakerBoxArray[selectedSpeakerIndex] as SpeakerBox;
-            	
-            	// if the clicked object is same as selected one or return
-            	if(clickedSpeaker == lastSpeaker)
-            		return;
-            	
-            	// Select it
-            	clickedSpeaker.selected = true;
-
-            	
-            	// Unselect the previously selected speaker
-            	if(lastSpeaker && lastSpeaker.index!=-1)
-            	  lastSpeaker.selected = false;
-            	
-            	// Set the current index with the clicked spaker
-            	selectedSpeakerIndex = clickedSpeaker.index;
-            	
-                // Stop the music
-                mp3Player.stop();
-  
-            	// Load the sound file 
-            	var path:String = _accessVDP.getSpeakerTopicSound(selectedSpeakerIndex,selectedTopicIndex);
-                
-               if(path){
- 					mp3Player.loadSound(path);
- 					clickedSpeaker.enabledPlay(true);
- 				} else {
- 					mp3Player.loadSound(null);
- 					clickedSpeaker.enabledPlay(false);
- 				} 
- 				
- 				         
             
-            }
                 // Refresh SpeakerBox objects after repeater finishes redrawing 
                 protected function refresh():void{
             	// Updake the selected speaker
@@ -263,6 +239,8 @@
             // Delete topic
             protected function onDeleteTopic(evt:MouseEvent=null):void
             {
+            	saveTopicData();
+
                  // Use the same pointer to modify the answers and feedback arrays (they must always have same number of elements)
                 var index:int = (deleteArray as Array).indexOf(evt.target);
 
@@ -274,6 +252,8 @@
             // Delete speaker
             protected function onDeleteSpeaker(event:Event=null):void
             {
+            	saveSpeakerData();
+            	
                 // Use the same pointer to modify the answers and feedback arrays (they must always have same number of elements)
                 // index == selectedSpeakerIndex
                 var index:int = (speakerBoxArray as Array).indexOf(event.target);
@@ -318,21 +298,96 @@
  				   speaker.selected = true;
 
              	   // Load the sound file 
-            	   var path:String = _accessVDP.getSpeakerTopicSound(selectedSpeakerIndex,selectedTopicIndex);
+            	   var soundPath:String = _accessVDP.getSpeakerTopicSound(selectedSpeakerIndex,selectedTopicIndex);
             	   
-                     if(path){
- 						mp3Player.loadSound(path);
+                     if(soundPath){
+ 						mp3Player.loadSound(soundPath);
  						 speaker.enabledPlay(true);
 
  					 } else {
  						mp3Player.loadSound(null);
  						speaker.enabledPlay(false);
-
  				     }
+ 				     
+		           // Load the script file 
+            	   var scriptPath:String = _accessVDP.getSpeakerTopicScript(selectedSpeakerIndex,selectedTopicIndex);
+            	   
+				     if(scriptPath){
+						 myURLLoader.load(new URLRequest(scriptPath));
+ 						 speaker.enabledScript(true);
+
+ 					 } else {
+ 						speaker.enabledScript(false);
+ 				     }
+ 				     
 				    }
 				   }
                 }
- 
+                
+                protected function onSpeakerBoxClick(evt:MouseEvent=null):void
+            {
+            	if(selectedTopicIndex==-1){
+            		Alert.show("Please choose a topic first!");
+            		return;
+            	}
+            	 
+           		// Get the clikced speaker
+            	var clickedSpeaker:SpeakerBox = SpeakerBox(evt.currentTarget);
+            	
+            	// Retrive the previously selected speaker
+            	var lastSpeaker:SpeakerBox = speakerBoxArray[selectedSpeakerIndex] as SpeakerBox;
+            	
+            	// if the clicked object is same as selected one or return
+            	if(clickedSpeaker == lastSpeaker)
+            		return;
+            	
+            	// Select it
+            	clickedSpeaker.selected = true;
+
+            	
+            	// Unselect the previously selected speaker
+            	if(lastSpeaker && lastSpeaker.index!=-1)
+            	  lastSpeaker.selected = false;
+            	
+            	// Set the current index with the clicked spaker
+            	selectedSpeakerIndex = clickedSpeaker.index;
+            	
+                // Stop the music
+                mp3Player.stop();
+  
+            	// Load the sound file 
+            	var soundPath:String = _accessVDP.getSpeakerTopicSound(selectedSpeakerIndex,selectedTopicIndex);
+                
+               if(soundPath){
+ 					mp3Player.loadSound(soundPath);
+ 					clickedSpeaker.enabledPlay(true);
+ 				} else {
+ 					mp3Player.loadSound(null);
+ 					clickedSpeaker.enabledPlay(false);
+ 				} 
+ 				
+ 				   // Load the script file 
+            	   var scriptPath:String = _accessVDP.getSpeakerTopicScript(selectedSpeakerIndex,selectedTopicIndex);
+            	   
+				     if(scriptPath){
+						 myURLLoader.load(new URLRequest(scriptPath));
+ 						 clickedSpeaker.enabledScript(true);
+
+ 					 } else {
+ 						clickedSpeaker.enabledScript(false);
+ 				     }
+ 				
+            }
+            
+            
+			/* Handler function for the URLLoader object. This function sets the text in the label
+			  instance to the contents of the remote text file. */
+			  private function loadingScriptHandler(evt:Event):void {
+			  	 var txt:String = URLLoader(evt.currentTarget).data as String;
+			  	 currentScript = txt;
+			  }
+
+
         // hide show dividers handles, by nils
         
         protected function disableDividers():void
