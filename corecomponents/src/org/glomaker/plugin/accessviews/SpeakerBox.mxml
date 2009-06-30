@@ -234,6 +234,18 @@
             		}
             	}
             }
+               public function enabledScript(b:Boolean):void{
+            	if(currentState == "DisplayState"){
+            		scriptBtn.enabled = b;
+            		// Set tooltip
+            		if(b){
+            		    scriptBtn.toolTip="Show Script";
+            		}else{
+            		    scriptBtn.toolTip="No Script!";
+            		}
+
+            	}
+            }
             
         ]]>
     </mx:Script>	
@@ -250,7 +262,7 @@
    		</mx:AddChild>
       		
 		<mx:AddChild relativeTo="{controlsContainer}">
-			<mx:Button disabledIcon="{scriptg}" click="onScript(event)" overIcon="{scriptb}"  icon="{script}" width="16" height="16" enabled="false" toolTip="Script feature is not implemented!"/>
+			<mx:Button id="scriptBtn" disabledIcon="{scriptg}" click="onScript(event)" overIcon="{scriptb}"  icon="{script}" width="16" height="16" enabled="false" toolTip="Show Script"/>
   		</mx:AddChild>
       </mx:State>
       
@@ -262,7 +274,7 @@
 </mx:states>
 
     <mx:HBox backgroundColor="red">
-          <mx:Image id="speakerImage" width="100%" maintainAspectRatio="true" source="{noFace}"/>
+          <mx:Image id="speakerImage" width="64" height="70" maintainAspectRatio="false" source="{noFace}"/>
     </mx:HBox>
     <mx:HBox id="controlsContainer" horizontalGap="8" visible="{_selected}">
     </mx:HBox>
