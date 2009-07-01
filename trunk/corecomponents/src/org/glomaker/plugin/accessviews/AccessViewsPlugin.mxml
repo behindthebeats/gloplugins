@@ -13,6 +13,8 @@
        
     <mx:Script>
         <![CDATA[
+        	import mx.managers.PopUpManagerChildList;
+        	import mx.managers.PopUpManager;
         	import mx.messaging.AbstractConsumer;
         	import mx.containers.dividedBoxClasses.BoxDivider;
         	import org.glomaker.shared.properties.IntegerProperty;
@@ -173,7 +175,13 @@
         
         public function scriptHandler(event:Event):void{
         	
-			Alert.show(currentScript,"Script");
+			// show the popup
+			var popup:ScriptWindow = new ScriptWindow();
+			popup.htmlText = currentScript;
+
+			PopUpManager.addPopUp( popup, parent, true, PopUpManagerChildList.POPUP);
+			PopUpManager.centerPopUp(popup);
+			
         }
         
             // Add new Speaker
@@ -327,7 +335,7 @@
                 protected function onSpeakerBoxClick(evt:MouseEvent=null):void
             {
             	if(selectedTopicIndex==-1){
-            		Alert.show("Please choose a topic first!");
+            		Alert.show("Please choose a topic first!","Warning");
             		return;
             	}
             	 
