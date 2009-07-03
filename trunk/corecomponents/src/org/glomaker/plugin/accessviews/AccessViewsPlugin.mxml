@@ -59,7 +59,12 @@
             
             private var currentScript:String = "";
             
+            // Used to load the scripts from the text file
             private var myURLLoader:URLLoader = new URLLoader();
+            
+            // Used to show the script
+            private var popup:ScriptWindow = new ScriptWindow();
+
 
             
             // ***************************************
@@ -175,11 +180,13 @@
         
         public function scriptHandler(event:Event):void{
         	
-			// show the popup
-			var popup:ScriptWindow = new ScriptWindow();
+			// Remove first 
+			PopUpManager.removePopUp(popup);
+			
+			// Change the text to the script
 			popup.htmlText = currentScript;
 
-			PopUpManager.addPopUp( popup, parent, true, PopUpManagerChildList.POPUP);
+			PopUpManager.addPopUp(popup, parent, false, PopUpManagerChildList.POPUP);
 			PopUpManager.centerPopUp(popup);
 			
         }
