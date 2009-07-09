@@ -48,7 +48,9 @@
 		<mx:Button label="Init" click="plugin.propertyValuesInitialised()"/>
 <!--		<medialoaders:ImageLoaderPlugin id="plugin" width="100" height="100"/>
 -->	
-<accessviews:AccessViewsPlugin id="plugin" width="100%" height="100%"/>
+<!--<accessviews:AccessViewsPlugin id="plugin" width="100%" height="100%"/>
+-->
+<stepthrough:StepThroughPlugin id="plugin" width="100%" height="100%"/>
 <!--<imagemagnifier:ImageMagnifierPlugin id="plugin" width="100%" height="100%"/>
 --></mx:VBox>
 
