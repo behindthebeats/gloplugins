@@ -18,6 +18,7 @@
     
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import mx.messaging.SubscriptionInfo;
 			import org.glomaker.shared.properties.NumericStepperProperty;
 			import org.glomaker.shared.properties.ArrayProperty;
@@ -28,6 +29,7 @@
 			import org.glomaker.shared.properties.StringProperty;
 			import mx.controls.RadioButton;
 			import flash.events.FocusEvent;
+			import mx.managers.PopUpManager;
 
 			/**
 			 * Default images embed
@@ -83,6 +85,7 @@
             [Bindable]
             protected var feedbackCollection:ArrayCollection;
             
+            
   			// ------------------
 			// METHODS
 			// ------------------
@@ -118,8 +121,8 @@
 				// initial feedbacks				
 				addSaveableProperty(_feedbacks);
 			}
-			
-			
+			 
+			 
 			override public function propertyValuesInitialised():void
 			{
 				currentFontSize = _fontSize.propValue;
@@ -135,7 +138,7 @@
 				// if no entries are available, we provide default values
 				if(_answers.valueArray.length == 0)
 				{
-					answerCollection = new ArrayCollection(["Answer 1", "Answer 2", "Answer 3"]);
+					answerCollection = new ArrayCollection(["Answer 11", "Answer 2", "Answer 3"]);
 				}else{
 					answerCollection = new ArrayCollection(_answers.valueArray.concat());
 				}
@@ -259,7 +262,7 @@
 				answerCollection.addItem("Answer " + index);
 				feedbackCollection.addItem("Feedback " + index);
 				
-				// the repeater will have updated its values - update the 
+ 				// the repeater will have updated its values - update the 
 			}
 
             // Submit an answer and recieve the feedback
@@ -273,7 +276,12 @@
 				
 				if(selectedIndex > -1)
 				{
-					result.show(this);
+					if(!result)
+					  result = new Result();
+					//result.show(this);
+					
+					PopUpManager.addPopUp(result, this, true);
+     			    PopUpManager.centerPopUp(result); 
 					
 					// show appropriate image in feedback popup
 					if(selectedIndex == currentCorrectAnswer){

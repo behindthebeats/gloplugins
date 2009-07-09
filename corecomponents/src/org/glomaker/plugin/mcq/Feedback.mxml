@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////////////////
 -->
 
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	
 	layout="absolute"
 	width="300"
@@ -88,4 +88,4 @@
      <mx:Button id="cancel" label="Cancel" click="clickCancel(event)"/>
  </mx:ControlBar>
  
-</mx:Panel>
+</mx:TitleWindow>
