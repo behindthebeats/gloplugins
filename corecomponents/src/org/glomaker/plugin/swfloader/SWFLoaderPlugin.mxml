@@ -11,21 +11,16 @@
 
 <BaseComponent xmlns="org.glomaker.shared.component.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	horizontalScrollPolicy="off"
-	verticalScrollPolicy="off">
-	
-	<mx:Style>
-		
-	</mx:Style>
-	
+	width="100%" height="100%">
 	
 	<mx:Script>
 		<![CDATA[
 			import org.glomaker.shared.properties.ColourProperty;
-			import org.glomaker.shared.properties.BooleanProperty;
-			import org.glomaker.shared.component.utils.MissingImageSkin;
-			import org.glomaker.shared.properties.IComponentProperty;
+			import org.glomaker.shared.properties.StringProperty;
+
 			import org.glomaker.shared.properties.FilePathProperty;
+			import org.glomaker.shared.properties.IComponentProperty;
+			import org.glomaker.shared.properties.BooleanProperty;
 			
 			/**
 		 	* Embed play button up skin.
@@ -84,46 +79,77 @@
 			public var backRolloverBtn:Class;
 			
 			/**
-		 	* Stores any labels within the current scene of a MovieClip.
+		 	* Embed AVM1Loader.
 		 	*/
-			protected var labels:Array;
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/localConnection.swf")]	
+			public var AVM1Loader:Class;
 			
 			/**
-		 	* Used to toggle play / pause button.
-		 	*/
-			protected var startMode:Boolean = true;
-			
-			/**
-		 	* Stores the file path to the loaded asset.
+		 	* Sets up a Browse control button on the Property Panel.
 		 	*/
 			protected var filePath:FilePathProperty;
 			
 			/**
 		 	* Sets up a field on the Property Panel to control the existence of the play button.
 		 	*/
-			protected var playControl:BooleanProperty = new BooleanProperty("playControlValue", "Play button ?", true);
+			protected var playControl:BooleanProperty;
 			
 			/**
 		 	* Sets up a field on the Property Panel to control the existence of the jump button.
 		 	*/
-			protected var nextLabelControl:BooleanProperty = new BooleanProperty("labelControlValue", "Jump button ?", true);
+			protected var jumpControl:BooleanProperty;			
 			
 			/**
 		 	* Sets up a field on the Property Panel to control the colour of thebackground strip .
 		 	*/
-			protected var bgColour:ColourProperty = new ColourProperty("bgcolour", "Colour", 0x666666);
+			protected var bgColour:ColourProperty;
 			
 			/**
 		 	* Stores a true or false value relating to the existence of the play button.
 		 	*/
-			private var _playControl:Boolean = true;
+			private var _playControlVisible:Boolean;
 			
 			/**
 		 	* Stores a true or false value relating to the existence of the jump button.
 		 	*/
-			private var _labelControl:Boolean = true;
+			private var _jumpControlVisible:Boolean;
 			
-			//private var AVM_lc:LocalConnection = new LocalConnection();
+			/**
+		 	* Stores an array of MovieClip labels.
+		 	*/
+			private var _labels:Array;
+			
+			/////////////////////////
+			
+			/**
+		 	* Sets up an invisible property that stores a true / false value depending
+		 	* on whether the loaded asset is an AVM1 movie or not.
+		 	*/
+		 	protected var isAVM1:BooleanProperty;
+		 	
+		 	/**
+		 	* Stores the unique connectionID for this instance. Used to connect with the AVM1Loader.
+		 	*/
+		 	protected var connectionID:StringProperty;
+		 	
+		 	/**
+		 	* Stores the local connection object, effectively making this module a server.
+		 	*/
+			protected var AVM_lc:CustomLocalConnection;
+			
+			/**
+		 	* Stores the instance of the AVM1Loader that is used permenantly as the bridge to AVM1 movies.
+		 	*/
+			private var _AVM1LoaderInstance:DisplayObject;
+			
+			/**
+		 	* Collection of all the AVM1 loaders. Necessary to avoid cross-talk problems.
+		 	*/			
+			private static var _AVM1Loaders:Dictionary = new Dictionary();
+			
+			////////////////////////
+			
 			
 			/**
 		 	* Called by GLOMaker when the properties need to be defined.
@@ -131,104 +157,119 @@
 			override protected function defineProperties():void
 			{
 				super.defineProperties();
-
-				filePath = new FilePathProperty("source", "File Path:", "");
+				
+				playControl = new BooleanProperty("playControlValue", "Play button ?", true);
+				jumpControl = new BooleanProperty("labelControlValue", "Jump button ?", true);
+				
+				filePath = new FilePathProperty("filepath", "File Path:", "");
 				filePath.fileTypeLabel = "SWFs and Images"; 
-				filePath.fileExtensions = "*.jpg;*.gif;*.png;*.swf"; 
-
+				filePath.fileExtensions = "*.jpg;*.gif;*.png;*.swf";
+			
+				bgColour = new ColourProperty("bgcolour", "Colour", 0x666666);
+	
+				connectionID = new StringProperty("connectionID", "", "StringProperty::NotSet");
+				isAVM1 = new BooleanProperty("isAVM1", "", false);
+				
 				addProperty(filePath);
 				addProperty(bgColour);
-
 				addProperty(playControl);
-				addProperty(nextLabelControl);
+				addProperty(jumpControl);
 				
-				//AVM_lc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurity);
-				//AVM_lc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsynch);
+				addSaveableProperty(connectionID);
+				addSaveableProperty(isAVM1);
+
 			}
 			
+			/**
+		 	* Called by GLOMaker when the properties need to be initialised.
+		 	*/
 			override public function propertyValuesInitialised():void
 			{
-				swfLoader.source = filePath.propValue;
-				_playControl = playControl.propValue;
-				_labelControl = nextLabelControl.propValue;
+				_playControlVisible = playControl.propValue;
+				_jumpControlVisible = jumpControl.propValue;
+				
+				// initialise LocalConnection...
+				initLocalConnection();
+				
+				if(checkConnectionIDExists(connectionID.propValue) == null)
+				{
+					// this component has not been set up. It needs an AVM1Loader
+					// the initialisation process will now begin
+					swfLoader.source = new AVM1Loader();
+					
+					
+				}else if(!isAVM1.propValue)
+				{
+					// we already have an AVM1Loader and the media is not AVM1 anyway.
+					// go ahead and load
+					swfLoader.load(filePath.propValue);
+				}else
+				{	
+					// we already have an AVM1Loader and the media is an AVM1.
+					// load AVM1 movie
+					loadAVM1Loader();
+					loadAVM1Movie();
+					
+					updateEditableProperties([filePath, bgColour, playControl]);
+					_playControlVisible = true;
+					_jumpControlVisible = false;
+				}
+				
 				controls.setStyle("backgroundColor", bgColour.propValue);
 				
-				buildTransportControls();
+				buildControls();
 			}
 			
-			override public function hasEditMode():Boolean
-			{
-				return false;
-			}
-			
+			/**
+		 	* Called by GLOMaker when the properties need to be updated.
+		 	*/
 			override public function editablePropertyUpdated(prop:IComponentProperty):void
 			{
 				switch(prop)
-				{
-					case filePath:
-						swfLoader.source = filePath.propValue;
-						break;
-						
+				{						
 					case playControl:
-						_playControl = prop.propValue;
-						buildTransportControls();
+					
+						_playControlVisible = prop.propValue;
+						buildControls();
+						
 						break;
 						
-					case nextLabelControl:
-						_labelControl = prop.propValue;
-						buildTransportControls();
-						break;
+					case jumpControl:
+					
+						_jumpControlVisible = prop.propValue;
+						buildControls();
+
+						break;	
+						
+					case filePath:
+					
+						swfLoader.source = prop.propValue;	
+						
+						break
 						
 					case bgColour:
-						controls.setStyle("backgroundColor", prop.propValue);
-						break;
+					
+						controls.setStyle("backgroundColor", bgColour.propValue);
 						
+						break;
 				}
 			}
 			
-			
-			private function onSecurity(evt:SecurityErrorEvent):void
+			override public function destroy():void
 			{
-				// trace(evt.text);
+				AVM_lc = new CustomLocalConnection("host" + connectionID.propValue);	
+						
+				AVM_lc.send(connectionID.propValue, "destroy");
+				
+				closeConnection();
 			}
 			
-			private function onAsynch(evt:AsyncErrorEvent):void
-			{
-				// trace(evt.text);
-			}
-			
-			
-			/**
-		 	* Causing the loaded movie to play.
-		 	*/
-		 	protected function onStart(evt:MouseEvent):void
-		 	{
-		 		if(swfLoader.content is MovieClip)
-				{
-					(swfLoader.content as MovieClip).play();	
-				}
-		 	}
-		 	
-		 	/**
-		 	* Causing the loaded movie to stop.
-		 	*/
-		 	protected function onStop(evt:MouseEvent):void
-		 	{
-		 		if(swfLoader.content is MovieClip)
-				{
-					(swfLoader.content as MovieClip).stop();	
-				}
-		 	}
-			
-			/**
-		 	* Builds the transport controls.
-		 	*/
-			protected function buildTransportControls():void
+			protected function buildControls():void
 			{
 				// start with a clean sheet
 				controls.removeAllChildren();
 				
-				if(_labelControl == false && _playControl == false)
+				if(_jumpControlVisible == false && _playControlVisible == false)
 				{
 					// no buttons to display. make controls invisible
 					controls.visible = false;
@@ -237,13 +278,13 @@
 					
 					controls.visible = true;
 
-					if(_playControl)
+					if(_playControlVisible)
 					{	
 						controls.addChild(stop);
 						controls.addChild(play);
 					}
 
-					if(_labelControl)
+					if(_jumpControlVisible)
 					{
 						controls.addChildAt(back, 0);
 						controls.addChild(fwd);
@@ -251,182 +292,327 @@
 				}
 			}
 			
+			///////////////////////////////////////////////////////
+			//
+			// AVM1 
+			//
+			///////////////////////////////////////////////////////
 			
-			/**
-		 	* Responds to when the user clicks on the forward button. Jumps to the next available label.
-		 	*/
-			protected function onFwd(evt:MouseEvent):void
+			protected function initLocalConnection():void
 			{
-				var nextFrameLabel:FrameLabel = getNextFrameLabel();
+				// this connection has also been set up in the local connection SWF
+				// and will be used once only for initialisation purposes
 				
-				if(nextFrameLabel != null)
+				// ensure there is no connection still running
+				if(AVM_lc != null)
 				{
-					// play.visible = true;
-					// stop.visible = false;
-					(swfLoader.content as MovieClip).gotoAndStop(getNextFrameLabel().frame);
+					AVM_lc.close();
 				}
+				
+				// create connection
+				AVM_lc = new CustomLocalConnection("AVM1toAVM2");
+				
+				// listens for the local connection SWF sending an event indicating it has loaded
+				// and is operational
+				AVM_lc.addEventListener(Event.INIT, onAVM1LoaderInitialised);
+				
+				// catches error messages associated with the connection
+				AVM_lc.addEventListener(StatusEvent.STATUS, onStatusError);
 				
 			}
 			
 			/**
-		 	* Responds to when the user clicks on the back button. Jumps to the previous label.
+		 	* The localConnection SWF is set up to make a local connection call once it is ready to load
+		 	* an AVM1 movie.
 		 	*/
-			protected function onBack(evt:Event):void
+			protected function onAVM1LoaderInitialised(evt:Event):void
+			{	
+			
+				// add the information to AVM1LoaderInfo			
+				var AVM1Object:AVM1LoaderInfo = new AVM1LoaderInfo();
+				AVM1Object.content = swfLoader.content;
+				AVM1Object.connectionID = (evt.target as CustomLocalConnection).id;
+				AVM1Object.isAVM1 = false;
+				
+				connectionID.propValue = (evt.target as CustomLocalConnection).id;
+				
+				// now we have the unique ID, destroy the original connection...
+				closeConnection();
+				
+				// add AVM1Object to dictionary
+				_AVM1Loaders[AVM1Object.connectionID] = AVM1Object;
+				
+				// we may need to load a movie at this point
+				if(isAVM1.propValue && filePath.propValue != "FilePathProperty::NoUrlSet" )
+				{
+					// we must need to load non-AVM1 content
+					swfLoader.load(filePath.propValue);
+				}
+				
+				if(!isAVM1.propValue && filePath.propValue != "FilePathProperty::NoUrlSet" )
+				{
+					loadAVM1Loader();
+					loadAVM1Movie();
+				}
+				 
+			}
+			
+			protected function loadAVM1Loader():void
 			{
-				var previousFrameLabel:FrameLabel = getPreviousFrameLabel();
+				// get loader
+				var info:AVM1LoaderInfo = _AVM1Loaders[connectionID.propValue] as AVM1LoaderInfo;
+				
+				swfLoader.source = info.content;
+			}
+			
+			protected function loadAVM1Movie():void
+			{			
+				AVM_lc = new CustomLocalConnection("host" + connectionID.propValue);	
+						
+				AVM_lc.send(connectionID.propValue, "load",  filePath.propValue);
+				
+				closeConnection();
+			}
+			
+			protected function checkConnectionIDExists(id:String):AVM1LoaderInfo
+			{
+				if(_AVM1Loaders[id] is AVM1LoaderInfo)
+				{
+					return _AVM1Loaders[id] as AVM1LoaderInfo;
+				}else
+				{
+					return null;
+				}
+			}
+			
+			protected function closeConnection():void
+			{
+				try
+	            {
+	                AVM_lc.close();
+	            }
+	            catch (error:ArgumentError)
+	            {
+	                trace("AVM_lc failed to close.");
+				}
+			}
+			
+			/**
+		 	* Catches any error messages from the local connection process.
+		 	*/
+			protected function onStatusError(evt:StatusEvent):void
+			{
+				trace("Local Connection Status Error: " + evt);
+			}
+			
+			
+			///////////////////////////////////////////////////////
+			//
+			// Event Handlers
+			//
+			///////////////////////////////////////////////////////
+			
+			protected function onSWFLoaderComplete(evt:Event):void
+			{
+				// determine what has been loaded
+				
+				if(swfLoader.content is Bitmap)
+				{
+					// easy, nothing to do
+					isAVM1.propValue = false;
+					
+					//playControl.propValue = null;
+					//jumpControl.propValue = null;
+					
+					container.removeChild(controls);
+					
+					updateEditableProperties([filePath, bgColour]);
+					
+					return;
+				}
+				
+				if(swfLoader.content is MovieClip)
+				{
+
+					_labels = (swfLoader.content as MovieClip).currentLabels;
+					
+					isAVM1.propValue = false;
+					
+					//playControl.propValue = true;
+					//jumpControl.propValue = true;
+							
+					_playControlVisible = true;
+					_jumpControlVisible = true;
+							
+					buildControls();
+							
+					container.addChild(controls);
+					
+					updateEditableProperties([filePath, bgColour, playControl, jumpControl]);
+					
+					return
+
+				}
+				
+				if(swfLoader.content is AVM1Movie)
+				{
+					// we need the AVM1 
+					loadAVM1Loader();
+					loadAVM1Movie();
+					
+					isAVM1.propValue = true;
+					
+					//playControl.propValue = true;
+					//jumpControl.propValue = null;
+							
+					_playControlVisible = true;
+					_jumpControlVisible = false;
+							
+					buildControls();
+							
+					container.addChild(controls);
+					
+					updateEditableProperties([filePath, bgColour, playControl]);
+				}
+			}
+			
+			protected function onBack(evt:MouseEvent):void
+			{
+				// only used when a MovieClip is loaded
+				var previousFrameLabel:FrameLabel = getFrameLabel("back");
 				
 				if(previousFrameLabel != null)
 				{
-					// play.visible = true;
-					// stop.visible = false;
-					(swfLoader.content as MovieClip).gotoAndStop(getPreviousFrameLabel().frame);
+					(swfLoader.content as MovieClip).gotoAndStop(previousFrameLabel.frame);
 				}
 			}
 			
-			/**
-		 	* Returns the next available FrameLabel or null if one cannot be found.
-		 	*/
-			protected function getNextFrameLabel():FrameLabel
-			{		
-				var fl:FrameLabel = null;
+			protected function onFwd(evt:MouseEvent):void
+			{	
+				// only used when a MovieClip is loaded
+				var nextFrameLabel:FrameLabel = getFrameLabel("fwd");
 				
-				if(getCurrentLabelIndex() < 0){
-					return fl;
-				}
-				
-				if(getCurrentLabelIndex() == labels.length -1)
+				if(nextFrameLabel != null)
 				{
-					fl = labels[0] as FrameLabel;
-
+					(swfLoader.content as MovieClip).gotoAndStop(nextFrameLabel.frame);
+				}
+			}
+			
+			protected function onPlay(evt:MouseEvent):void
+			{
+				if(isAVM1.propValue)
+				{
+					AVM_lc = new CustomLocalConnection("host" + connectionID.propValue);	
+						
+					AVM_lc.send(connectionID.propValue, "play");
+				
+					closeConnection();
 				}else
 				{
-					fl = labels[getCurrentLabelIndex() + 1] as FrameLabel;
-
-				}
-				
-				return fl;
-			}
-			
-			/**
-		 	* Returns the previous FrameLabel or null if one cannot be found.
-		 	*/
-			protected function getPreviousFrameLabel():FrameLabel
-			{
-				var fl:FrameLabel = null;
-				
-				if(getCurrentLabelIndex() < 0){
-					return fl;
-				}	
-				
-				if(getCurrentLabelIndex() == 0)
-				{
-					fl = labels[labels.length -1] as FrameLabel;
-
-				}else
-				{
-					fl = labels[getCurrentLabelIndex() - 1] as FrameLabel;
-
-				}
-				
-				return fl;
-			}
-			
-			/**
-		 	* Returns the index of the current label in the labels array. Returns -1 if no index can be found.
-		 	*/
-			protected function getCurrentLabelIndex():int
-			{
-				if(labels != null && (swfLoader.content as MovieClip) != null)
-				{
-					for(var i:uint=0; i<labels.length; i++)
+					if(swfLoader.content is MovieClip)
 					{
-						if((swfLoader.content as MovieClip).currentLabel == (labels[i] as FrameLabel).name)
-						{
-							return i;
-						}
+						(swfLoader.content as MovieClip).play();
+					}
+					
+				}
+			}
+			
+			protected function onStop(evt:MouseEvent):void
+			{
+				if(isAVM1.propValue)
+				{
+					AVM_lc = new CustomLocalConnection("host" + connectionID.propValue);	
+						
+					AVM_lc.send(connectionID.propValue, "stop");
+				
+					closeConnection();
+				}else
+				{
+					if(swfLoader.content is MovieClip)
+					{
+						(swfLoader.content as MovieClip).stop();
+					}
+				}
+			}
+			
+			protected function getFrameLabel(direction:String):FrameLabel
+			{
+				var fl:FrameLabel = null;
+				
+				if(getLabelIndex() < 0)
+				{
+					return fl;
+				}
+				
+				if(direction == "current")
+				{
+					fl = (swfLoader.content as MovieClip).currentLabel as FrameLabel;
+					
+					return fl;
+				}
+
+				var currentIndex:int = getLabelIndex();
+				
+				if(direction == "back")
+				{
+					if(currentIndex == _labels.length)
+					{
+						fl = _labels[currentIndex] as FrameLabel;
+						
+					}else{
+						
+						fl = _labels[currentIndex + 1] as FrameLabel;
+
+					}
+					
+					return fl;
+				}
+				
+				if(direction == "fwd")
+				{
+					if(currentIndex == 0)
+					{
+						fl = _labels[currentIndex] as FrameLabel;
+						
+					}else{
+						
+						fl = _labels[currentIndex - 1] as FrameLabel;
+						
+					}
+					
+					return fl
+				}
+				
+				return fl;
+			}
+			
+			protected function getLabelIndex():int
+			{
+				_labels.sortOn("frame", Array.NUMERIC | Array.DESCENDING);
+				
+				var currentFrame:int = (swfLoader.content as MovieClip).currentFrame;
+				
+				for(var i:uint=0; i<_labels.length; i++)
+				{
+					if(currentFrame == (_labels[i] as FrameLabel).frame)
+					{
+						return i;
 					}
 				}
 				
 				return -1;
-			}
-			
-			/**
-		 	* Responds to the loading of a new SWF or image.
-		 	*/
-			protected function onLoadSWF(evt:Event):void
-			{
-				var info:LoaderInfo = swfLoader.loaderInfo;
 				
-				if(info != null)
-				{
-					if(info.contentType != "application/x-shockwave-flash" || swfLoader.content is MovieClip == false  && container.getChildByName("controls") != null)
-					{
-						// no need for transport controls, this is not a MovieClip
-						playControl.propValue = false;
-						nextLabelControl.propValue = false;
-						container.removeChild(controls);
-						
-						return;
-					}
-					
-					if(info.contentType != "application/x-shockwave-flash" && container.getChildByName("controls") == null)
-					{
-						// transport controls already gone. Get out of here
-						playControl.propValue = false;
-						nextLabelControl.propValue = false;
-						
-						return;
-					} 
-					
-					if(info.contentType == "application/x-shockwave-flash" && container.getChildByName("controls") == null)
-					{
-						// we haven't got the controls but we need them, if the SWF is a MovieClip
-						
-						if(swfLoader.content is MovieClip)
-						{
-							playControl.propValue = true;
-							nextLabelControl.propValue = true;
-							container.addChild(controls);
-						}
-						
-					}
-				}
-
-				if(swfLoader.content is MovieClip)
-				{
-					labels = (swfLoader.content as MovieClip).currentLabels;
-				}
 			}
-			
-			/**
-		 	* Called each time the display list is updated.
-		 	*/
-			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
-			{
-				super.updateDisplayList(unscaledWidth, unscaledHeight);
-				
-				// ensures the movie clip is cropped to the window size
-				scrollRect = new Rectangle(0, 0, width, height);
-			}
-
 		]]>
 	</mx:Script>
-
-	<mx:Style>
-		.missingImageStyle {
-			broken-image-skin: ClassReference("org.glomaker.shared.component.utils.MissingImageSkin");
-			broken-image-border-skin: ClassReference(null);
-		}
-	</mx:Style>
 	
 	<mx:VBox width="100%" height="100%" 
 		id="container">
-		
+			
 		<mx:SWFLoader width="100%" height="100%"
 			id="swfLoader"
-			complete="onLoadSWF(event)"
-			styleName="missingImageStyle"	
-		/>
+			styleName="missingImageStyle"
+			complete="onSWFLoaderComplete(event)"/>
 		
 		<mx:HBox width="100%"
 			id="controls" horizontalGap="2"
@@ -454,7 +640,7 @@
 					upSkin="{playBtn}"
 					overSkin="{playRolloverBtn}"
 					downSkin="{playRolloverBtn}"
-					click="onStart(event)"/>
+					click="onPlay(event)"/>
 									
 				<mx:Button width="32"
 					id="fwd" 
@@ -462,10 +648,9 @@
 					overSkin="{fwdRolloverBtn}"
 					downSkin="{fwdRolloverBtn}"
 					click="onFwd(event)"/>
-			
+
 		</mx:HBox>
 		
 	</mx:VBox>
-
 	
 </BaseComponent>
