@@ -9,6 +9,10 @@ package org.glomaker.plugin.swfloader
 		public var connectionID:String;
 		
 		public var isAVM1:Boolean;
+		
+		public var width:int;
+		
+		public var height:int;
 
 	}
 }
