@@ -357,25 +357,24 @@
 				 
 			}
 			
-			protected function loadAVM1Loader(w:int = -1, h:int = -1):void
+			protected function loadAVM1Loader():void
 			{
 				// get loader
 				var info:AVM1LoaderInfo = _AVM1Loaders[connectionID.propValue] as AVM1LoaderInfo;
-				
-				info.content.width = 720;
-				info.content.height = 400;
+				//trace(swfLoader.content.width, swfLoader.content.height);
+				//(swfLoader.content as AVM1Movie).width = 720;
+				//(swfLoader.content as AVM1Movie).height = 400;
+				//info.content.width = 720;
+				//info.content.height = 400;
 				
 				swfLoader.source = info.content;
 			}
 			
 			protected function loadAVM1Movie():void
-			{		
-				// get info
-				var info:AVM1LoaderInfo = _AVM1Loaders[connectionID.propValue] as AVM1LoaderInfo;
-				
+			{			
 				AVM_lc = new CustomLocalConnection("host" + connectionID.propValue);	
 						
-				AVM_lc.send(connectionID.propValue, "load", filePath.propValue);
+				AVM_lc.send(connectionID.propValue, "load",  filePath.propValue);
 				
 				closeConnection();
 			}
@@ -462,12 +461,8 @@
 				
 				if(swfLoader.content is AVM1Movie)
 				{
-					// this is the only opportunity we have to get the dimensions, so grab them
-					var width:int = (swfLoader.content as AVM1Movie).loaderInfo.width;
-					var height:int = (swfLoader.content as AVM1Movie).loaderInfo.height;
-					
 					// we need the AVM1 
-					loadAVM1Loader(width, height);
+					loadAVM1Loader();
 					loadAVM1Movie();
 					
 					isAVM1.propValue = true;
