@@ -361,13 +361,17 @@
 			{
 				// get loader
 				var info:AVM1LoaderInfo = _AVM1Loaders[connectionID.propValue] as AVM1LoaderInfo;
-				//trace(swfLoader.content.width, swfLoader.content.height);
-				//(swfLoader.content as AVM1Movie).width = 720;
-				//(swfLoader.content as AVM1Movie).height = 400;
-				//info.content.width = 720;
-				//info.content.height = 400;
 				
 				swfLoader.source = info.content;
+				
+				// set swfLoader dimensions
+				var conversionW:int = 550 / info.width * 100;
+				var conversionH:int = 400 / info.height * 100;
+				
+				swfLoader.percentWidth = (swfLoader.width / (swfLoader.width * conversionW)) * 100;
+				//swfLoader.percentHeight = 40;
+				
+				trace(swfLoader.width / (swfLoader.width * conversionW) * 100);
 			}
 			
 			protected function loadAVM1Movie():void
@@ -461,10 +465,15 @@
 				
 				if(swfLoader.content is AVM1Movie)
 				{
+					// grab its dimensions
+					var info:AVM1LoaderInfo = _AVM1Loaders[connectionID.propValue] as AVM1LoaderInfo;
+					info.width = (swfLoader.content as AVM1Movie).loaderInfo.width;
+					info.height = (swfLoader.content as AVM1Movie).loaderInfo.height;
+					
 					// we need the AVM1 
 					loadAVM1Loader();
 					loadAVM1Movie();
-					
+				
 					isAVM1.propValue = true;
 					
 					//playControl.propValue = true;
@@ -613,12 +622,14 @@
 	
 	<mx:VBox width="100%" height="100%" 
 		id="container">
-			
-		<mx:SWFLoader width="100%" height="100%"
+		
+		<mx:Canvas width="100%" height="100%">
+			<mx:SWFLoader width="100%" height="100%"
 			id="swfLoader"
 			styleName="missingImageStyle"
 			complete="onSWFLoaderComplete(event)"/>
-		
+		</mx:Canvas>	
+				
 		<mx:HBox width="100%"
 			id="controls" horizontalGap="2"
 			paddingTop="2"
