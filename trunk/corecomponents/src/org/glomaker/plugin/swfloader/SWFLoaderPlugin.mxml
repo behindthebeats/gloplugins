@@ -364,9 +364,28 @@
 				
 				swfLoader.source = info.content;
 				
+				// we need to establish how the movie will fit the available space
+				var containerAspectRatio:Number = swfLoaderContainer.width / swfLoaderContainer.height;
+				var movieAspectRatio:Number = info.width / info.height;
+				
+				// use the aspect ratios to determine whether to match 
+				// the height or width of the available space
+				
 				// set swfLoader dimensions
-				var conversionW:int = 550 / info.width * 100;
-				var conversionH:int = 400 / info.height * 100;
+				var conversion:Number;
+				
+				if(containerAspectRatio >= movieAspectRatio)
+				{
+					// the available space is of a wider format
+					// use the height of the available space as the determining factor
+					conversion = swfLoaderContainer.height / 400 info.height * 100;
+					swfLoader.percentHeight = conversion;
+				}else
+				{
+					// the movie is of a wider format
+					// use the width of the available space as the determining factor
+				}
+				
 				
 				swfLoader.percentWidth = (swfLoader.width / (swfLoader.width * conversionW)) * 100;
 				//swfLoader.percentHeight = 40;
@@ -623,11 +642,14 @@
 	<mx:VBox width="100%" height="100%" 
 		id="container">
 		
-		<mx:Canvas width="100%" height="100%">
+		<mx:Canvas width="100%" height="100%"
+			id="swfLoaderContainer">
+			
 			<mx:SWFLoader width="100%" height="100%"
 			id="swfLoader"
 			styleName="missingImageStyle"
 			complete="onSWFLoaderComplete(event)"/>
+			
 		</mx:Canvas>	
 				
 		<mx:HBox width="100%"
