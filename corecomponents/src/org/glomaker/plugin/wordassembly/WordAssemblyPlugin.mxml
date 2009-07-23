@@ -12,18 +12,20 @@
 <BaseComponent xmlns="org.glomaker.shared.component.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	layout="absolute"
+	creationComplete="init()"
 	horizontalScrollPolicy="off" verticalScrollPolicy="off"
  	themeColor="haloSilver" xmlns:utils="org.glomaker.plugin.utils.*" xmlns:editbutton="org.glomaker.shared.ui.editbutton.*">
 	
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.managers.PopUpManager;
 			import org.glomaker.shared.properties.IComponentProperty;
 			import org.glomaker.shared.properties.ArrayProperty;
 			import org.glomaker.shared.properties.StringProperty;
 			import mx.controls.Button;
-
+			import mx.managers.PopUpManager;
+			
+			
 			[Embed(source="assets/cross.png")]
 			protected static const INCORRECT_IMAGE:Class;
 
@@ -56,6 +58,16 @@
 			
 			protected var _repeaterIsShuffled:Boolean = false;
 			
+			
+            private var result:Result = null;
+            private var feedback:Feedback = null;
+            // Initilize
+            
+			public function init():void
+			{
+				result = new Result();
+				feedback = new Feedback();
+			}
 			
 			override protected function defineProperties():void
 			{
@@ -110,6 +122,7 @@
 			
 			override public function destroy():void
 			{
+				result = null;
 			}
 			
 			override public function setEditMode(f:Boolean):void
@@ -186,37 +199,50 @@
 
 			protected function showCorrectFeedbackEditor():void
 			{
-				Feedback.show(this, _correctFeedback, "Correct Solution Feedback");
+				showFeedback(_correctFeedback, "Correct Solution Feedback");
 			}
 			
 			protected function showWrongFeedbackEditor():void
 			{
-				Feedback.show(this, _wrongFeedback, "Wrong Solution Feedback");
+				showFeedback( _wrongFeedback, "Wrong Solution Feedback");
 			}
 
 			protected function showCorrectResult():void
 			{
-				show( _correctFeedback.propValue, CORRECT_IMAGE);
+				showResult( _correctFeedback.propValue, CORRECT_IMAGE);
 			}
 			
 			protected function showWrongResult():void
 			{
-				show( _wrongFeedback.propValue, INCORRECT_IMAGE);
+				showResult( _wrongFeedback.propValue, INCORRECT_IMAGE);
 			}
-			
-			protected function show(resultText:String, answerImageSource:Object):void
+			 
+			protected function showResult(resultText:String, answerImageSource:Object):void
  		{
-			//var instance:Result = PopUpManager.createPopUp(parent, Result, true) as Result;
-	 		//PopUpManager.centerPopUp(instance);
-	 		
-	 		// Added by Musbah [22-7-2009] fix bug
- 			var instance:Result = new Result();
-			PopUpManager.addPopUp(instance, this, true);
-     		PopUpManager.centerPopUp(instance); 
-     		
-	 		instance.resultText.text = resultText;
-	 		instance.answerImage.source = answerImageSource;
+ 			if(!result)
+				  result = new Result();
+					  
+			
+			//PopUpManager.addPopUp(result, this, true);
+     		//PopUpManager.centerPopUp(result); 
+
+	 		//result.resultText.text = resultText;
+	 		//result.answerImage.source = answerImageSource;
  		}
+ 		
+ 			protected  function showFeedback(property:StringProperty, title:String = "Enter Feedback"):void
+	 	{
+			if(!feedback)
+				  feedback = new Feedback();
+					  
+     		
+			PopUpManager.addPopUp(feedback, this, true);
+	 		PopUpManager.centerPopUp(feedback); 
+
+	 		feedback.relatedProp = property;
+	 		feedback.title = title;
+
+		}
 			
 
 			protected function updateRepeaterData():void
@@ -355,7 +381,7 @@
 				styleName="sentenceText"
 				id="sentenceTextField"
 				selectable="false"
-				text=""
+				text="h333335555555555555hhh"
 			/>
 		</mx:Canvas>
 		
