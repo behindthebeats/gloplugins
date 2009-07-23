@@ -24,24 +24,15 @@
 	
 	modalTransparencyBlur="0"
 	modalTransparencyDuration="0"
-	
+	  
 	themeColor="haloSilver"
 >
-	  <mx:Script>
+	  <mx:Script> 
  	<![CDATA[
- 		import mx.core.UIComponent;
  		import mx.managers.PopUpManager;
+ 		import mx.controls.Alert;
+ 		import mx.core.UIComponent;
  		
- 		
- 		public static function show(parent:UIComponent, resultText:String, answerImageSource:Object):void
- 		{
-			var instance:Result = PopUpManager.createPopUp(parent, Result, true) as Result;
-	 		PopUpManager.centerPopUp(instance);
-	 		
-	 		instance.resultText.text = resultText;
-	 		instance.answerImage.source = answerImageSource;
- 		}
- 	
 	 	protected function clickOK(evt:Event):void
 	 	{
 	 		PopUpManager.removePopUp(this);        

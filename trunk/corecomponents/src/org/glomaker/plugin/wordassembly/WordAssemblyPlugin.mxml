@@ -18,11 +18,11 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.managers.PopUpManager;
 			import org.glomaker.shared.properties.IComponentProperty;
 			import org.glomaker.shared.properties.ArrayProperty;
 			import org.glomaker.shared.properties.StringProperty;
 			import mx.controls.Button;
-
 
 			[Embed(source="assets/cross.png")]
 			protected static const INCORRECT_IMAGE:Class;
@@ -196,13 +196,27 @@
 
 			protected function showCorrectResult():void
 			{
-				Result.show(this, _correctFeedback.propValue, CORRECT_IMAGE);
+				show( _correctFeedback.propValue, CORRECT_IMAGE);
 			}
 			
 			protected function showWrongResult():void
 			{
-				Result.show(this, _wrongFeedback.propValue, INCORRECT_IMAGE);
+				show( _wrongFeedback.propValue, INCORRECT_IMAGE);
 			}
+			
+			protected function show(resultText:String, answerImageSource:Object):void
+ 		{
+			//var instance:Result = PopUpManager.createPopUp(parent, Result, true) as Result;
+	 		//PopUpManager.centerPopUp(instance);
+	 		
+	 		// Added by Musbah [22-7-2009] fix bug
+ 			var instance:Result = new Result();
+			PopUpManager.addPopUp(instance, this, true);
+     		PopUpManager.centerPopUp(instance); 
+     		
+	 		instance.resultText.text = resultText;
+	 		instance.answerImage.source = answerImageSource;
+ 		}
 			
 
 			protected function updateRepeaterData():void
