@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////////////////
 -->
 
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
 	
 	width="300"
 
@@ -54,4 +54,4 @@
  	 <mx:Spacer width="100%"/>
  	 <mx:Button id="ok" label="OK" click="clickOK(event)"/>
  </mx:ControlBar>
-</mx:Panel>
+</mx:TitleWindow>

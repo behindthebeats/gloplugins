@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////////////////
 -->
 
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	
 	layout="absolute"
 	width="300"
@@ -38,17 +38,7 @@
  		import mx.core.UIComponent;
  		import mx.managers.PopUpManager;
 
-	 	public static function show(parent:UIComponent, property:StringProperty, title:String = "Enter Feedback"):Feedback
-	 	{
-	 		var instance:Feedback = PopUpManager.createPopUp(parent, Feedback, true) as Feedback;
-	 		instance.relatedProp = property;
-	 		instance.title = title;
-
-	 		PopUpManager.centerPopUp(instance);
-	 		
-	 		return instance;
-		}
-		
+	
 		protected var _relatedProp:StringProperty;
 		
 		public function set relatedProp(value:StringProperty):void
@@ -92,4 +82,4 @@
      <mx:Button id="cancel" label="Cancel" click="clickCancel(event)"/>
  </mx:ControlBar>
  
-</mx:Panel>
+</mx:TitleWindow>
