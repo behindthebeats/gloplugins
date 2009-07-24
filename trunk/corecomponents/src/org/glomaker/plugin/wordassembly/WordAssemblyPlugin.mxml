@@ -58,6 +58,7 @@
 			
 			protected var _repeaterIsShuffled:Boolean = false;
 			
+			private var temp:PopUpManager;
 			
             private var result:Result = null;
             private var feedback:Feedback = null;
@@ -223,11 +224,11 @@
 				  result = new Result();
 					  
 			
-			//PopUpManager.addPopUp(result, this, true);
-     		//PopUpManager.centerPopUp(result); 
+			PopUpManager.addPopUp(result, this, true);
+     		PopUpManager.centerPopUp(result); 
 
-	 		//result.resultText.text = resultText;
-	 		//result.answerImage.source = answerImageSource;
+	 		result.resultText.text = resultText;
+	 		result.answerImage.source = answerImageSource;
  		}
  		
  			protected  function showFeedback(property:StringProperty, title:String = "Enter Feedback"):void
@@ -381,7 +382,7 @@
 				styleName="sentenceText"
 				id="sentenceTextField"
 				selectable="false"
-				text="h333335555555555555hhh"
+				text="h333335555555551115555hhh"
 			/>
 		</mx:Canvas>
 		
