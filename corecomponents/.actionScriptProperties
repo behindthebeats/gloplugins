@@ -22,19 +22,9 @@
 <application path="CoreComponents.mxml"/>
 </applications>
 <modules>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/imagemagnifier/ImageMagnifierPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/imagemagnifier/ImageMagnifierPlugin.mxml"/>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/mcq/MultipleChoiceQuestionPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/mcq/MultipleChoiceQuestionPlugin.mxml"/>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/medialoaders/ImageLoaderPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/medialoaders/ImageLoaderPlugin.mxml"/>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/rectangle/RectanglePlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/rectangle/RectanglePlugin.mxml"/>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/stepthrough/StepThroughPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/stepthrough/StepThroughPlugin.mxml"/>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/swfloader/SWFLoaderPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/swfloader/SWFLoaderPlugin.mxml"/>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/textarea/TextAreaPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/textarea/TextAreaPlugin.mxml"/>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/videoplayer/VideoPlayerPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/videoplayer/VideoPlayerPlugin.mxml"/>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/wordassembly/WordAssemblyPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/wordassembly/WordAssemblyPlugin.mxml"/>
+<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/stage/cetl/CETLNavBar.swf" optimize="true" sourcePath="src/org/glomaker/stage/cetl/CETLNavBar.mxml"/>
 <module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/stage/londonmet/LondonMetNavBar.swf" optimize="true" sourcePath="src/org/glomaker/stage/londonmet/LondonMetNavBar.mxml"/>
 <module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/stage/swirl/SwirlNavBar.swf" optimize="true" sourcePath="src/org/glomaker/stage/swirl/SwirlNavBar.mxml"/>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/stage/cetl/CETLNavBar.swf" optimize="true" sourcePath="src/org/glomaker/stage/cetl/CETLNavBar.mxml"/>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/accessviews/AccessViewsPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/accessviews/AccessViewsPlugin.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>
