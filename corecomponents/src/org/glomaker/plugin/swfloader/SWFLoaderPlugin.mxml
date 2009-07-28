@@ -1,0 +1,809 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+/////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2007-09 LTRI, London Metropolitan Uni. All rights reserved.
+// An Open Source Release under the GPL v3 licence  (see http://www.gnu.org/licenses/).
+// Authors: Tom Boyle, Nils Millahn, Musbah Sagar, Martin Agombar.
+// See http://www.glomaker.org for full details
+/////////////////////////////////////////////////////////////////////////
+-->
+
+<BaseComponent xmlns="org.glomaker.shared.component.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%"
+	resize="onResize(event)">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.hotdraw.java.awt.geom._Point;
+			import mx.events.ResizeEvent;
+			import org.glomaker.shared.properties.IntegerProperty;
+			import org.glomaker.plugin.swfloader.AVM1LoaderInfo;
+			import org.glomaker.shared.properties.ColourProperty;
+			import org.glomaker.shared.properties.StringProperty;
+
+			import org.glomaker.shared.properties.FilePathProperty;
+			import org.glomaker.shared.properties.IComponentProperty;
+			import org.glomaker.shared.properties.BooleanProperty;
+			
+			/**
+		 	* Embed play button up skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_play.png")]	
+			public var playBtn:Class;
+			
+			/**
+		 	* Embed play rollover skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_play_rollover.png")]	
+			public var playRolloverBtn:Class;
+			
+			/**
+		 	* Embed pause button up skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_pause.png")]	
+			public var pauseBtn:Class;
+			
+			/**
+		 	* Embed pause rollover skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_pause_rollover.png")]	
+			public var pauseRolloverBtn:Class;
+			
+			/**
+		 	* Embed forward button up skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_forward.png")]	
+			public var fwdBtn:Class;
+			
+			/**
+		 	* Embed forward rollover skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_forward_rollover.png")]	
+			public var fwdRolloverBtn:Class;
+			
+			/**
+		 	* Embed back button up skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_rewind.png")]	
+			public var backBtn:Class;
+			
+			/**
+		 	* Embed back rollover skin.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/controls_rewind_rollover.png")]	
+			public var backRolloverBtn:Class;
+			
+			/**
+		 	* Embed AVM1Loader.
+		 	*/
+			[Bindable]
+			[Embed(source="org/glomaker/plugin/swfloader/assets/localConnection.swf")]	
+			public var AVM1Loader:Class;
+			
+			/**
+		 	* Sets up a Browse control button on the Property Panel.
+		 	*/
+			protected var filePath:FilePathProperty;
+			
+			/**
+		 	* Sets up a field on the Property Panel to control the existence of the play button.
+		 	*/
+			protected var playControl:BooleanProperty;
+			
+			/**
+		 	* Sets up a field on the Property Panel to control the existence of the jump button.
+		 	*/
+			protected var jumpControl:BooleanProperty;			
+			
+			/**
+		 	* Sets up a field on the Property Panel to control the colour of thebackground strip .
+		 	*/
+			protected var bgColour:ColourProperty;
+			
+			/**
+		 	* Stores a true or false value relating to the existence of the play button.
+		 	*/
+			private var _playControlVisible:Boolean;
+			
+			/**
+		 	* Stores a true or false value relating to the existence of the jump button.
+		 	*/
+			private var _jumpControlVisible:Boolean;
+			
+			/**
+		 	* Stores an array of MovieClip labels.
+		 	*/
+			private var _labels:Array;
+			
+			/////////////////////////
+			
+			/**
+		 	* Sets up an invisible property that stores a true / false value depending
+		 	* on whether the loaded asset is an AVM1 movie or not.
+		 	*/
+		 	protected var isAVM1:BooleanProperty;
+		 	
+		 	/**
+		 	* Stores the width of a loaded AVM1 movie.
+		 	*/
+		 	protected var clipWidth:IntegerProperty;
+		 	
+		 	/**
+		 	* Stores the height of a loaded AVM1 movie.
+		 	*/
+		 	protected var clipHeight:IntegerProperty;
+		 	
+		 	/**
+		 	* Stores the unique connectionID for this instance. Used to connect with the AVM1Loader.
+		 	*/
+		 	protected var connectionID:StringProperty;
+		 	
+		 	/**
+		 	* Stores the local connection object, effectively making this module a server.
+		 	*/
+			protected var AVM_lc:CustomLocalConnection;
+			
+			/**
+		 	* Stores the instance of the AVM1Loader that is used permenantly as the bridge to AVM1 movies.
+		 	*/
+			private var _AVM1LoaderInstance:DisplayObject;
+			
+			/**
+		 	* Collection of all the AVM1 loaders. Necessary to avoid cross-talk problems.
+		 	*/			
+			private static var _AVM1Loaders:Dictionary = new Dictionary();
+			
+			////////////////////////
+			
+			
+			/**
+		 	* Called by GLOMaker when the properties need to be defined.
+		 	*/
+			override protected function defineProperties():void
+			{
+				super.defineProperties();
+				
+				// set up nav controls
+				playControl = new BooleanProperty("playControlValue", "Play button ?", true);
+				jumpControl = new BooleanProperty("labelControlValue", "Jump button ?", true);
+				
+				// set up file browser
+				filePath = new FilePathProperty("filePath", "File Path:", "");
+				filePath.fileTypeLabel = "SWFs and Images"; 
+				filePath.fileExtensions = "*.jpg;*.gif;*.png;*.swf";
+				
+				// set up colour control
+				bgColour = new ColourProperty("bgcolour", "Colour", 0x666666);
+				
+				// store a permanent reference to the unique ID for the local connection
+				connectionID = new StringProperty("connectionID", "", "StringProperty::NotSet");
+				isAVM1 = new BooleanProperty("isAVM1", "", false);
+				
+				// store a the width and height values of an AVM1 movie
+				clipWidth = new IntegerProperty("clipWidth", "", 640);
+				clipHeight = new IntegerProperty("clipHeight", "", 480);
+				
+				addProperty(filePath);
+				addProperty(bgColour);
+				addProperty(playControl);
+				addProperty(jumpControl);
+				
+				addSaveableProperty(connectionID);
+				addSaveableProperty(isAVM1);
+				
+				addSaveableProperty(clipWidth);
+				addSaveableProperty(clipHeight);
+
+			}
+			
+			/**
+		 	* Called by GLOMaker when the properties need to be initialised.
+		 	*/
+			override public function propertyValuesInitialised():void
+			{			
+				_playControlVisible = playControl.propValue;
+				_jumpControlVisible = jumpControl.propValue;
+				
+
+				if(checkConnectionIDExists(connectionID.propValue) == null)
+				{
+					
+					// initialise LocalConnection...
+					initLocalConnection();
+					
+					// this component has not been set up. It needs an AVM1Loader
+					// the initialisation process will now begin
+					swfLoader.source = new AVM1Loader();
+					
+					// by setting the source to the embedded loader movie, the movie will
+					// be run and its code will issue a local connection event message
+					// containing a unique ID to be used subsequently for all communication
+					// between this module and the loader movie
+
+					
+				}else if(!isAVM1.propValue && filePath.propValue != "FilePathProperty::NoUrlSet")
+				{
+					// we already have an AVM1Loader and the media is not AVM1 anyway.
+					// go ahead and load
+					swfLoader.load(filePath.propValue);
+					
+				}else if(isAVM1.propValue && filePath.propValue != "FilePathProperty::NoUrlSet")
+				{	
+					// we already have an AVM1Loader and the media is an AVM1.
+					
+					loadAVM1Movie();
+					
+					// reconfigures the properties panel
+					updateEditableProperties([filePath, bgColour, playControl]);
+					
+					// sets the movie controls
+					_playControlVisible = true;
+					_jumpControlVisible = false;
+				}
+				
+				controls.setStyle("backgroundColor", bgColour.propValue);
+				
+				buildControls();
+			}
+			
+			/**
+		 	* Called by GLOMaker when the properties need to be updated.
+		 	*/
+			override public function editablePropertyUpdated(prop:IComponentProperty):void
+			{
+				switch(prop)
+				{						
+					case playControl:
+					
+						_playControlVisible = prop.propValue;
+						buildControls();
+						
+						break;
+						
+					case jumpControl:
+					
+						_jumpControlVisible = prop.propValue;
+						buildControls();
+
+						break;	
+						
+					case filePath:
+						
+						swfLoader.load(filePath.propValue);	
+						
+						break
+						
+					case bgColour:
+					
+						controls.setStyle("backgroundColor", bgColour.propValue);
+						
+						break;
+				}
+			}
+			
+			/**
+		 	* Called by GLOMaker when the component is no longer needed.
+		 	*/
+			override public function destroy():void
+			{
+				// sets up a temporary channel of communication to instruct the AVM1Loader to 
+				// carry out any clean up operations
+				AVM_lc = new CustomLocalConnection("host" + connectionID.propValue);	
+						
+				AVM_lc.send(connectionID.propValue, "destroy");
+				
+				closeConnection();
+			}
+			
+			/**
+		 	* Build the player controls.
+		 	*/
+			protected function buildControls():void
+			{
+				// start with a clean sheet
+				controls.removeAllChildren();
+				
+				if(_jumpControlVisible == false && _playControlVisible == false)
+				{
+					// no buttons to display. make controls invisible
+					controls.visible = false;
+					
+				}else{
+					
+					controls.visible = true;
+
+					if(_playControlVisible)
+					{	
+						controls.addChild(stop);
+						controls.addChild(play);
+					}
+
+					if(_jumpControlVisible)
+					{
+						controls.addChildAt(back, 0);
+						controls.addChild(fwd);
+					}
+				}
+			}
+			
+			///////////////////////////////////////////////////////
+			//
+			// AVM1 
+			//
+			///////////////////////////////////////////////////////
+			
+			protected function initLocalConnection():void
+			{
+				// this connection has also been set up in the local connection SWF
+				// and will be used once only for initialisation purposes
+				
+				// ensure there is no connection still running
+				if(AVM_lc != null)
+				{
+					AVM_lc.close();
+				}
+				
+				// create connection
+				AVM_lc = new CustomLocalConnection("AVM1toAVM2");
+				
+				// listens for the local connection SWF sending an event indicating it has loaded
+				// and is operational
+				AVM_lc.addEventListener(Event.INIT, onAVM1LoaderInitialised);
+				
+				// catches error messages associated with the connection
+				AVM_lc.addEventListener(StatusEvent.STATUS, onStatusError);
+				
+				// we now have an open connection with the AVM1Loader. This will provoke
+				// a response from the AVM1Loader. We now wait for the reply...
+				
+			}
+			
+			/**
+		 	* The localConnection SWF is set up to make a local connection call once it is ready to load
+		 	* an AVM1 movie.
+		 	*/
+			protected function onAVM1LoaderInitialised(evt:Event):void
+			{	
+			
+				// add the information to AVM1LoaderInfo			
+				var info:AVM1LoaderInfo = new AVM1LoaderInfo();
+				
+				// we can now be sure the swfLoader has loaded the AVM1Movie. By making 
+				// reference to it we keep it alive. This will be used throughout the lifespan of this component
+				// Doing this avoids complicated cross-talk problems
+				info.content = swfLoader.content;
+				
+				// also store the unique ID
+				connectionID.propValue = (evt.target as CustomLocalConnection).id;
+				
+				// also store true or false value relating to whether this is an AVM1Movie or not.
+				info.isAVM1 = isAVM1.propValue;
+				
+				// remove event listener
+				AVM_lc.removeEventListener(Event.INIT, onAVM1LoaderInitialised);
+				
+				// now we have the unique ID, destroy the original connection...
+				closeConnection();
+				
+				// add AVM1Object to dictionary
+				_AVM1Loaders[connectionID.propValue] = info;
+				
+				// we may need to load a movie at this point
+				// possible scenarios:
+				// 1. the AVM1Loader has just been set-up in editing mode 
+				// 2. we are returning from another page
+				// 3. we are in the player
+				
+				// 1. the AVM1Loader has just been set-up 
+				if(filePath.propValue == "FilePathProperty::NoUrlSet")
+				{
+					// do nothing
+				}else if(isAVM1.propValue)
+				{
+					// we are either returning from another page or we are in the player.
+					// we already know the movie is AVM1 so go ahead and load it
+					loadAVM1Movie();
+				}else
+				{
+					// we are either returning from another page or we are in the player.
+					// the movie or image is not AVM1, go ahead and load it
+					swfLoader.load(filePath.propValue);
+				}
+				 
+			}			
+			
+			/**
+		 	* The loading of an AVM1 movie is done through local connection.
+		 	*/
+			protected function loadAVM1Movie():void
+			{	
+				// retrieve stored information about AVM1
+				var info:AVM1LoaderInfo = _AVM1Loaders[connectionID.propValue] as AVM1LoaderInfo;		
+				
+				// establish local connection
+				AVM_lc = new CustomLocalConnection("host" + connectionID.propValue);
+				
+				// set up an event listener to detect when the AVM1Loader has loaded the movie	
+				AVM_lc.addEventListener(CustomLocalConnection.CLIP_LOADED, onClipLoaded);	
+				
+				// tell the AVM1Loader to load the movie. Send the height and width along so that it can 
+				// create a background of the correct size	
+				AVM_lc.send(connectionID.propValue, "load",  filePath.propValue, clipWidth.propValue, clipHeight.propValue);
+				
+				// do not close this connection until we have received a response
+				
+			}
+			
+			/**
+		 	* Responds to an event from AVM1Loader signifying that it has loaded the AVM1 movie.
+		 	*/
+			protected function onClipLoaded(evt:Event):void
+			{
+				// retrieve information about AVM1 movie and loader
+				var info:AVM1LoaderInfo = _AVM1Loaders[connectionID.propValue] as AVM1LoaderInfo;
+				
+				// work out how to resize AVM1Loader so that everything scales correctly.
+				// There are two rectangles to consider. The rectangle describing the available space
+				// the AVM1Loader has  to fit inside and the rectangle of the loaded movie.
+				// We need to find whether to scale according to available height or available width.
+				// Best to compare their aspect ratios
+				
+				var movieAspectRatio:Number = clipWidth.propValue / clipHeight.propValue;
+				// var containerAspectRatio:Number = swfLoader.width / swfLoader.height;
+				
+				// in fact, having tested this technique, from a usability point of view,
+				// the code below works perfectly well. The 10 relates the bitmap area of the AVM1Loader, as orgiinally loaded
+				//trace("content width: "+info.content.width, "content height: "+info.content.height);
+				info.content.width = 100 * movieAspectRatio;
+				info.content.height = 100;
+				
+				swfLoader.source = info.content;
+				
+				doScrollRect();
+				
+				AVM_lc.removeEventListener(CustomLocalConnection.CLIP_LOADED, onClipLoaded);
+				closeConnection();
+			}
+			
+			/**
+		 	* Checks for the existence of a unique connectionID.
+		 	*/
+			protected function checkConnectionIDExists(id:String):AVM1LoaderInfo
+			{
+				if(_AVM1Loaders[id] is AVM1LoaderInfo)
+				{
+					return _AVM1Loaders[id] as AVM1LoaderInfo;
+				}else
+				{
+					return null;
+				}
+			}
+			
+			/**
+		 	* Closes local connection.
+		 	*/
+			protected function closeConnection():void
+			{
+				try
+	            {
+	                AVM_lc.close();
+	            }
+	            catch (error:ArgumentError)
+	            {
+	                trace("AVM_lc failed to close.");
+				}
+			}
+			
+			/**
+		 	* Crops swfLoader so that extraneous material does not appear.
+		 	*/
+			protected function doScrollRect():void
+			{
+				swfLoader.scrollRect = new Rectangle(0, 0, swfLoader.width, swfLoader.height);
+			}
+			
+			/**
+		 	* Catches any error messages from the local connection process.
+		 	*/
+			protected function onStatusError(evt:StatusEvent):void
+			{
+				trace("Local Connection Status Error: " + evt);
+			}
+			
+			
+			///////////////////////////////////////////////////////
+			//
+			// Event Handlers
+			//
+			///////////////////////////////////////////////////////
+			
+			/**
+		 	* Only catches events from a movie being loaded externally. The AVM1Loader does not trigger an event.
+		 	*/
+			protected function onSWFLoaderComplete(evt:Event):void
+			{
+				// determine what has been loaded
+				
+				if(swfLoader.content is Bitmap)
+				{
+					// easy, nothing to do
+					isAVM1.propValue = false;
+					
+					//playControl.propValue = null;
+					//jumpControl.propValue = null;
+					
+					container.removeChild(controls);
+					
+					updateEditableProperties([filePath, bgColour]);
+					
+					return;
+				}
+				
+				if(swfLoader.content is MovieClip)
+				{
+
+					_labels = (swfLoader.content as MovieClip).currentLabels;
+					
+					isAVM1.propValue = false;
+					
+					//playControl.propValue = true;
+					//jumpControl.propValue = true;
+							
+					_playControlVisible = true;
+					_jumpControlVisible = true;
+							
+					buildControls();
+							
+					container.addChild(controls);
+					
+					updateEditableProperties([filePath, bgColour, playControl, jumpControl]);
+					
+					return
+
+				}
+				
+				if(swfLoader.content is AVM1Movie)
+				{
+					// grab its dimensions
+					var info:AVM1LoaderInfo = _AVM1Loaders[connectionID.propValue] as AVM1LoaderInfo;
+					clipWidth.propValue = (swfLoader.content as AVM1Movie).loaderInfo.width;
+					clipHeight.propValue = (swfLoader.content as AVM1Movie).loaderInfo.height;
+					isAVM1.propValue = true;
+					// we need the AVM1 
+					//loadAVM1Loader();
+					loadAVM1Movie();
+						
+					_playControlVisible = true;
+					_jumpControlVisible = false;
+							
+					buildControls();
+							
+					container.addChild(controls);
+					
+					updateEditableProperties([filePath, bgColour, playControl]);
+				}
+			}
+			
+			/**
+		 	* Back button.
+		 	*/
+			protected function onBack(evt:MouseEvent):void
+			{
+				// only used when a MovieClip is loaded
+				var previousFrameLabel:FrameLabel = getFrameLabel("back");
+				
+				if(previousFrameLabel != null)
+				{
+					(swfLoader.content as MovieClip).gotoAndStop(previousFrameLabel.frame);
+				}
+			}
+			
+			/**
+		 	* Fwd button.
+		 	*/
+			protected function onFwd(evt:MouseEvent):void
+			{	
+				// only used when a MovieClip is loaded
+				var nextFrameLabel:FrameLabel = getFrameLabel("fwd");
+				
+				if(nextFrameLabel != null)
+				{
+					(swfLoader.content as MovieClip).gotoAndStop(nextFrameLabel.frame);
+				}
+			}
+			
+			/**
+		 	* Play button.
+		 	*/
+			protected function onPlay(evt:MouseEvent):void
+			{
+				if(isAVM1.propValue)
+				{
+					AVM_lc = new CustomLocalConnection("host" + connectionID.propValue);	
+						
+					AVM_lc.send(connectionID.propValue, "play");
+				
+					closeConnection();
+				}else
+				{
+					if(swfLoader.content is MovieClip)
+					{
+						(swfLoader.content as MovieClip).play();
+					}
+					
+				}
+			}
+			
+			/**
+		 	* Stop button.
+		 	*/
+			protected function onStop(evt:MouseEvent):void
+			{
+				if(isAVM1.propValue)
+				{
+					AVM_lc = new CustomLocalConnection("host" + connectionID.propValue);	
+						
+					AVM_lc.send(connectionID.propValue, "stop");
+				
+					closeConnection();
+				}else
+				{
+					if(swfLoader.content is MovieClip)
+					{
+						(swfLoader.content as MovieClip).stop();
+					}
+				}
+			}
+			
+			/**
+		 	* Returns the specified FrameLabel object or null if one does not exist.
+		 	*/
+			protected function getFrameLabel(direction:String):FrameLabel
+			{
+				var fl:FrameLabel = null;
+				
+				if(getLabelIndex() < 0)
+				{
+					return fl;
+				}
+				
+				if(direction == "current")
+				{
+					fl = (swfLoader.content as MovieClip).currentLabel as FrameLabel;
+					
+					return fl;
+				}
+
+				var currentIndex:int = getLabelIndex();
+				
+				if(direction == "back")
+				{
+					if(currentIndex == _labels.length)
+					{
+						fl = _labels[currentIndex] as FrameLabel;
+						
+					}else{
+						
+						fl = _labels[currentIndex + 1] as FrameLabel;
+
+					}
+					
+					return fl;
+				}
+				
+				if(direction == "fwd")
+				{
+					if(currentIndex == 0)
+					{
+						fl = _labels[currentIndex] as FrameLabel;
+						
+					}else{
+						
+						fl = _labels[currentIndex - 1] as FrameLabel;
+						
+					}
+					
+					return fl
+				}
+				
+				return fl;
+			}
+			
+			/**
+		 	* Returns the current index of all the frame labels.
+		 	*/
+			protected function getLabelIndex():int
+			{
+				_labels.sortOn("frame", Array.NUMERIC | Array.DESCENDING);
+				
+				var currentFrame:int = (swfLoader.content as MovieClip).currentFrame;
+				
+				for(var i:uint=0; i<_labels.length; i++)
+				{
+					if(currentFrame == (_labels[i] as FrameLabel).frame)
+					{
+						return i;
+					}
+				}
+				
+				return -1;
+				
+			}
+			
+			/**
+		 	* Resize.
+		 	*/
+			protected function onResize(evt:ResizeEvent):void
+			{
+				doScrollRect();
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%" 
+		id="container">
+		
+		<!--<mx:Canvas width="100%" height="100%"
+			id="swfLoaderContainer"
+			borderStyle="solid"
+			borderColor="0xff0000"
+			borderThickness="2">-->
+			
+			<mx:SWFLoader width="100%" height="100%"
+				id="swfLoader"
+				styleName="missingImageStyle"
+				complete="onSWFLoaderComplete(event)"/>
+			
+		<!--</mx:Canvas>-->	
+				
+		<mx:HBox width="100%"
+			id="controls" horizontalGap="2"
+			paddingTop="2"
+			paddingBottom="2"
+			paddingLeft="2"
+			paddingRight="2">
+			
+				<mx:Button width="24" height="24"
+					id="back" 
+					upSkin="{backBtn}"
+					overSkin="{backRolloverBtn}"
+					downSkin="{backRolloverBtn}"
+					click="onBack(event)"/>
+					
+				<mx:Button width="24" height="24"
+					id="stop" 
+					upSkin="{pauseBtn}"
+					overSkin="{pauseRolloverBtn}"
+					downSkin="{pauseRolloverBtn}"
+					click="onStop(event)"/>
+					
+				<mx:Button width="24" height="24"
+					id="play" 
+					upSkin="{playBtn}"
+					overSkin="{playRolloverBtn}"
+					downSkin="{playRolloverBtn}"
+					click="onPlay(event)"/>
+									
+				<mx:Button width="24" height="24"
+					id="fwd" 
+					upSkin="{fwdBtn}"
+					overSkin="{fwdRolloverBtn}"
+					downSkin="{fwdRolloverBtn}"
+					click="onFwd(event)"/>
+
+		</mx:HBox>
+		
+	</mx:VBox>
+	
+</BaseComponent>
