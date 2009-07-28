@@ -16,7 +16,7 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.hotdraw.java.awt.geom._Point;
+			//import com.hotdraw.java.awt.geom._Point;
 			import mx.events.ResizeEvent;
 			import org.glomaker.shared.properties.IntegerProperty;
 			import org.glomaker.plugin.swfloader.AVM1LoaderInfo;
