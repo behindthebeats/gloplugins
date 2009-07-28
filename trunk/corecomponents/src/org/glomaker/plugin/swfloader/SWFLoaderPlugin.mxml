@@ -774,28 +774,28 @@
 			paddingLeft="2"
 			paddingRight="2">
 			
-				<mx:Button width="24" height="24"
+				<mx:Button width="18" height="18"
 					id="back" 
 					upSkin="{backBtn}"
 					overSkin="{backRolloverBtn}"
 					downSkin="{backRolloverBtn}"
 					click="onBack(event)"/>
 					
-				<mx:Button width="24" height="24"
+				<mx:Button width="18" height="18"
 					id="stop" 
 					upSkin="{pauseBtn}"
 					overSkin="{pauseRolloverBtn}"
 					downSkin="{pauseRolloverBtn}"
 					click="onStop(event)"/>
 					
-				<mx:Button width="24" height="24"
+				<mx:Button width="18" height="18"
 					id="play" 
 					upSkin="{playBtn}"
 					overSkin="{playRolloverBtn}"
 					downSkin="{playRolloverBtn}"
 					click="onPlay(event)"/>
 									
-				<mx:Button width="24" height="24"
+				<mx:Button width="18" height="18"
 					id="fwd" 
 					upSkin="{fwdBtn}"
 					overSkin="{fwdRolloverBtn}"
