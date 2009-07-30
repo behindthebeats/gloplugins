@@ -35,7 +35,7 @@
 				//_dummyApp = new DummyApplication(rte.child as IComponentPlugin, this);
 				//(quiz.child as MultipleChoiceQuestionPlugin).toggleState();
 				_isEditState = !_isEditState;
-				plugin.setEditMode(_isEditState);
+				//plugin.setEditMode(_isEditState);
 			}
 			
 		]]>
@@ -45,16 +45,19 @@
 	
 	<mx:VBox width="100%" height="100%">
 		<mx:Button label="Toggle" click="onToggleViewState(event)"/>
-		<mx:Button label="Init" click="plugin.propertyValuesInitialised()"/>
-<!--		<medialoaders:ImageLoaderPlugin id="plugin" width="100" height="100"/>
+<accessviews:AccessViewsPlugin id="plugin" width="100%" height="100%"/>
+
+<!--		<mx:Button label="Init" click="plugin.propertyValuesInitialised()"/>
+		<medialoaders:ImageLoaderPlugin id="plugin" width="100" height="100"/>
 -->	
 <!--<accessviews:AccessViewsPlugin id="plugin" width="100%" height="100%"/>
 -->
 <!--<stepthrough:StepThroughPlugin id="plugin" width="100%" height="100%"/>
---><!--<imagemagnifier:ImageMagnifierPlugin id="plugin" width="100%" height="100%"/>
 -->
+<!--<imagemagnifier:ImageMagnifierPlugin id="plugin" width="100%" height="100%"/>
 
-<wordassembly:WordAssemblyPlugin id="plugin" width="100%" height="100%"/>
+<mx:SWFLoader id="plugin" width="100%" height="100%"/>
+-->
 </mx:VBox>
 
 
