@@ -22,10 +22,9 @@
 <application path="CoreComponents.mxml"/>
 </applications>
 <modules>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/stage/cetl/CETLNavBar.swf" optimize="true" sourcePath="src/org/glomaker/stage/cetl/CETLNavBar.mxml"/>
 <module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/stage/londonmet/LondonMetNavBar.swf" optimize="true" sourcePath="src/org/glomaker/stage/londonmet/LondonMetNavBar.mxml"/>
+<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/stage/cetl/CETLNavBar.swf" optimize="true" sourcePath="src/org/glomaker/stage/cetl/CETLNavBar.mxml"/>
 <module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/stage/swirl/SwirlNavBar.swf" optimize="true" sourcePath="src/org/glomaker/stage/swirl/SwirlNavBar.mxml"/>
-<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/swfloader/SWFLoaderPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/swfloader/SWFLoaderPlugin.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>
