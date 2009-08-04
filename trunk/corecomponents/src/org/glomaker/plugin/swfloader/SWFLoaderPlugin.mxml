@@ -131,6 +131,8 @@
 			
 			/////////////////////////
 			
+			protected var AVM1Info:AVM1LoaderInfo;
+			
 			/**
 		 	* Sets up an invisible property that stores a true / false value depending
 		 	* on whether the loaded asset is an AVM1 movie or not.
@@ -146,6 +148,16 @@
 		 	* Stores the height of a loaded AVM1 movie.
 		 	*/
 		 	protected var clipHeight:IntegerProperty;
+		 	
+		 	/**
+		 	* Stores the width of the SWFLoader.
+		 	*/
+		 	protected var swfWidth:IntegerProperty;
+		 	
+		 	/**
+		 	* Stores the height of a loaded SWFLoader.
+		 	*/
+		 	protected var swfHeight:IntegerProperty;
 		 	
 		 	/**
 		 	* Stores the unique connectionID for this instance. Used to connect with the AVM1Loader.
@@ -205,6 +217,9 @@
 				clipWidth = new IntegerProperty("clipWidth", "", 640);
 				clipHeight = new IntegerProperty("clipHeight", "", 480);
 				
+				// store a the width and height values of an AVM1 movie
+				swfWidth = new IntegerProperty("swfWidth", "", 0);
+				swfHeight = new IntegerProperty("swfHeight", "", 0);
 				// add properties that appear in properties pane
 				addProperty(filePath);
 				addProperty(bgColour);
@@ -217,6 +232,9 @@
 				
 				addSaveableProperty(clipWidth);
 				addSaveableProperty(clipHeight);
+				
+				addSaveableProperty(swfWidth);
+				addSaveableProperty(swfHeight);
 				
 				readout.text += "defineProperties ";
 				
@@ -238,8 +256,9 @@
 				
 				if(isAVM1.propValue)
 				{
+					loadInitAVM1Movie();
 					// we are either returning to a page or we are in the Player
-					if(checkConnectionIDExists(connectionID.propValue) == null)
+					/* if(checkConnectionIDExists(connectionID.propValue) == null)
 					{
 					
 						// initialise LocalConnection...
@@ -255,7 +274,7 @@
 						// between this module and the loader movie 
 					
 						
-					}
+					} */
 					
 					// set up controls. This is best done here since it is the only reliable place
 					if(playControl.propValue)
@@ -279,50 +298,6 @@
 				readout.text += "propertyValuesInitialised ";
 				
 			}	
-				//_playControlVisible = playControl.propValue;
-				//_jumpControlVisible = jumpControl.propValue;
-				
-
-				/* if(checkConnectionIDExists(connectionID.propValue) == null)
-				{
-					
-					// initialise LocalConnection...
-					initLocalConnection();
-					
-					// this component has not been set up. It needs an AVM1Loader
-					// the initialisation process will now begin
-					swfLoader.source = new AVM1Loader();
-					
-					// by setting the source to the embedded loader movie, the movie will
-					// be run and its code will issue a local connection event message
-					// containing a unique ID to be used subsequently for all communication
-					// between this module and the loader movie
-
-					
-				}else if(!isAVM1.propValue && filePath.propValue != "FilePathProperty::NoUrlSet")
-				{
-					// we already have an AVM1Loader and the media is not AVM1 anyway.
-					// go ahead and load
-					swfLoader.load(filePath.propValue);
-					
-				}else if(isAVM1.propValue && filePath.propValue != "FilePathProperty::NoUrlSet")
-				{	
-					// we already have an AVM1Loader and the media is an AVM1.
-					
-					loadAVM1Movie();
-					
-					// reconfigures the properties panel
-					updateEditableProperties([filePath, bgColour, playControl]);
-					
-					// sets the movie controls
-					//_playControlVisible = true;
-					//_jumpControlVisible = false;
-					buildControls(SWFLoaderPlugin.PLAY);
-				}
-				
-				controls.setStyle("backgroundColor", bgColour.propValue); */
-				
-				// we need to work out at what point we are in the component lifecycle
 				
 			
 			/**
@@ -438,10 +413,14 @@
 						clipWidth.propValue = (swfLoader.content as AVM1Movie).loaderInfo.width;
 						clipHeight.propValue = (swfLoader.content as AVM1Movie).loaderInfo.height;
 						
+						// store the swfLoader dimensions, as these seem to get lost otherwise
+						swfWidth.propValue = swfLoader.width;
+						swfHeight.propValue = swfLoader.height;
+						
 						isAVM1.propValue = true;
 						
 						//loadAVM1Loader();
-						loadAVM1Movie();
+						loadInitAVM1Movie();
 						
 						buildControls(SWFLoaderPlugin.PLAY);
 						
@@ -546,6 +525,8 @@
 				if(AVM_lc != null)
 				{
 					AVM_lc.close();
+					AVM_lc.removeEventListener(Event.INIT, onAVM1LoaderInitialised);
+					AVM_lc.removeEventListener(StatusEvent.STATUS, onStatusError);
 				}
 				
 				// create connection
@@ -562,7 +543,7 @@
 				// a response from the AVM1Loader. We now wait for the reply...
 				
 				readout.text += "initLocalConnection ";
-			}
+			} 
 			
 			/**
 		 	* The localConnection SWF is set up to make a local connection call once it is ready to load
@@ -583,7 +564,7 @@
 				connectionID.propValue = (evt.target as CustomLocalConnection).id;
 				
 				// also store true or false value relating to whether this is an AVM1Movie or not.
-				info.isAVM1 = isAVM1.propValue;
+				//info.isAVM1 = isAVM1.propValue;
 				
 				// remove event listener
 				AVM_lc.removeEventListener(Event.INIT, onAVM1LoaderInitialised);
@@ -594,6 +575,7 @@
 				// add AVM1Object to dictionary
 				_AVM1Loaders[connectionID.propValue] = info;
 				
+				loadAVM1Movie();
 				// we may need to load a movie at this point
 				// possible scenarios:
 				// 1. the AVM1Loader has just been set-up in editing mode 
@@ -601,20 +583,20 @@
 				// 3. we are in the player
 				
 				// 1. the AVM1Loader has just been set-up 
-				if(filePath.propValue == "FilePathProperty::NoUrlSet")
+				/* if(filePath.propValue == "FilePathProperty::NoUrlSet")
 				{
 					// do nothing
 				}else if(isAVM1.propValue)
 				{
 					// we are either returning from another page or we are in the player.
 					// we already know the movie is AVM1 so go ahead and load it
-					loadAVM1Movie();
+					
 				}else
 				{
 					// we are either returning from another page or we are in the player.
 					// the movie or image is not AVM1, go ahead and load it
 					//swfLoader.load(filePath.propValue);
-				}
+				} */
 				
 				readout.text += "onAVM1LoaderInitialised "; 
 			}			
@@ -622,8 +604,58 @@
 			/**
 		 	* The loading of an AVM1 movie is done through local connection.
 		 	*/
-			protected function loadAVM1Movie():void
+			protected function loadInitAVM1Movie():void
 			{	
+				// first, check to see if an AVM1loader has already been set up,
+				// if not, set up
+				if(checkConnectionIDExists(connectionID.propValue) == null)
+				{
+				
+					// initialise LocalConnection...
+					initLocalConnection();
+				
+					// this component has not been set up. It needs an AVM1Loader
+					// the initialisation process will now begin...
+					swfLoader.source = new AVM1Loader();
+					
+					// ...by setting the source to the embedded loader movie, the movie will
+					// be run and its code will issue a local connection event message
+					// containing a unique ID to be used subsequently for all communication
+					// between this module and the loader movie 
+				
+					
+				}else
+				{
+					loadAVM1Movie();
+				}
+
+				
+				
+				// we now have an open connection with the AVM1Loader. This will provoke
+				// a response from the AVM1Loader. We now wait for the reply...
+				
+				/* readout.text += "initLocalConnection ";
+				
+				// retrieve stored information about AVM1
+				var info:AVM1LoaderInfo = _AVM1Loaders[connectionID.propValue] as AVM1LoaderInfo;		
+				
+				// establish local connection
+				AVM_lc = new CustomLocalConnection("host" + connectionID.propValue);
+				
+				// set up an event listener to detect when the AVM1Loader has loaded the movie	
+				AVM_lc.addEventListener(CustomLocalConnection.CLIP_LOADED, onClipLoaded);	
+				
+				// tell the AVM1Loader to load the movie. Send the height and width along so that it can 
+				// create a background of the correct size	
+				AVM_lc.send(connectionID.propValue, "load",  filePath.propValue, clipWidth.propValue, clipHeight.propValue);
+				
+				// do not close this connection until we have received a response */
+				
+				readout.text += "loadInitAVM1Movie ";
+			}
+			
+			protected function loadAVM1Movie():void
+			{
 				// retrieve stored information about AVM1
 				var info:AVM1LoaderInfo = _AVM1Loaders[connectionID.propValue] as AVM1LoaderInfo;		
 				
@@ -638,7 +670,6 @@
 				AVM_lc.send(connectionID.propValue, "load",  filePath.propValue, clipWidth.propValue, clipHeight.propValue);
 				
 				// do not close this connection until we have received a response
-				
 				readout.text += "loadAVM1Movie ";
 			}
 			
@@ -647,6 +678,11 @@
 		 	*/
 			protected function onClipLoaded(evt:Event):void
 			{
+				if(swfWidth.propValue > 0 && swfHeight.propValue > 0)
+				{
+					swfLoader.width = swfWidth.propValue;
+					swfLoader.height = swfHeight.propValue;
+				}
 				// retrieve information about AVM1 movie and loader
 				var info:AVM1LoaderInfo = _AVM1Loaders[connectionID.propValue] as AVM1LoaderInfo;
 				
@@ -670,9 +706,11 @@
 				doScrollRect();
 				
 				AVM_lc.removeEventListener(CustomLocalConnection.CLIP_LOADED, onClipLoaded);
+				
 				closeConnection();
 				
-				readout.text += "onClipLoaded ";
+				readout.text += "onClipLoaded: swfLoader.width = "+String(swfLoader.width)+ "swfLoader.height = "+String(swfLoader.height);
+				
 			}
 			
 			/**
@@ -891,18 +929,18 @@
 	<mx:VBox width="100%" height="100%" 
 		id="container">
 		<mx:TextArea id="readout" width="100%" text="start"/>
-		<mx:Canvas width="100%" height="100%"
+		<!--<mx:Canvas width="100%" height="100%"
 			id="swfLoaderContainer"
 			borderStyle="solid"
 			borderColor="0xff00ff"
-			borderThickness="2">
+			borderThickness="2">-->
 			
 			<mx:SWFLoader width="100%" height="100%"
 				id="swfLoader"
 				styleName="missingImageStyle"
 				complete="onSWFLoaderComplete(event)"/>
 			
-		</mx:Canvas>	
+		<!--</mx:Canvas>-->	
 				
 		<mx:HBox width="100%"
 			id="controls" horizontalGap="2"
