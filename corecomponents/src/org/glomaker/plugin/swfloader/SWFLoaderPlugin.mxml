@@ -141,6 +141,11 @@
 		 	* Stores the height of a loaded SWFLoader.
 		 	*/
 		 	protected var containerHeight:IntegerProperty;
+		 	
+		 	/**
+		 	* Stop filePath from being garbage collected.
+		 	*/
+		 	public var storeFilePath:String;
 
 			
 			///////////////////////////////////////////////////////
@@ -218,7 +223,7 @@
 					container.height = containerHeight.propValue;
 				}
 				
-				
+				storeFilePath = filePath.propValue;
 				swfLoader.load(filePath.propValue);
 				
 				setupControls();
