@@ -12,7 +12,7 @@
 	xmlns:videoplayer="org.glomaker.plugin.videoplayer.*" 
 	xmlns:rectangle="org.glomaker.plugin.rectangle.*" 
 	xmlns:londonmet="org.glomaker.stage.londonmet.*" 
-	xmlns:wordassembly="org.glomaker.plugin.wordassembly.*" xmlns:stepthrough="org.glomaker.plugin.stepthrough.*" xmlns:accessviews="org.glomaker.plugin.accessviews.*" xmlns:imagemagnifier="org.glomaker.plugin.imagemagnifier.*">
+	xmlns:wordassembly="org.glomaker.plugin.wordassembly.*" xmlns:stepthrough="org.glomaker.plugin.stepthrough.*" xmlns:accessviews="org.glomaker.plugin.accessviews.*" xmlns:imagemagnifier="org.glomaker.plugin.imagemagnifier.*" xmlns:mp3player="org.glomaker.plugin.mp3player.*">
 	 
 	<mx:Script>
 		<![CDATA[
@@ -45,7 +45,7 @@
 	
 	<mx:VBox width="100%" height="100%">
 		<mx:Button label="Toggle" click="onToggleViewState(event)"/>
-<accessviews:AccessViewsPlugin id="plugin" width="100%" height="100%"/>
+<mp3player:Mp3PlayerPlugin id="plugin" width="100%" height="100%"/>
 
 <!--		<mx:Button label="Init" click="plugin.propertyValuesInitialised()"/>
 		<medialoaders:ImageLoaderPlugin id="plugin" width="100" height="100"/>
