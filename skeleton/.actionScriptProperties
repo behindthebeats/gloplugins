@@ -17,10 +17,7 @@
 </libraryPath>
 <sourceAttachmentPath/>
 </compiler>
-<applications>
-<application path="PluginOptimiserApp.mxml"/>
-<application path="SkeletonGLOProject.mxml"/>
-</applications>
+<applications/>
 <modules/>
 <buildCSSFiles/>
 </actionScriptProperties>
