@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+/////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2007-09 LTRI, London Metropolitan Uni. All rights reserved.
+// An Open Source Release under the GPL v3 licence  (see http://www.gnu.org/licenses/).
+// Authors: Tom Boyle, Nils Millahn, Musbah Sagar, Martin Agombar.
+// See http://www.glomaker.org for full details
+/////////////////////////////////////////////////////////////////////////
+-->
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+	initialize="init()" xmlns:swfloader="org.glomaker.plugin.swfloader.*" xmlns:properties="testing.properties.*" xmlns:plugin="plugin.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import org.glomaker.shared.component.interfaces.IComponentPlugin;
+			import testing.properties.core.GLOMakerFacade;
+			import plugin.StartPlugin;
+			import org.glomaker.shared.component.optimisation.PluginOptimiser;
+
+			private var _optimization:Object = PluginOptimiser;
+			private var _isEditState:Boolean = false;
+			private var _plugin:IComponentPlugin;
+			
+			/**
+			 * Multiton application key for PureMVC Multicore.
+			**/
+			private static const APP_KEY:String = "GLOv2AppKey";
+			
+			// uses PureMVC
+			protected function init():void
+			{
+				_plugin = Test_plugin;
+				// start the PureMVC facade
+				GLOMakerFacade.start(APP_KEY, this);
+			}
+			
+			// used for more advanced components whose state can be toggled
+			protected function onToggleViewState(evt:MouseEvent):void
+			{
+				_isEditState = !_isEditState;
+
+			}
+			
+			public function get testPlugin():IComponentPlugin
+			{
+				return _plugin;
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:Button label="Toggle" click="onToggleViewState(event)" bottom="10"/>
+	
+	<!--
+	/////////////////////////////////////////////////////////////////////////
+	// Replace plugin:StartPlugin with your own component. Set its
+	// id to Test_plugin. 
+	/////////////////////////////////////////////////////////////////////////
+	-->
+	<plugin:StartPlugin id="Test_plugin" width="100" height="100"/>
+	
+	<properties:HorzPropertiesPanelView id="panel" bottom="0"/>
+
+</mx:Application>
