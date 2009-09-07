@@ -21,6 +21,8 @@
 <application path="SkeletonGLOProject.mxml"/>
 <application path="PluginOptimiserApp.mxml"/>
 </applications>
-<modules/>
+<modules>
+<module application="src/PluginOptimiserApp.mxml" destPath="plugin/StartPlugin.swf" optimize="true" sourcePath="src/plugin/StartPlugin.mxml"/>
+</modules>
 <buildCSSFiles/>
 </actionScriptProperties>
