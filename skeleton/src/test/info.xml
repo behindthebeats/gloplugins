@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<plugin>
+	<id>test</id>
+	<author>Martin</author>
+	<version>1.0</version>
+	<glomaker>2.0</glomaker>	
+	<name>Test Plugin</name>
+	<description>Test</description>
+	<swf>TestPlugin.swf</swf>
+</plugin>
