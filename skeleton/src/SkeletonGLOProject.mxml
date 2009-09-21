@@ -10,7 +10,7 @@
 -->
 
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
-	initialize="init()" xmlns:swfloader="org.glomaker.plugin.swfloader.*" xmlns:properties="testing.properties.*" xmlns:plugin="plugin.*" xmlns:test="test.*">
+	initialize="init()" xmlns:swfloader="org.glomaker.plugin.swfloader.*" xmlns:properties="testing.properties.*" xmlns:plugin="plugin.*" xmlns:test="test.*" xmlns:sampleplugin="sampleplugin.*">
 	
 	<mx:Script>
 		<![CDATA[
@@ -58,7 +58,7 @@
 	// id to Test_plugin. 
 	/////////////////////////////////////////////////////////////////////////
 	-->
-	<test:TestPlugin id="Test_plugin" width="100" height="100"/>
+	<sampleplugin:StartPlugin id="Test_plugin" width="100" height="100"/>
 	
 	<properties:HorzPropertiesPanelView id="panel" bottom="0"/>
 

@@ -22,7 +22,6 @@
 <application path="PluginOptimiserApp.mxml"/>
 </applications>
 <modules>
-<module application="src/PluginOptimiserApp.mxml" destPath="test/TestPlugin.swf" optimize="true" sourcePath="src/test/TestPlugin.mxml"/>
 <module application="src/PluginOptimiserApp.mxml" destPath="sampleplugin/StartPlugin.swf" optimize="true" sourcePath="src/sampleplugin/StartPlugin.mxml"/>
 </modules>
 <buildCSSFiles/>
