@@ -10,13 +10,13 @@
 -->
 
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
-	initialize="init()" xmlns:swfloader="org.glomaker.plugin.swfloader.*" xmlns:properties="testing.properties.*" xmlns:plugin="plugin.*">
+	initialize="init()" xmlns:swfloader="org.glomaker.plugin.swfloader.*" xmlns:properties="testing.properties.*" xmlns:plugin="plugin.*" xmlns:test="test.*">
 	
 	<mx:Script>
 		<![CDATA[
 			import org.glomaker.shared.component.interfaces.IComponentPlugin;
 			import testing.properties.core.GLOMakerFacade;
-			import plugin.StartPlugin;
+			import sampleplugin.StartPlugin;
 			import org.glomaker.shared.component.optimisation.PluginOptimiser;
 
 			private var _optimization:Object = PluginOptimiser;
@@ -58,7 +58,7 @@
 	// id to Test_plugin. 
 	/////////////////////////////////////////////////////////////////////////
 	-->
-	<plugin:StartPlugin id="Test_plugin" width="100" height="100"/>
+	<test:TestPlugin id="Test_plugin" width="100" height="100"/>
 	
 	<properties:HorzPropertiesPanelView id="panel" bottom="0"/>
 

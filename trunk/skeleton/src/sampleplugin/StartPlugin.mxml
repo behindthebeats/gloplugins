@@ -72,6 +72,7 @@
 				string = new StringProperty("string", "", "hello");
 				number = new NumberProperty("number", "", -5.01);
 				
+
 				/////////////////////////////////////////////////////////////////////////
 				//
 				// You then have to add your property fields as shown below.
