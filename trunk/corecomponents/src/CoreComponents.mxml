@@ -35,7 +35,10 @@
 				//_dummyApp = new DummyApplication(rte.child as IComponentPlugin, this);
 				//(quiz.child as MultipleChoiceQuestionPlugin).toggleState();
 				_isEditState = !_isEditState;
-				//plugin.setEditMode(_isEditState);
+				plugin.setEditMode(_isEditState);
+				plugin1.setEditMode(_isEditState);
+				plugin.textArea.htmlText = "<a href='http://www.google.com'>google</a>";
+				plugin1.textArea.htmlText = "<a href='http://www.ask.com'>ask</a>";
 			}
 			
 		]]>
@@ -44,10 +47,17 @@
 	<mx:Style source="GLO_styles.css" />
 	
 	<mx:VBox width="100%" height="100%">
+	
 		<mx:Button label="Toggle" click="onToggleViewState(event)"/>
-<mp3player:Mp3PlayerPlugin id="plugin" width="100%" height="100%"/>
+		
+		
+		<textarea:TextAreaPlugin id="plugin" width="100%" height="50%"/>
+		<textarea:TextAreaPlugin id="plugin1" width="100%" height="50%"/>
 
-<!--		<mx:Button label="Init" click="plugin.propertyValuesInitialised()"/>
+
+<!--		
+		<mp3player:Mp3PlayerPlugin id="plugin" width="100%" height="100%"/>
+<mx:Button label="Init" click="plugin.propertyValuesInitialised()"/>
 		<medialoaders:ImageLoaderPlugin id="plugin" width="100" height="100"/>
 -->	
 <!--<accessviews:AccessViewsPlugin id="plugin" width="100%" height="100%"/>
