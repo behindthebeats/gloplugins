@@ -78,7 +78,7 @@
 			override public function setEditMode(f:Boolean):void
 			{
 				//textArea.editable = textArea.selectable = textArea.focusEnabled = f;
-				textArea.editable = textArea.selectable = f;
+				textArea.editable = f;
 				
 				// deselect text if switching out of edit mode
 				if(!f)
@@ -99,6 +99,7 @@
 				// there is a problem with the html formatting disappearing when changing border styles
 				// we avoid it by listening to the textFieldStyleChange event and re-applying the html text
 				// see glomaker issue 149
+				
 				preStyleChangeHTML = textArea.htmlText;
 				textArea.mx_internal::getTextField().addEventListener("textFieldStyleChange", onStyleChange, false, 0, true);
 				
@@ -133,13 +134,15 @@
 	</mx:Script>
 	
 	<!--
-		focusEnabled="false"-->
+		focusEnabled="false"
+		selectable="false"
+
+		-->
 	
 	
 	<mx:TextArea id="textArea" width="100%" height="100%" 
 		fontSize="14"
 		editable="false"
-		selectable="false"
 		backgroundAlpha="0"/>
 
 </BaseComponent>
