@@ -138,7 +138,7 @@
 				// if no entries are available, we provide default values
 				if(_answers.valueArray.length == 0)
 				{
-					answerCollection = new ArrayCollection(["Answer 11", "Answer 2", "Answer 3"]);
+					answerCollection = new ArrayCollection(["Answer 1", "Answer 2", "Answer 3"]);
 				}else{
 					answerCollection = new ArrayCollection(_answers.valueArray.concat());
 				}
@@ -425,6 +425,7 @@
 				selectable="{inEditMode}"
 				minHeight="25"
 				height="25"/>
+				<mx:Spacer height="15"/>
 			<mx:VBox width="100%" height="100%">	
 				<mx:Repeater id="answerRP" dataProvider="{answerCollection}" repeatEnd="onRepeatEnd()">
 					<mx:HBox verticalAlign="top" height="100%" width="100%">
