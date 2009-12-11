@@ -36,9 +36,6 @@
 				//(quiz.child as MultipleChoiceQuestionPlugin).toggleState();
 				_isEditState = !_isEditState;
 				plugin.setEditMode(_isEditState);
-				plugin1.setEditMode(_isEditState);
-				plugin.textArea.htmlText = "<a href='http://www.google.com'>google</a>";
-				plugin1.textArea.htmlText = "<a href='http://www.ask.com'>ask</a>";
 			}
 			
 		]]>
@@ -52,7 +49,6 @@
 		
 		
 		<textarea:TextAreaPlugin id="plugin" width="100%" height="50%"/>
-		<textarea:TextAreaPlugin id="plugin1" width="100%" height="50%"/>
 
 
 <!--		
@@ -71,6 +67,6 @@
 </mx:VBox>
 
 
-<!--	<londonmet:LondonMetNavBar/>
--->
+<londonmet:LondonMetNavBar/>
+
 </mx:Application>
