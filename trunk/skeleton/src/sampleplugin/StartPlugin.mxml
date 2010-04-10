@@ -47,6 +47,8 @@
 			protected var fpa:FilePathArrayProperty;
 			protected var number:NumberProperty;
 			
+			
+			
 			override protected function defineProperties():void
 			{
 				super.defineProperties();
@@ -134,6 +136,37 @@
 						break;
 				}
 			}
+			
+			override protected function sharedMemoryAvailable():void
+			{
+				super.sharedMemoryAvailable();
+
+				/////////////////////////////////////////////////////////////////////////
+				//
+				// This function is called when the shared memory becomes available
+				// You can use 'writeToMemory' and 'readFromMemory' to read/write to the shared memory object.
+				// Make sure you use a unique name so existing properties are not overwritten.
+				//
+				/////////////////////////////////////////////////////////////////////////
+
+				writeToMemory( "StartPluginMemory", "value to store", true);
+				trace( readFromMemory( "StartPluginMemory" ) );
+			}
+			
+			
+			override protected function sharedMemoryPreDestroyHook():void
+			{
+				super.sharedMemoryPreDestroyHook();
+
+				/////////////////////////////////////////////////////////////////////////
+				//
+				// This function is called just before the shared memory becomes unavailable
+				// It offers a last opportunity to save values to shared memory before the component is destroyed 
+				//
+				/////////////////////////////////////////////////////////////////////////
+			}
+			
+			
 		]]>
 	</mx:Script>
 	

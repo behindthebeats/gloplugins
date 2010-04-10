@@ -32,6 +32,8 @@
 			protected function init():void
 			{
 				_plugin = Test_plugin;
+				_plugin.setSharedMemory( {} );
+				
 				// start the PureMVC facade
 				GLOMakerFacade.start(APP_KEY, this);
 			}
