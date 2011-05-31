@@ -9,11 +9,12 @@
 <sourceAttachmentPath/>
 </compiler>
 <applications>
+<application path="PluginOptimiserApp.mxml"/>
 <application path="coreComponents.mxml"/>
-<application path="Pl.mxml"/>
 </applications>
 <modules>
-<module application="src/coreComponents.mxml" destPath="org/glomaker/plugin/inputoutput/InputOutputPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/inputoutput/InputOutputPlugin.mxml"/>
+<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/inputoutput/InputOutputPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/inputoutput/InputOutputPlugin.mxml"/>
+<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/youtube/YouTubePlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/youtube/YouTubePlugin.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>
