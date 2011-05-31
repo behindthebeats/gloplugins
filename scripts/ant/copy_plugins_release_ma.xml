@@ -22,8 +22,8 @@
 
 	<!-- COPY ALL STAGES -->
 	
-	<copy verbose="true" flatten="false" todir="${GLOMAKER_STAGE_HOME}">
+	<!--<copy verbose="true" flatten="false" todir="${GLOMAKER_STAGE_HOME}">
 		<fileset dir="${STAGE_HOME}"/>
-	</copy>
+	</copy>-->
 	
 </project>
