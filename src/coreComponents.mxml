@@ -10,16 +10,15 @@
 	xmlns:textarea="org.glomaker.plugin.textarea.*" 
 	xmlns:mcq="org.glomaker.plugin.mcq.*" 
 	xmlns:videoplayer="org.glomaker.plugin.videoplayer.*" 
-	xmlns:rectangle="org.glomaker.plugin.rectangle.*" 
-	xmlns:londonmet="org.glomaker.stage.londonmet.*" 
-	xmlns:wordassembly="org.glomaker.plugin.wordassembly.*" xmlns:stepthrough="org.glomaker.plugin.stepthrough.*" xmlns:accessviews="org.glomaker.plugin.accessviews.*" xmlns:imagemagnifier="org.glomaker.plugin.imagemagnifier.*" xmlns:mp3player="org.glomaker.plugin.mp3player.*">
+	xmlns:rectangle="org.glomaker.plugin.rectangle.*"  
+	xmlns:wordassembly="org.glomaker.plugin.wordassembly.*" xmlns:stepthrough="org.glomaker.plugin.stepthrough.*" xmlns:accessviews="org.glomaker.plugin.accessviews.*" xmlns:imagemagnifier="org.glomaker.plugin.imagemagnifier.*" xmlns:mp3player="org.glomaker.plugin.mp3player.*" xmlns:londonmet1="org.glomaker.londonmet.*">
 	 
 	<mx:Script>
 		<![CDATA[
 			
 			import org.glomaker.shared.component.optimisation.PluginOptimiser;
-			import org.glomaker.plugin.imagemagnifier.ImageMagnifierPlugin;
-			import org.glomaker.plugin.mcq.MultipleChoiceQuestionPlugin;
+			//import org.glomaker.plugin.imagemagnifier.ImageMagnifierPlugin;
+			//import org.glomaker.plugin.mcq.MultipleChoiceQuestionPlugin;
 			import org.glomaker.shared.component.interfaces.IComponentPlugin;
 
 			private var _optimization:Object = PluginOptimiser;
@@ -65,8 +64,5 @@
 <mx:SWFLoader id="plugin" width="100%" height="100%"/>
 -->
 </mx:VBox>
-
-
-<londonmet:LondonMetNavBar/>
 
 </mx:Application>
