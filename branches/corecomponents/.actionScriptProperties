@@ -10,7 +10,10 @@
 </compiler>
 <applications>
 <application path="coreComponents.mxml"/>
+<application path="Pl.mxml"/>
 </applications>
-<modules/>
+<modules>
+<module application="src/coreComponents.mxml" destPath="org/glomaker/plugin/inputoutput/InputOutputPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/inputoutput/InputOutputPlugin.mxml"/>
+</modules>
 <buildCSSFiles/>
 </actionScriptProperties>
