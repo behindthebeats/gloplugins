@@ -1,7 +1,7 @@
 <project name="Copy Plugins to Glomaker" basedir="..\..\.">
 
 	<!-- EDIT TO MATCH YOUR SYSTEM -->
-	<property name="GLOMAKER_HOME" value="C:\Documents and Settings\USER\My Documents\Flex Builder 3\GLO_Project_v2_01"/>
+	<property name="GLOMAKER_HOME" value="C:\Documents and Settings\USER\My Documents\Flex Builder 3\GLO_Project_v2_02"/>
 
 
 	<!-- DON'T EDIT BELOW -->
