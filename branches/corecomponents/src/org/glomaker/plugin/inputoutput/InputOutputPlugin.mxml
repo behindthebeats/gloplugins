@@ -50,7 +50,7 @@
 	private var sessionName:String ="inputElement_" ;
 	
 	[Bindable]
-	private var _fc:uint = 0;
+	private var _fc:uint;
 	
 	
 	override protected function defineProperties():void
@@ -83,6 +83,7 @@
 		if(prop == fontColour)
 		{
 			_fc = prop.propValue;
+			trace(_fc);
 		}
 	}
 	
@@ -104,7 +105,7 @@
 		outputName7Text.text = outputElementsArray.propValue[6];
 		outputName8Text.text = outputElementsArray.propValue[7]; */
 		
-		
+		_fc = fontColour.propValue;
 	}
 	
 	override public function prepareValuesForSave():void
@@ -131,7 +132,7 @@
 	override public function setEditMode(f:Boolean):void
 		{
 			if(f){
-			currentState = "EditState";
+			//currentState = "EditState";
 /* 			ComponentText.editable = !setOutput.propValue;
 			inputElement.visible = !setOutput.propValue;
 			outputElement.visible = setOutput.propValue;
@@ -181,7 +182,7 @@
 		
 	]]>
 </mx:Script>
-
+<mx:TextArea color="{_fc}" editable="true" text="test"/>
 <!--<states>
 <mx:State name="ViewState">
 <mx:AddChild position="lastChild">
