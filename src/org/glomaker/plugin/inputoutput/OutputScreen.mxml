@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" backgroundColor="0x0000ff">
-	<mx:Text text="output as seen"/>
+	<mx:Script>
+		<![CDATA[
+			public static const NAME:String = "OutputScreen";
+			
+			public function set text(val:String):void
+			{
+				display.htmlText = val;
+			}
+			
+			protected function init():void
+			{
+				name = NAME;
+			}
+		]]>
+	</mx:Script>
+	<mx:Text id="display" text="output as seen"/>
 </mx:Canvas>

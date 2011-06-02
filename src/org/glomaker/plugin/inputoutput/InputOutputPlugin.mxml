@@ -99,16 +99,25 @@
 		
 		_fc = fontColour.propValue;
 		
-		if(inputEditScreen)
-		{
-			inputEditScreen.inputID = inputID.propValue;
-		}
 		
 		if(memorySet.propValue)
 		{	
 			var thisElement:String = sessionName + inputID.propValue;
-			inputArea.htmlText = readFromMemory(thisElement);
-			trace(thisElement, readFromMemory(thisElement));
+			
+			trace(thisElement);
+			if(readFromMemory(thisElement) != undefined)
+			{
+				inputArea.htmlText = readFromMemory(thisElement);
+				trace(setOutput.propValue, editMode);
+				if(setOutput.propValue && !editMode)
+				{
+					if(outputScreen)
+					{
+						outputScreen.text = readFromMemory(thisElement);
+					}
+				}
+			}
+			
 		}
 		
 		
@@ -119,6 +128,17 @@
 	{
 		trace("1 "+ setOutput.propValue, "2 "+ editMode, "3 "+inputID.propValue);
 		
+		if(inputEditScreen)
+		{
+			trace("E"+ inputID.propValue);
+			inputEditScreen.inputID = inputID.propValue;
+		}
+		
+		if(outputEditScreen)
+		{
+			trace("O"+ inputID.propValue);
+			outputEditScreen.inputID = inputID.propValue;
+		}
 		
 		//inputID.propValue = inputArea
 		/* inputID.propValue = inputNameText.text;
@@ -164,8 +184,10 @@
 					if(!outputEditScreen)
 					{
 						outputEditScreen = new OutputEditingScreen();
+						outputEditScreen.addEventListener(Event.CHANGE, onInputIDChange);
 					}
 					
+					outputEditScreen.inputID = inputID.propValue;
 					this.addChild(outputEditScreen);
 				}else
 				{
@@ -189,6 +211,7 @@
 						inputEditScreen.addEventListener(Event.CHANGE, onInputIDChange);
 					}
 					
+					inputEditScreen.inputID = inputID.propValue;
 					this.addChild(inputEditScreen);
 				}else
 				{
@@ -199,27 +222,34 @@
 	}
 	protected function onInputIDChange(evt:Event):void
 	{
-		inputID.propValue = (evt.target as InputEditingScreen).inputID;
-		
-		var thisElement:String = sessionName + inputID.propValue;
-		if(inputEditScreen)
+		if(evt.target is InputEditingScreen)
 		{
-			storeText();
+			inputID.propValue = (evt.target as InputEditingScreen).inputID;
+			
+			if(inputEditScreen)
+			{
+				storeText();
+			}
 		}
+		
+		if(evt.target is OutputEditingScreen)
+		{
+			inputID.propValue = (evt.target as OutputEditingScreen).inputID;
+			
+			if(outputEditScreen)
+			{
+				storeText();
+			}
+		}
+		
 	}
 	protected function onUserInput(evt:Event):void
 	{
 		storeText();
 	}
 	
-	private function getButton():void
-	{
-		/* if(ComponentText.text != ""){
-			submit.visible = true;
-		} */
-	}
 	
-	private function storeText():void
+	protected function storeText():void
 	{
 		var thisElement:String = sessionName + inputID.propValue;
 		
@@ -231,63 +261,5 @@
 	]]>
 </mx:Script>
 <mx:TextArea id="inputArea" color="{_fc}" editable="true" width="100%" height="100%" text="test" change="onUserInput(event)"/>
-<!--<states>
-<mx:State name="ViewState">
-<mx:AddChild position="lastChild">
-	<mx:Canvas id="textBox" width="100%" height="900%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
-		<mx:Image source="{textBg}" id="backImage"/>
-		<mx:TextArea  width="100%" height="50%"
-			 id="ComponentText"
-			  backgroundAlpha="0" borderThickness="0"
-			 fontFamily="American Typewriter" fontSize="16" color="{_fc}"
-			  change="getButton();"/>
-		<mx:Canvas  id="subCan" width="100%" height="35" bottom="0" backgroundColor="0xFFFFFF">
-			<mx:Button id="submit" styleName="submit" bottom="0" right="5" visible="false" click="storeText();"/>
-		</mx:Canvas>
-	</mx:Canvas>
-	</mx:AddChild>
-	</mx:State>
-	<mx:State name="EditState">
-	<mx:RemoveChild target="{textBox}"/>
-	<mx:AddChild position="lastChild">
-		<mx:Canvas id="choices" width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
-		<mx:VBox width="100%" height="100%">
-		<mx:Panel id="inputElement" title="Input Element" width="100%" height="20%" paddingTop="10" paddingLeft="10">
-		<mx:FormItem id="inputName" label="Input Name:">
-			<mx:TextInput id="inputNameText"/>
-		</mx:FormItem>
-		</mx:Panel>
-		<mx:Panel id="outputElement" title="Output Elements" width="100%" height="80%" paddingTop="10" paddingLeft="10">
-			<mx:FormItem id="outputName1" label="Input Name 1:">
-			<mx:TextInput id="outputName1Text"/>
-		</mx:FormItem>
-		<mx:FormItem id="outputName2" label="Input Name 2:">
-			<mx:TextInput id="outputName2Text"/>
-		</mx:FormItem>
-		<mx:FormItem id="outputName3" label="Input Name 3:">
-			<mx:TextInput id="outputName3Text"/>
-		</mx:FormItem>
-		<mx:FormItem id="outputName4" label="Input Name 4:">
-			<mx:TextInput id="outputName4Text"/>
-		</mx:FormItem>
-		<mx:FormItem id="outputName5" label="Input Name 5:">
-			<mx:TextInput id="outputName5Text"/>
-		</mx:FormItem>
-		<mx:FormItem id="outputName6" label="Input Name 6:">
-			<mx:TextInput id="outputName6Text"/>
-		</mx:FormItem>
-		<mx:FormItem id="outputName7" label="Input Name 7:">
-			<mx:TextInput id="outputName7Text"/>
-		</mx:FormItem>
-		<mx:FormItem id="outputName8" label="Input Name 8:">
-			<mx:TextInput id="outputName8Text"/>
-		</mx:FormItem>
-		</mx:Panel>
-		</mx:VBox>
-		</mx:Canvas>
-	</mx:AddChild>
-		
-	</mx:State>
-</states>-->
 
 </BaseComponent>
