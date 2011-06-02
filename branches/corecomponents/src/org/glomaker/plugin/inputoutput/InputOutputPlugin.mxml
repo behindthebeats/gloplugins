@@ -22,6 +22,7 @@
 
 <mx:Script>
 	<![CDATA[
+		import mx.controls.TextInput;
 		import org.glomaker.shared.properties.ColourProperty;
 		import org.glomaker.shared.properties.ArrayProperty;
 		import org.glomaker.shared.properties.StringProperty;
@@ -42,6 +43,10 @@
 	protected var outputElementsArray:ArrayProperty;
 	
 	protected var fontColour:ColourProperty;
+	
+	protected var editMode:Boolean;
+	
+	protected var inputScreen:InputEditingScreen;
 	
 	private var _inputElementsArray:Array = new Array("a", "b", "c", "d", "e", "", "", "");
 	
@@ -76,41 +81,34 @@
 	
 	override public function editablePropertyUpdated(prop:IComponentProperty):void
 	{
-		if(prop == setOutput)
-		{
-			getSubmit();
-		}
 		if(prop == fontColour)
 		{
 			_fc = prop.propValue;
-			trace(_fc);
 		}
+		
+		setMode();
 	}
 	
 	override public function propertyValuesInitialised():void
-	{
-		getSubmit();
-/* 		submit.enabled = !isSubmitted.propValue;
-		inputElement.visible = !setOutput.propValue;
-		outputElement.visible = setOutput.propValue;
-		
-		inputNameText.text = inputID.propValue;
-		
-		outputName1Text.text = outputElementsArray.propValue[0];
-		outputName2Text.text = outputElementsArray.propValue[1];
-		outputName3Text.text = outputElementsArray.propValue[2];
-		outputName4Text.text = outputElementsArray.propValue[3];
-		outputName5Text.text = outputElementsArray.propValue[4];
-		outputName6Text.text = outputElementsArray.propValue[5];
-		outputName7Text.text = outputElementsArray.propValue[6];
-		outputName8Text.text = outputElementsArray.propValue[7]; */
+	{		
+		setMode();
 		
 		_fc = fontColour.propValue;
+		
+		if(inputScreen)
+		{
+			inputScreen.inputID = inputID.propValue;
+		}
+		var thisElement:String = sessionName + inputID.propValue;
+		trace(readFromMemory(thisElement));
 	}
 	
 	override public function prepareValuesForSave():void
 	{
+		trace(setOutput.propValue, editMode, inputID.propValue);
 		
+		
+		//inputID.propValue = inputArea
 		/* inputID.propValue = inputNameText.text;
 		
 		outputElementsArray.propValue[0] = outputName1Text.text;
@@ -130,40 +128,59 @@
 	} */
 	
 	override public function setEditMode(f:Boolean):void
-		{
-			if(f){
-			//currentState = "EditState";
-/* 			ComponentText.editable = !setOutput.propValue;
-			inputElement.visible = !setOutput.propValue;
-			outputElement.visible = setOutput.propValue;
-			}else{
-			currentState = "ViewState";
-			ComponentText.editable = !setOutput.propValue;
-			inputElement.visible = !setOutput.propValue;
-			outputElement.visible = setOutput.propValue; */
-			}
-		}
-	
-	protected function getSubmit():void
 	{
-		/* subCan.visible = !setOutput.propValue;
-		ComponentText.editable = !setOutput.propValue;
-		inputElement.visible = !setOutput.propValue;
-		outputElement.visible = setOutput.propValue;
-		if(setOutput.propValue){
-		try{
-			for(var i:int = 0;i<outputElementsArray.propValue.length();i++){
-				var thisElement:String = sessionName + outputElementsArray.propValue[i];
-				ComponentText.htmlText += readFromMemory(thisElement);
-			}
-		}catch(e:Error){
-			ComponentText.text = "No Text Saved";
-		}
-		}else{
-			ComponentText.htmlText = readFromMemory(sessionName + inputID.propValue);
-		} */
+		editMode = f;
+		setMode();
 	}
-	
+		
+	protected function setMode():void
+	{
+		this.removeAllChildren();
+		
+		//trace("editMode "+editMode, "setOutput "+setOutput.propValue);
+		
+		if(setOutput.propValue)
+			{
+				//we must be in output mode
+				if(editMode)
+				{
+					//we are editing the output screen
+					this.addChild(new OutputEditingScreen());
+				}else
+				{
+					//we are seeing the output screen
+					this.addChild(new OutputScreen());
+				}
+			}else
+			{
+				//we must be in input mode
+				if(editMode)
+				{
+					//we are editing the input screen
+					if(!inputScreen)
+					{
+						inputScreen = new InputEditingScreen();
+						inputScreen.addEventListener(Event.CHANGE, onInputChange);
+					}
+					
+					this.addChild(inputScreen);
+				}else
+				{
+					//we are seeing the input screen
+					this.addChild(inputArea);
+				}
+			}
+	}
+	protected function onInputChange(evt:Event):void
+	{
+		inputID.propValue = (evt.target as InputEditingScreen).inputID;
+		
+		var thisElement:String = sessionName + inputID.propValue;
+		if(inputScreen)
+		{
+			writeToMemory(thisElement, inputArea.text, true);
+		}
+	}
 	private function getButton():void
 	{
 		/* if(ComponentText.text != ""){
@@ -173,16 +190,16 @@
 	
 	private function storeText():void
 	{
-		var thisElement:String = sessionName + inputID.propValue;
+		/* var thisElement:String = sessionName + inputID.propValue;
 		
-		//writeToMemory(thisElement, "<p>"+ComponentText.text+"</p>", true);
+		writeToMemory(thisElement, "<p>"+ComponentText.text+"</p>", true); */
 		
 		isSubmitted.propValue = true;
 	}
 		
 	]]>
 </mx:Script>
-<mx:TextArea color="{_fc}" editable="true" text="test"/>
+<mx:TextArea id="inputArea" color="{_fc}" editable="true" width="100%" height="100%" text="test" />
 <!--<states>
 <mx:State name="ViewState">
 <mx:AddChild position="lastChild">
