@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" width="100%" height="100%"
+	title="Add unique ID." creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+		
+			public static const NAME:String = "InputEditingScreen";
+			
+			public function get inputID():String
+			{
+				return input.text;
+			}
+			
+			public function set inputID(val:String):void
+			{
+				input.text = val;
+			}
+			
+			protected function init():void
+			{
+				name = NAME;
+			}
+			
+			protected function onChange(evt:Event):void
+			{
+				dispatchEvent(evt);
+			}
+		]]>
+	</mx:Script>
+	<mx:TextInput id="input" text="input editing" change="onChange(event)"/>
+</mx:Panel>

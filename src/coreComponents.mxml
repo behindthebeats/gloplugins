@@ -11,7 +11,7 @@
 	xmlns:mcq="org.glomaker.plugin.mcq.*" 
 	xmlns:videoplayer="org.glomaker.plugin.videoplayer.*" 
 	xmlns:rectangle="org.glomaker.plugin.rectangle.*"  
-	xmlns:wordassembly="org.glomaker.plugin.wordassembly.*" xmlns:stepthrough="org.glomaker.plugin.stepthrough.*" xmlns:accessviews="org.glomaker.plugin.accessviews.*" xmlns:imagemagnifier="org.glomaker.plugin.imagemagnifier.*" xmlns:mp3player="org.glomaker.plugin.mp3player.*" xmlns:londonmet1="org.glomaker.londonmet.*">
+	xmlns:wordassembly="org.glomaker.plugin.wordassembly.*" xmlns:stepthrough="org.glomaker.plugin.stepthrough.*" xmlns:accessviews="org.glomaker.plugin.accessviews.*" xmlns:imagemagnifier="org.glomaker.plugin.imagemagnifier.*" xmlns:mp3player="org.glomaker.plugin.mp3player.*" xmlns:londonmet1="org.glomaker.londonmet.*" xmlns:inputoutput="org.glomaker.plugin.inputoutput.*">
 	 
 	<mx:Script>
 		<![CDATA[
@@ -45,9 +45,9 @@
 	<mx:VBox width="100%" height="100%">
 	
 		<mx:Button label="Toggle" click="onToggleViewState(event)"/>
+		<inputoutput:InputOutputPlugin width="300" height="300" id="plugin" />
 		
-		
-		<textarea:TextAreaPlugin id="plugin" width="100%" height="50%"/>
+		<!--<textarea:TextAreaPlugin id="plugin" width="100%" height="50%"/>-->
 
 
 <!--		
