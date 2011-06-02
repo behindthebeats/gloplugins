@@ -6,14 +6,17 @@
 		
 			public static const NAME:String = "InputEditingScreen";
 			
+			[Bindable]
+			private var _txt:String;
+			
 			public function get inputID():String
 			{
-				return input.text;
+				return _txt;
 			}
 			
 			public function set inputID(val:String):void
 			{
-				input.text = val;
+				_txt = val;
 			}
 			
 			protected function init():void
@@ -23,9 +26,10 @@
 			
 			protected function onChange(evt:Event):void
 			{
+				_txt = input.text;
 				dispatchEvent(evt);
 			}
 		]]>
 	</mx:Script>
-	<mx:TextInput id="input" text="input editing" change="onChange(event)"/>
+	<mx:TextInput id="input" text="{_txt}" change="onChange(event)"/>
 </mx:Panel>
