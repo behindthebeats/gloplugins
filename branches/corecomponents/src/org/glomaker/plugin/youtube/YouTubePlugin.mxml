@@ -80,8 +80,12 @@
 					YTPlayer.content.removeEventListener("onError", onPlayerError);
 					YTPlayer.content.removeEventListener("onStateChange", onPlayerStateChange);
 					YTPlayer.content.removeEventListener("onPlaybackQualityChange", onVideoPlaybackQualityChange);
-					
 					YTPlayer.source = null;
+            	}
+            	
+            	if(player)
+            	{
+            		player.stopVideo();
             	}
             }
 			protected function init():void
