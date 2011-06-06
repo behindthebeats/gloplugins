@@ -8,7 +8,10 @@
 /////////////////////////////////////////////////////////////////////////
 -->
 
-<BaseComponent xmlns="org.glomaker.shared.component.*" xmlns:mx="http://www.adobe.com/2006/mxml">
+<BaseComponent xmlns="org.glomaker.shared.component.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:inputoutput="org.glomaker.plugin.inputoutput.*"
+	layout="absolute">
 
 <mx:Style>
 	
@@ -22,6 +25,8 @@
 
 <mx:Script>
 	<![CDATA[
+		import mx.states.SetStyle;
+		import org.glomaker.shared.properties.NumericStepperProperty;
 		import mx.controls.TextInput;
 		import org.glomaker.shared.properties.ColourProperty;
 		import org.glomaker.shared.properties.ArrayProperty;
@@ -34,6 +39,7 @@
 	
 	[Bindable]
 	[Embed(source="assets/text_bg.jpg")]
+	
 	protected static var textBg:Class;
 	
 	protected var setOutput:BooleanProperty;
@@ -44,6 +50,8 @@
 	
 	protected var fontColour:ColourProperty;
 	
+	protected var fontSize:NumericStepperProperty;
+	
 	protected var editMode:Boolean;
 	
 	protected var inputEditScreen:InputEditingScreen;
@@ -51,6 +59,10 @@
 	protected var outputEditScreen:OutputEditingScreen;
 	
 	protected var outputScreen:OutputScreen;
+	
+	protected var memoryObject:Object;
+	
+	protected var isLoaded:BooleanProperty; 
 	
 	private var _inputElementsArray:Array = new Array("a", "b", "c", "d", "e", "", "", "");
 	
@@ -60,6 +72,9 @@
 	
 	[Bindable]
 	private var _fc:uint;
+	
+	[Bindable]
+	private var _fs:uint;
 	
 	
 	override protected function defineProperties():void
@@ -73,8 +88,14 @@
 		fontColour = new ColourProperty("fontColour", "Font Colour", 0);
 		addProperty(fontColour);
 		
-		memorySet = new BooleanProperty("isSubmitted", "is form submitted", false);
+		fontSize = new NumericStepperProperty("fontSize", "Font Size", 12);
+		addProperty(fontSize);
+		
+		memorySet = new BooleanProperty("memorySet", "", false);
 		addSaveableProperty(memorySet);
+		
+		isLoaded = new BooleanProperty("isLoaded", "", false);
+		addSaveableProperty(isLoaded); 
 		
 		outputElementsArray = new ArrayProperty("outputElements", "Elements", _inputElementsArray);
 		addSaveableProperty(outputElementsArray);
@@ -88,6 +109,23 @@
 		if(prop == fontColour)
 		{
 			_fc = prop.propValue;
+			
+			if(outputScreen)
+			{
+				outputScreen.color = prop.propValue;
+			}
+		}
+		
+		if(prop == fontSize)
+		{
+			_fs = prop.propValue;
+			
+			lines.setLineHeight = 1.4 * prop.propValue;
+			
+			if(outputScreen)
+			{
+				outputScreen.fontSize = prop.propValue;
+			}
 		}
 		
 		setMode();
@@ -98,70 +136,64 @@
 		setMode();
 		
 		_fc = fontColour.propValue;
-		
+		_fs = fontSize.propValue;
+			
+		lines.setLineHeight = 1.4 * fontSize.propValue;
 		
 		if(memorySet.propValue)
 		{	
-			var thisElement:String = sessionName + inputID.propValue;
 			
-			trace(thisElement);
+			var thisElement:String = sessionName + inputID.propValue;
+			var readFromText:String;
+			
+			try
+			{
+				readFromText = readFromMemory(thisElement);
+				
+			}catch(e:Error)
+			{
+				trace(e.message);
+				return;
+			}
+			
 			if(readFromMemory(thisElement) != undefined)
 			{
 				inputArea.htmlText = readFromMemory(thisElement);
-				trace(setOutput.propValue, editMode);
-				if(setOutput.propValue && !editMode)
+			}
+			if(setOutput.propValue && !editMode)
+			{
+				if(outputScreen)
 				{
-					if(outputScreen)
-					{
-						outputScreen.text = readFromMemory(thisElement);
-					}
+					outputScreen.text = readFromMemory(thisElement);
+					outputScreen.color = fontColour.propValue;
+					outputScreen.fontSize = fontSize.propValue;
 				}
 			}
-			
-		}
-		
-		
-		
+		}		
 	}
 	
 	override public function prepareValuesForSave():void
 	{
-		trace("1 "+ setOutput.propValue, "2 "+ editMode, "3 "+inputID.propValue);
+		//trace("1 "+ setOutput.propValue, "2 "+ editMode, "3 "+inputID.propValue);
 		
 		if(inputEditScreen)
 		{
-			trace("E"+ inputID.propValue);
+			//trace("E"+ inputID.propValue);
 			inputEditScreen.inputID = inputID.propValue;
 		}
 		
 		if(outputEditScreen)
 		{
-			trace("O"+ inputID.propValue);
+			//trace("O"+ inputID.propValue);
 			outputEditScreen.inputID = inputID.propValue;
 		}
-		
-		//inputID.propValue = inputArea
-		/* inputID.propValue = inputNameText.text;
-		
-		outputElementsArray.propValue[0] = outputName1Text.text;
-		outputElementsArray.propValue[1] = outputName2Text.text;
-		outputElementsArray.propValue[2] = outputName3Text.text;
-		outputElementsArray.propValue[3] = outputName4Text.text;
-		outputElementsArray.propValue[4] = outputName5Text.text;
-		outputElementsArray.propValue[5] = outputName6Text.text;
-		outputElementsArray.propValue[6] = outputName7Text.text;
-		outputElementsArray.propValue[7] = outputName8Text.text; */
+
 	}
 	
 	override protected function componentInitComplete():void
 	{
 		trace("COMPLETE");
 	}
-	/* override protected function sharedMemoryAvailable():void
-	{
-		super.sharedMemoryAvailable();
-		
-	} */
 	
 	override public function setEditMode(f:Boolean):void
 	{
@@ -172,9 +204,7 @@
 	protected function setMode():void
 	{
 		this.removeAllChildren();
-		
-		//trace("editMode "+editMode, "setOutput "+setOutput.propValue);
-		
+				
 		if(setOutput.propValue)
 			{
 				//we must be in output mode
@@ -196,7 +226,7 @@
 					{
 						outputScreen = new OutputScreen();
 					}
-					
+					this.addChild(lines);
 					this.addChild(outputScreen);
 				}
 			}else
@@ -216,7 +246,9 @@
 				}else
 				{
 					//we are seeing the input screen
+					this.addChild(lines);
 					this.addChild(inputArea);
+					
 				}
 			}
 	}
@@ -253,13 +285,29 @@
 	{
 		var thisElement:String = sessionName + inputID.propValue;
 		
-		writeToMemory(thisElement, inputArea.htmlText, true);
+		try
+		{
+			writeToMemory(thisElement, inputArea.text, true);
+		}catch(error:Error)
+		{
+			trace(error);
+			return;
+		}
+		
 		
 		memorySet.propValue = true;
 	}
+	
 		
 	]]>
 </mx:Script>
-<mx:TextArea id="inputArea" color="{_fc}" editable="true" width="100%" height="100%" text="test" change="onUserInput(event)"/>
+	<inputoutput:Lines setLineHeight="12" id="lines" />
+    <mx:TextArea id="inputArea" color="{_fc}" fontSize="{_fs}" editable="true" 
+    	width="100%" height="100%" 
+    	change="onUserInput(event)"
+    	horizontalScrollPolicy="off" verticalScrollPolicy="off"
+    	backgroundAlpha="0"/>
+    	
+
 
 </BaseComponent>

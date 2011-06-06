@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+/////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2010, the WOW agency All rights reserved.
+// Author: Matteo Corazzin.
+// See http://www.thewowagency.com/ for full details
+/////////////////////////////////////////////////////////////////////////
+-->
+
+<BaseComponent xmlns="org.glomaker.shared.component.*" xmlns:mx="http://www.adobe.com/2006/mxml" currentState="ViewState">
+
+<mx:Style>
+	
+	.submit {
+		upSkin: Embed("assets/submit1.png");
+	  	overSkin: Embed("assets/submit2.png");
+	  	downSkin: Embed("assets/submit1.png");
+	  	disabledSkin: Embed("assets/submit1.png");
+	}
+</mx:Style>
+
+<mx:Script>
+	<![CDATA[
+		import org.glomaker.shared.properties.ArrayProperty;
+		import org.glomaker.shared.properties.StringProperty;
+		import org.glomaker.shared.properties.IntegerProperty;
+		import org.glomaker.shared.properties.IComponentProperty;
+		import org.glomaker.shared.properties.BooleanProperty;
+		
+		import mx.core.mx_internal;
+	
+	[Bindable]
+	[Embed(source="assets/text_bg.jpg")]
+	protected static var textBg:Class;
+	
+	protected var setOutput:BooleanProperty;
+	
+	
+	
+	private var inputID:StringProperty;
+	
+	private var sessionName:String ="inputElement_" ;
+	
+	protected var isSubmitted:BooleanProperty;
+	
+	protected var outputElementsArray:ArrayProperty;
+	
+	private var inputElementsArray:Array = new Array("a", "b", "c", "d", "e", "", "", "");
+	
+	
+	override protected function defineProperties():void
+	{
+		
+		super.defineProperties();
+		
+		setOutput = new BooleanProperty("inputOutput", "Output", false);
+		addProperty(setOutput);
+
+		
+		isSubmitted = new BooleanProperty("isSubmitted", "is form submitted", false);
+		addSaveableProperty(isSubmitted);
+		
+		outputElementsArray = new ArrayProperty("outputElements", "Elements", inputElementsArray);
+		addSaveableProperty(outputElementsArray);
+		
+		inputID = new StringProperty("input", "ID", "");
+		addSaveableProperty(inputID);
+	}
+	
+	override public function editablePropertyUpdated(prop:IComponentProperty):void
+	{
+		if(prop == setOutput)
+		{
+			getSubmit();
+		}
+		
+	}
+	
+	override public function propertyValuesInitialised():void
+	{
+		getSubmit();
+		submit.enabled = !isSubmitted.propValue;
+		inputElement.visible = !setOutput.propValue;
+		outputElement.visible = setOutput.propValue;
+		
+		inputNameText.text = inputID.propValue;
+		
+		outputName1Text.text = outputElementsArray.propValue[0];
+		outputName2Text.text = outputElementsArray.propValue[1];
+		outputName3Text.text = outputElementsArray.propValue[2];
+		outputName4Text.text = outputElementsArray.propValue[3];
+		outputName5Text.text = outputElementsArray.propValue[4];
+		outputName6Text.text = outputElementsArray.propValue[5];
+		outputName7Text.text = outputElementsArray.propValue[6];
+		outputName8Text.text = outputElementsArray.propValue[7];
+		
+		
+	}
+	
+	override public function prepareValuesForSave():void
+	{
+		
+		inputID.propValue = inputNameText.text;
+		
+		outputElementsArray.propValue[0] = outputName1Text.text;
+		outputElementsArray.propValue[1] = outputName2Text.text;
+		outputElementsArray.propValue[2] = outputName3Text.text;
+		outputElementsArray.propValue[3] = outputName4Text.text;
+		outputElementsArray.propValue[4] = outputName5Text.text;
+		outputElementsArray.propValue[5] = outputName6Text.text;
+		outputElementsArray.propValue[6] = outputName7Text.text;
+		outputElementsArray.propValue[7] = outputName8Text.text;
+	}
+	
+	override protected function sharedMemoryAvailable():void
+	{
+		super.sharedMemoryAvailable();
+		
+	}
+	
+	override public function setEditMode(f:Boolean):void
+		{
+			if(f){
+			currentState = "EditState";
+			ComponentText.editable = !setOutput.propValue;
+			inputElement.visible = !setOutput.propValue;
+			outputElement.visible = setOutput.propValue;
+			}else{
+			currentState = "ViewState";
+			ComponentText.editable = !setOutput.propValue;
+			inputElement.visible = !setOutput.propValue;
+			outputElement.visible = setOutput.propValue;
+			}
+		}
+	
+	protected function getSubmit():void
+	{
+		subCan.visible = !setOutput.propValue;
+		ComponentText.editable = !setOutput.propValue;
+		inputElement.visible = !setOutput.propValue;
+		outputElement.visible = setOutput.propValue;
+		if(setOutput.propValue){
+		try{
+			for(var i:int = 0;i<outputElementsArray.propValue.length();i++){
+				var thisElement:String = sessionName + outputElementsArray.propValue[i];
+				ComponentText.htmlText += readFromMemory(thisElement);
+			}
+		}catch(e:Error){
+			ComponentText.text = "No Text Saved";
+		}
+		}else{
+			ComponentText.htmlText = readFromMemory(sessionName + inputID.propValue);
+		}
+	}
+	
+	private function getButton():void
+	{
+		if(ComponentText.text != ""){
+			submit.visible = true;
+		}
+	}
+	
+	private function storeText():void
+	{
+		var thisElement:String = sessionName + inputID.propValue;
+		
+		writeToMemory(thisElement, "<p>"+ComponentText.text+"</p>", true);
+		
+		isSubmitted.propValue = true;
+	}
+		
+	]]>
+</mx:Script>
+
+<states>
+<mx:State name="ViewState">
+<mx:AddChild position="lastChild">
+	<mx:Canvas id="textBox" width="100%" height="900%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+		<mx:Image source="{textBg}" id="backImage"/>
+		<mx:TextArea  width="100%" height="50%"
+			 id="ComponentText"
+			  backgroundAlpha="0" borderThickness="0"
+			 fontFamily="American Typewriter" fontSize="16" color="0x009933"
+			  change="getButton();"/>
+		<mx:Canvas  id="subCan" width="100%" height="35" bottom="0" backgroundColor="0xFFFFFF">
+			<mx:Button id="submit" styleName="submit" bottom="0" right="5" visible="false" click="storeText();"/>
+		</mx:Canvas>
+	</mx:Canvas>
+	</mx:AddChild>
+	</mx:State>
+	<mx:State name="EditState">
+	<mx:RemoveChild target="{textBox}"/>
+	<mx:AddChild position="lastChild">
+		<mx:Canvas id="choices" width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+		<mx:VBox width="100%" height="100%">
+		<mx:Panel id="inputElement" title="Input Element" width="100%" height="20%" paddingTop="10" paddingLeft="10">
+		<mx:FormItem id="inputName" label="Input Name:">
+			<mx:TextInput id="inputNameText"/>
+		</mx:FormItem>
+		</mx:Panel>
+		<mx:Panel id="outputElement" title="Output Elements" width="100%" height="80%" paddingTop="10" paddingLeft="10">
+			<mx:FormItem id="outputName1" label="Input Name 1:">
+			<mx:TextInput id="outputName1Text"/>
+		</mx:FormItem>
+		<mx:FormItem id="outputName2" label="Input Name 2:">
+			<mx:TextInput id="outputName2Text"/>
+		</mx:FormItem>
+		<mx:FormItem id="outputName3" label="Input Name 3:">
+			<mx:TextInput id="outputName3Text"/>
+		</mx:FormItem>
+		<mx:FormItem id="outputName4" label="Input Name 4:">
+			<mx:TextInput id="outputName4Text"/>
+		</mx:FormItem>
+		<mx:FormItem id="outputName5" label="Input Name 5:">
+			<mx:TextInput id="outputName5Text"/>
+		</mx:FormItem>
+		<mx:FormItem id="outputName6" label="Input Name 6:">
+			<mx:TextInput id="outputName6Text"/>
+		</mx:FormItem>
+		<mx:FormItem id="outputName7" label="Input Name 7:">
+			<mx:TextInput id="outputName7Text"/>
+		</mx:FormItem>
+		<mx:FormItem id="outputName8" label="Input Name 8:">
+			<mx:TextInput id="outputName8Text"/>
+		</mx:FormItem>
+		</mx:Panel>
+		</mx:VBox>
+		</mx:Canvas>
+	</mx:AddChild>
+		
+	</mx:State>
+</states>
+
+</BaseComponent>

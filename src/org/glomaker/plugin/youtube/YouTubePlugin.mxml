@@ -53,6 +53,8 @@
 				init();
 				updateInfo(filePath);
 				YTEmbedInput.text = filePath.propValue;
+				
+				debug.text = Security.sandboxType;
 			}
 			
             override public function editablePropertyUpdated(prop:IComponentProperty):void
@@ -245,7 +247,7 @@
     	paddingLeft="15" paddingTop="15" paddingRight="15" paddingBottom="15"
     	label="YouTube control"
     	verticalScrollPolicy="off" horizontalScrollPolicy="off">
-    	<!--<mx:Text id="debug"/>-->
+    	<mx:Text id="debug"/>
     	<mx:TextArea id="info" width="100%" minWidth="120" minHeight="50" backgroundColor="0xCCCCCC" verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
     	<mx:HBox id="inputSection" width="100%">
 	    	<mx:TextInput id="YTEmbedInput" minWidth="120" width="100%" change="onEmbedChange(event)"/>
