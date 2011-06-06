@@ -25,6 +25,7 @@
 
 <mx:Script>
 	<![CDATA[
+		import org.glomaker.shared.utils.MutableArray;
 		import mx.states.SetStyle;
 		import org.glomaker.shared.properties.NumericStepperProperty;
 		import mx.controls.TextInput;
@@ -62,7 +63,9 @@
 	
 	protected var memoryObject:Object;
 	
-	protected var isLoaded:BooleanProperty; 
+	protected var numFields:NumericStepperProperty;
+	
+	//protected var isLoaded:BooleanProperty; 
 	
 	private var _inputElementsArray:Array = new Array("a", "b", "c", "d", "e", "", "", "");
 	
@@ -91,11 +94,14 @@
 		fontSize = new NumericStepperProperty("fontSize", "Font Size", 12);
 		addProperty(fontSize);
 		
+		numFields = new NumericStepperProperty("numFields", "Number of output fields", 1);
+		addProperty(numFields);
+		
 		memorySet = new BooleanProperty("memorySet", "", false);
 		addSaveableProperty(memorySet);
 		
-		isLoaded = new BooleanProperty("isLoaded", "", false);
-		addSaveableProperty(isLoaded); 
+		/* isLoaded = new BooleanProperty("isLoaded", "", false);
+		addSaveableProperty(isLoaded); */ 
 		
 		outputElementsArray = new ArrayProperty("outputElements", "Elements", _inputElementsArray);
 		addSaveableProperty(outputElementsArray);
@@ -127,6 +133,7 @@
 				outputScreen.fontSize = prop.propValue;
 			}
 		}
+		
 		
 		setMode();
 	}
@@ -208,6 +215,7 @@
 		if(setOutput.propValue)
 			{
 				//we must be in output mode
+				addNumericStepper();
 				if(editMode)
 				{
 					//we are editing the output screen
@@ -232,6 +240,7 @@
 			}else
 			{
 				//we must be in input mode
+				removeNumericStepper();
 				if(editMode)
 				{
 					//we are editing the input screen
@@ -252,6 +261,43 @@
 				}
 			}
 	}
+	
+	protected function addNumericStepper():void
+	{
+		var props:Array = getEditableProperties().source;
+		
+		for(var i:uint=0; i<props.length; i++)
+		{
+			if(props[i] == numFields)
+			{
+				return;
+			}
+		}
+		
+		if(numFields)
+		{
+			props.push(numFields);
+			updateEditableProperties(props);
+		}
+		
+	}
+	
+	protected function removeNumericStepper():void
+	{
+		var props:Array = getEditableProperties().source;
+		
+		for(var i:uint=0; i<props.length; i++)
+		{
+			if(props[i] == numFields)
+			{
+				props.splice(i, 1);
+				
+				updateEditableProperties(props);
+				break;
+			}
+		}
+	}
+	
 	protected function onInputIDChange(evt:Event):void
 	{
 		if(evt.target is InputEditingScreen)
