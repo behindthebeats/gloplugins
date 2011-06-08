@@ -10,6 +10,8 @@
 			[Bindable]
 			private var _txt:String;
 			
+			//private var _idList:Array;
+			
 			public function get inputID():String
 			{
 				return _txt;
@@ -18,6 +20,54 @@
 			public function set inputID(val:String):void
 			{
 				_txt = val;
+			}
+			
+			public function setFieldNum(val:uint):void
+			{
+				if(val < 1 || val > 8)
+				{
+					return;
+				}
+				
+				/* if(!_idList)
+				{
+					_idList = [];
+				} */
+				
+				this.removeAllChildren();
+				
+				addChild(lbl);
+				addChild(input);
+				
+				if(val + 1 > this.numChildren)
+				{
+					//add one
+					var input:TextInput = new TextInput();
+					input.addEventListener(Event.CHANGE, onChange);
+					
+					addChild(input);
+				}else
+				{
+					//subtract one
+					(removeChildAt(this.numChildren - 1) as TextInput).removeEventListener(Event.CHANGE, onChange);
+				}
+				
+				/* for(var i:uint=0; i<_idList.length; i++)
+				{
+					addChild(_idList[i]);
+				} */
+				/* var numFields:uint = this.numChildren;
+				
+				if(val > numFields - 1)
+				{
+					for(var i:uint=numFields; i<=numFields-val; i--)
+					{
+						removeChildAt(i);
+					}
+				}else
+				{
+					
+				} */
 			}
 			
 			protected function init():void
@@ -32,6 +82,6 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:Label text="Enter the ID of the related input component."/>
+	<mx:Label id="lbl" text="Enter the ID of the related input component."/>
 	<mx:TextInput id="input" text="{_txt}" change="onChange(event)"/>
 </mx:VBox>
