@@ -83,5 +83,10 @@
 		]]>
 	</mx:Script>
 	<mx:Label id="lbl" text="Enter the ID of the related input component."/>
-	<mx:TextInput id="input" text="{_txt}" change="onChange(event)"/>
+	<mx:TextInput id="input1" text="{_txt}" change="onChange(event)"/>
+	<mx:TextInput id="input2" text="{_txt}" change="onChange(event)"/>
+	<mx:TextInput id="input3" text="{_txt}" change="onChange(event)"/>
+	<mx:TextInput id="input4" text="{_txt}" change="onChange(event)"/>
+	<mx:TextInput id="input5" text="{_txt}" change="onChange(event)"/>
+	<mx:TextInput id="input6" text="{_txt}" change="onChange(event)"/>
 </mx:VBox>
