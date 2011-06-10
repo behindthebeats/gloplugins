@@ -47,7 +47,9 @@
 	
 	protected var memorySet:BooleanProperty;
 	
-	protected var outputElementsArray:ArrayProperty;
+	protected var outputElementsProperty:ArrayProperty;
+	
+	protected var outputElementsArray:Array;
 	
 	protected var fontColour:ColourProperty;
 	
@@ -67,7 +69,7 @@
 	
 	//protected var isLoaded:BooleanProperty; 
 	
-	private var _inputElementsArray:Array = new Array("a", "b", "c", "d", "e", "", "", "");
+	//private var _inputElementsArray:Array = new Array("a", "b", "c", "d", "e", "", "", "");
 	
 	private var inputID:StringProperty;
 	
@@ -94,8 +96,8 @@
 		fontSize = new NumericStepperProperty("fontSize", "Font Size", 12);
 		addProperty(fontSize);
 		
-		numFields = new NumericStepperProperty("numFields", "Number of output fields", 1);
-		addProperty(numFields);
+		//numFields = new NumericStepperProperty("numFields", "Number of output fields", 1);
+		//addProperty(numFields);
 		
 		memorySet = new BooleanProperty("memorySet", "", false);
 		addSaveableProperty(memorySet);
@@ -103,8 +105,8 @@
 		/* isLoaded = new BooleanProperty("isLoaded", "", false);
 		addSaveableProperty(isLoaded); */ 
 		
-		outputElementsArray = new ArrayProperty("outputElements", "Elements", _inputElementsArray);
-		addSaveableProperty(outputElementsArray);
+		outputElementsProperty = new ArrayProperty("outputElements", "Elements", outputElementsArray);
+		addSaveableProperty(outputElementsProperty);
 		
 		inputID = new StringProperty("input", "ID", "");
 		addSaveableProperty(inputID);
@@ -134,15 +136,6 @@
 			}
 		}
 		
-		if(prop == numFields)
-		{
-
-			if(outputEditScreen)
-			{
-				outputEditScreen.setFieldNum(prop.propValue);
-			}
-		}
-		
 		setMode();
 	}
 	
@@ -154,6 +147,15 @@
 		_fs = fontSize.propValue;
 			
 		lines.setLineHeight = 1.34 * fontSize.propValue;
+		
+		var count:uint = 0;
+		
+		for each(var field:TextInput in outputEditScreen.inputFields)
+		{
+			outputEditScreen.setInputID(field, outputElementsProperty.propValue[count]);
+			
+			count++;
+		}
 		
 		if(memorySet.propValue)
 		{	

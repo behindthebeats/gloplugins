@@ -4,89 +4,73 @@
 	horizontalScrollPolicy="off" verticalScrollPolicy="off">
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.ArrayCollection;
 		
 			public static const NAME:String = "OutputEditingScreen";
 			
+			//[Bindable]
+			//private var _txt:String;
 			[Bindable]
-			private var _txt:String;
+			private var _input1:String;
+			[Bindable]
+			private var _input2:String;
+			[Bindable]
+			private var _input3:String;	
+			[Bindable]
+			private var _input4:String;
+			[Bindable]
+			private var _input5:String;
+			[Bindable]
+			private var _input6:String;
+			
+			private var _IDs:Dictionary;
 			
 			//private var _idList:Array;
 			
-			public function get inputID():String
+			public function getInputID(ref:TextInput):String
 			{
-				return _txt;
+				return _IDs[ref];
 			}
 			
-			public function set inputID(val:String):void
+			public function setInputID(ref:TextInput, val:String):void
 			{
-				_txt = val;
-			}
-			
-			public function setFieldNum(val:uint):void
-			{
-				if(val < 1 || val > 8)
-				{
-					return;
-				}
-				
-				/* if(!_idList)
-				{
-					_idList = [];
-				} */
-				
-				this.removeAllChildren();
-				
-				addChild(lbl);
-				addChild(input);
-				
-				if(val + 1 > this.numChildren)
-				{
-					//add one
-					var input:TextInput = new TextInput();
-					input.addEventListener(Event.CHANGE, onChange);
-					
-					addChild(input);
-				}else
-				{
-					//subtract one
-					(removeChildAt(this.numChildren - 1) as TextInput).removeEventListener(Event.CHANGE, onChange);
-				}
-				
-				/* for(var i:uint=0; i<_idList.length; i++)
-				{
-					addChild(_idList[i]);
-				} */
-				/* var numFields:uint = this.numChildren;
-				
-				if(val > numFields - 1)
-				{
-					for(var i:uint=numFields; i<=numFields-val; i--)
-					{
-						removeChildAt(i);
-					}
-				}else
-				{
-					
-				} */
+				_IDs[ref] = val;
 			}
 			
 			protected function init():void
 			{
 				name = NAME;
+
+			}
+			
+			public function get inputFields():Dictionary
+			{
+				if(!_IDs)
+				{
+					_IDs = new Dictionary();
+				}
+				_IDs[input1] = _input1;
+				_IDs[input2] = _input2;
+				_IDs[input3] = _input3;
+				_IDs[input4] = _input4;
+				_IDs[input5] = _input5;
+				_IDs[input6] = _input6;
+				
+				return _IDs;
 			}
 			
 			protected function onChange(evt:Event):void
 			{
-				_txt = input.text;
+				_IDs[evt.target as TextInput] = (evt.target as TextInput).text;
 				dispatchEvent(evt);
 			}
 		]]>
 	</mx:Script>
 	<mx:Label id="lbl" text="Enter the ID of the related input component."/>
-	<mx:TextInput id="input1" text="{_txt}" change="onChange(event)"/>
-	<mx:TextInput id="input2" text="{_txt}" change="onChange(event)"/>
-	<mx:TextInput id="input3" text="{_txt}" change="onChange(event)"/>
-	<mx:TextInput id="input4" text="{_txt}" change="onChange(event)"/>
-	<mx:TextInput id="input5" text="{_txt}" change="onChange(event)"/>
-	<mx:TextInput id="input6" text="{_txt}" change="onChange(event)"/>
+	<mx:TextInput id="input1" text="{_input1}" change="onChange(event)"/>
+	<mx:TextInput id="input2" text="{_input2}" change="onChange(event)"/>
+	<mx:TextInput id="input3" text="{_input3}" change="onChange(event)"/>
+	<mx:TextInput id="input4" text="{_input4}" change="onChange(event)"/>
+	<mx:TextInput id="input5" text="{_input5}" change="onChange(event)"/>
+	<mx:TextInput id="input6" text="{_input6}" change="onChange(event)"/>
 </mx:VBox>
