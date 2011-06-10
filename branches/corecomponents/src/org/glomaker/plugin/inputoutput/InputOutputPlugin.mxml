@@ -49,7 +49,7 @@
 	
 	protected var outputElementsProperty:ArrayProperty;
 	
-	protected var outputElementsArray:Array;
+	protected var outputElementsArray:Array = [];
 	
 	protected var fontColour:ColourProperty;
 	
@@ -148,14 +148,7 @@
 			
 		lines.setLineHeight = 1.34 * fontSize.propValue;
 		
-		var count:uint = 0;
-		
-		for each(var field:TextInput in outputEditScreen.inputFields)
-		{
-			outputEditScreen.setInputID(field, outputElementsProperty.propValue[count]);
-			
-			count++;
-		}
+		populateTextFields();
 		
 		if(memorySet.propValue)
 		{	
@@ -202,7 +195,9 @@
 		if(outputEditScreen)
 		{
 			//trace("O"+ inputID.propValue);
-			outputEditScreen.inputID = inputID.propValue;
+			//outputEditScreen.inputID = inputID.propValue;
+			
+			populateTextFields();
 		}
 
 	}
@@ -235,7 +230,7 @@
 						outputEditScreen.addEventListener(Event.CHANGE, onInputIDChange);
 					}
 					
-					outputEditScreen.inputID = inputID.propValue;
+					populateTextFields();
 					this.addChild(outputEditScreen);
 				}else
 				{
@@ -322,7 +317,15 @@
 		
 		if(evt.target is OutputEditingScreen)
 		{
-			inputID.propValue = (evt.target as OutputEditingScreen).inputID;
+			var IDs:Dictionary = (evt.target as OutputEditingScreen).inputFields;
+			
+			var count:uint = 0;
+			
+			for each(var val:String in IDs)
+			{
+				outputElementsProperty.propValue[count] = val;
+				count++;
+			}
 			
 			if(outputEditScreen)
 			{
@@ -354,6 +357,26 @@
 		memorySet.propValue = true;
 	}
 	
+	protected function populateTextFields():void
+	{
+		if(!outputEditScreen)
+		{
+			return;
+		}
+
+		var count:uint = 0;
+		
+		for(var field:Object in outputEditScreen.inputFields)
+		{
+			if(count < outputElementsProperty.propValue.length)
+			{
+				trace(field, field as TextInput);
+				outputEditScreen.setInputID(field as TextInput, outputElementsProperty.propValue[count]);
+			
+				count++;
+			}
+		}
+	}
 		
 	]]>
 </mx:Script>

@@ -23,7 +23,7 @@
 			[Bindable]
 			private var _input6:String;
 			
-			private var _IDs:Dictionary;
+			private var _IDs:Array = [];
 			
 			//private var _idList:Array;
 			
@@ -40,21 +40,18 @@
 			protected function init():void
 			{
 				name = NAME;
-
 			}
 			
 			public function get inputFields():Dictionary
 			{
-				if(!_IDs)
-				{
 					_IDs = new Dictionary();
+					_IDs[input1] = _input1;
+					_IDs[input2] = _input2;
+					_IDs[input3] = _input3;
+					_IDs[input4] = _input4;
+					_IDs[input5] = _input5;
+					_IDs[input6] = _input6;
 				}
-				_IDs[input1] = _input1;
-				_IDs[input2] = _input2;
-				_IDs[input3] = _input3;
-				_IDs[input4] = _input4;
-				_IDs[input5] = _input5;
-				_IDs[input6] = _input6;
 				
 				return _IDs;
 			}
