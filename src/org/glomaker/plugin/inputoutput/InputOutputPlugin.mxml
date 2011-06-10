@@ -317,14 +317,13 @@
 		
 		if(evt.target is OutputEditingScreen)
 		{
-			var IDs:Dictionary = (evt.target as OutputEditingScreen).inputFields;
+			var IDs:Array = (evt.target as OutputEditingScreen).inputFields;
+			outputElementsProperty.propValue = [];
 			
-			var count:uint = 0;
-			
-			for each(var val:String in IDs)
+			for(var i:uint=0; i<IDs.length; i++)
 			{
-				outputElementsProperty.propValue[count] = val;
-				count++;
+				outputElementsProperty.propValue.push((outputEditScreen.getInputID(i) as TextInput).text);
+				
 			}
 			
 			if(outputEditScreen)
@@ -359,21 +358,21 @@
 	
 	protected function populateTextFields():void
 	{
+		trace("1"+outputEditScreen, outputElementsProperty.propValue);
 		if(!outputEditScreen)
 		{
 			return;
 		}
-
-		var count:uint = 0;
 		
-		for(var field:Object in outputEditScreen.inputFields)
+		for(var i:uint=0; i<outputElementsProperty.propValue.length; i++)
 		{
-			if(count < outputElementsProperty.propValue.length)
+			if(i + 1 >= outputEditScreen.inputFields.length)
 			{
-				trace(field, field as TextInput);
-				outputEditScreen.setInputID(field as TextInput, outputElementsProperty.propValue[count]);
-			
-				count++;
+				break;
+			}else
+			{
+				outputEditScreen.setInputID(i, outputElementsProperty.propValue[i]);
+				trace("£££"+i, outputElementsProperty.propValue[i]);
 			}
 		}
 	}
