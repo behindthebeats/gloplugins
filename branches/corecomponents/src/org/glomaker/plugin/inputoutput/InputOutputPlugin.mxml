@@ -65,7 +65,7 @@
 	
 	protected var memoryObject:Object;
 	
-	protected var numFields:NumericStepperProperty;
+	//protected var numFields:NumericStepperProperty;
 	
 	//protected var isLoaded:BooleanProperty; 
 	
@@ -148,8 +148,8 @@
 			
 		lines.setLineHeight = 1.34 * fontSize.propValue;
 		
-		populateTextFields();
-		
+		//populateTextFields();	
+
 		if(memorySet.propValue)
 		{	
 			
@@ -194,10 +194,7 @@
 		
 		if(outputEditScreen)
 		{
-			//trace("O"+ inputID.propValue);
-			//outputEditScreen.inputID = inputID.propValue;
-			
-			populateTextFields();
+			populateInputFields();
 		}
 
 	}
@@ -220,7 +217,7 @@
 		if(setOutput.propValue)
 			{
 				//we must be in output mode
-				addNumericStepper();
+				//addNumericStepper();
 				if(editMode)
 				{
 					//we are editing the output screen
@@ -230,7 +227,7 @@
 						outputEditScreen.addEventListener(Event.CHANGE, onInputIDChange);
 					}
 					
-					populateTextFields();
+					populateInputFields();
 					this.addChild(outputEditScreen);
 				}else
 				{
@@ -245,7 +242,7 @@
 			}else
 			{
 				//we must be in input mode
-				removeNumericStepper();
+				//removeNumericStepper();
 				if(editMode)
 				{
 					//we are editing the input screen
@@ -267,7 +264,7 @@
 			}
 	}
 	
-	protected function addNumericStepper():void
+	/* protected function addNumericStepper():void
 	{
 		var props:Array = getEditableProperties().source;
 		
@@ -285,9 +282,9 @@
 			updateEditableProperties(props);
 		}
 		
-	}
+	} */
 	
-	protected function removeNumericStepper():void
+	/* protected function removeNumericStepper():void
 	{
 		var props:Array = getEditableProperties().source;
 		
@@ -301,7 +298,7 @@
 				break;
 			}
 		}
-	}
+	} */
 	
 	protected function onInputIDChange(evt:Event):void
 	{
@@ -317,7 +314,17 @@
 		
 		if(evt.target is OutputEditingScreen)
 		{
-			var IDs:Array = (evt.target as OutputEditingScreen).inputFields;
+			var fieldsArray:Array = (evt.target as OutputEditingScreen).inputFields;
+			outputElementsArray = [];
+			for(var i:uint=0; i<fieldsArray.length; i++)
+			{
+				outputElementsArray.push(fieldsArray[i]);
+			}
+			
+			outputElementsProperty.propValue = outputElementsArray;
+			//outputElementsProperty.propValue = (evt.target as OutputEditingScreen).inputFields;
+			//outputElementsArray = (evt.target as OutputEditingScreen).inputFields;
+			/* var IDs:Array = (evt.target as OutputEditingScreen).inputFields;
 			outputElementsProperty.propValue = [];
 			
 			for(var i:uint=0; i<IDs.length; i++)
@@ -329,7 +336,7 @@
 			if(outputEditScreen)
 			{
 				storeText();
-			}
+			} */
 		}
 		
 	}
@@ -356,9 +363,15 @@
 		memorySet.propValue = true;
 	}
 	
-	protected function populateTextFields():void
+	protected function populateInputFields():void
 	{
-		trace("1"+outputEditScreen, outputElementsProperty.propValue);
+		for(var i:uint=0; i<outputElementsProperty.propValue.length; i++)
+		{
+
+			outputEditScreen.setInputID(i, outputElementsProperty.propValue[i]);
+
+		}
+		/* trace("1"+outputEditScreen, outputElementsProperty.propValue);
 		if(!outputEditScreen)
 		{
 			return;
@@ -374,7 +387,7 @@
 				outputEditScreen.setInputID(i, outputElementsProperty.propValue[i]);
 				trace("£££"+i, outputElementsProperty.propValue[i]);
 			}
-		}
+		} */
 	}
 		
 	]]>
