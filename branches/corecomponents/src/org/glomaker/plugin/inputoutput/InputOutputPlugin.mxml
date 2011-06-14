@@ -11,7 +11,8 @@
 <BaseComponent xmlns="org.glomaker.shared.component.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:inputoutput="org.glomaker.plugin.inputoutput.*"
-	layout="absolute">
+	layout="absolute"
+	horizontalScrollPolicy="off" verticalScrollPolicy="off">
 
 <mx:Script>
 	<![CDATA[
