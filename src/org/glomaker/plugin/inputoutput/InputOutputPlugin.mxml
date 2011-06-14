@@ -150,8 +150,8 @@
 		
 		//populateTextFields();	
 
-		if(memorySet.propValue)
-		{	
+		//if(memorySet.propValue)
+		//{	
 			
 			var thisElement:String = sessionName + inputID.propValue;
 			var readFromText:String;
@@ -170,16 +170,36 @@
 			{
 				inputArea.htmlText = readFromMemory(thisElement);
 			}
+			
 			if(setOutput.propValue && !editMode)
 			{
+
 				if(outputScreen)
 				{
-					outputScreen.text = readFromMemory(thisElement);
+					for(var i:uint=0; i<outputElementsProperty.propValue.length; i++)
+					{
+						thisElement = sessionName + outputElementsProperty.propValue[i];
+						try
+						{
+							readFromText = readFromMemory(thisElement);
+							
+						}catch(e:Error)
+						{
+							trace(e.message);
+							return;
+						}
+						
+						if(readFromMemory(thisElement) != undefined)
+						{
+							outputScreen.text += "\n\n" + readFromMemory(thisElement);
+						}
+					}
+					
 					outputScreen.color = fontColour.propValue;
 					outputScreen.fontSize = fontSize.propValue;
 				}
 			}
-		}		
+		//}		
 	}
 	
 	override public function prepareValuesForSave():void
@@ -311,17 +331,13 @@
 				storeText();
 			}
 		}
-		
+
 		if(evt.target is OutputEditingScreen)
 		{
 			var fieldsArray:Array = (evt.target as OutputEditingScreen).inputFields;
-			outputElementsArray = [];
-			for(var i:uint=0; i<fieldsArray.length; i++)
-			{
-				outputElementsArray.push(fieldsArray[i]);
-			}
 			
-			outputElementsProperty.propValue = outputElementsArray;
+			outputElementsProperty.propValue = fieldsArray;
+			
 			//outputElementsProperty.propValue = (evt.target as OutputEditingScreen).inputFields;
 			//outputElementsArray = (evt.target as OutputEditingScreen).inputFields;
 			/* var IDs:Array = (evt.target as OutputEditingScreen).inputFields;
