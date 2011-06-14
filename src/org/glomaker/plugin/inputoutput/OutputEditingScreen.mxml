@@ -4,6 +4,7 @@
 	horizontalScrollPolicy="off" verticalScrollPolicy="off">
 	<mx:Script>
 		<![CDATA[
+			import com.hotdraw.java.awt.geom._Point;
 			import mx.collections.ArrayCollection;
 		
 			public static const NAME:String = "OutputEditingScreen";
@@ -25,16 +26,36 @@
 			
 			private var _IDs:Array = [];
 			
-			//private var _idList:Array;
 			
-			public function getInputID(index:uint):String
+			/* public function getInputID(index:uint):String
 			{
-				return _IDs[index].text;
-			}
+				return _IDs[index];
+			} */
 			
 			public function setInputID(index:uint, val:String):void
 			{
-				_IDs[index] = val;
+				
+				switch(index)
+				{
+					case 0:
+						_input1 = val;
+						break;
+					case 1:
+						_input2 = val;
+						break;
+					case 2:
+						_input3 = val;
+						break;
+					case 3:
+						_input4 = val;
+						break;
+					case 4:
+						_input5 = val;
+						break;
+					case 5:
+						_input6 = val;
+						break;
+				}
 			}
 			
 			protected function init():void
@@ -44,25 +65,19 @@
 			
 			public function get inputFields():Array
 			{
-					_IDs.push(input1);
-					_IDs.push(input2);
-					_IDs.push(input3);
-					_IDs.push(input4);
-					_IDs.push(input5);
-					_IDs.push(input6);
-					/* _IDs[input2] = _input2;
-					_IDs[input3] = _input3;
-					_IDs[input4] = _input4;
-					_IDs[input5] = _input5;
-					_IDs[input6] = _input6;
-				} */
-				
-				return _IDs;
+				_IDs = [];
+				for(var i:uint = 0; i<this.numChildren; i++)
+				{
+					if(this.getChildAt(i) is TextInput)
+					{
+						_IDs.push((this.getChildAt(i) as TextInput).text);
+					}
+				}
+				return _IDs.concat();
 			}
 			
 			protected function onChange(evt:Event):void
 			{
-				_IDs[evt.target as TextInput] = (evt.target as TextInput).text;
 				dispatchEvent(evt);
 			}
 		]]>
