@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
 	creationComplete="init()"
-	horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	horizontalScrollPolicy="off" verticalScrollPolicy="off"
+	backgroundColor="0xFFFFFF">
 	<mx:Script>
 		<![CDATA[
 			import com.hotdraw.java.awt.geom._Point;

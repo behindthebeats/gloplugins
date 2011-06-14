@@ -3,7 +3,7 @@
 <!--
 /////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2010, the WOW agency All rights reserved.
-// Author: Matteo Corazzin.
+// Author: Matteo Corazzin and Martin Agombar.
 // See http://www.thewowagency.com/ for full details
 /////////////////////////////////////////////////////////////////////////
 -->
@@ -12,16 +12,6 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:inputoutput="org.glomaker.plugin.inputoutput.*"
 	layout="absolute">
-
-<mx:Style>
-	
-	.submit {
-		upSkin: Embed("assets/submit1.png");
-	  	overSkin: Embed("assets/submit2.png");
-	  	downSkin: Embed("assets/submit1.png");
-	  	disabledSkin: Embed("assets/submit1.png");
-	}
-</mx:Style>
 
 <mx:Script>
 	<![CDATA[
@@ -38,273 +28,270 @@
 		
 		import mx.core.mx_internal;
 	
-	[Bindable]
-	[Embed(source="assets/text_bg.jpg")]
-	
-	protected static var textBg:Class;
-	
-	protected var setOutput:BooleanProperty;
+		protected static var textBg:Class;
 		
-	protected var outputElementsProperty:ArrayProperty;
-	
-	protected var outputElementsArray:Array = [];
-	
-	protected var fontColour:ColourProperty;
-	
-	protected var fontSize:NumericStepperProperty;
-	
-	protected var editMode:Boolean;
-	
-	protected var inputEditScreen:InputEditingScreen;
-	
-	protected var outputEditScreen:OutputEditingScreen;
-	
-	protected var outputScreen:OutputScreen;
-	
-	protected var memoryObject:Object;
-	
-	protected var inputID:StringProperty;
-	
-	protected var sessionName:String ="inputElement_" ;
-	
-	[Bindable]
-	private var _fc:uint;
-	
-	[Bindable]
-	private var _fs:uint;
-	
-	
-	override protected function defineProperties():void
-	{
-		
-		super.defineProperties();
-		
-		setOutput = new BooleanProperty("inputOutput", "Output", false);
-		addProperty(setOutput);
-		
-		fontColour = new ColourProperty("fontColour", "Font Colour", 0);
-		addProperty(fontColour);
-		
-		fontSize = new NumericStepperProperty("fontSize", "Font Size", 12);
-		addProperty(fontSize);
-		
-		outputElementsProperty = new ArrayProperty("outputElements", "Elements", outputElementsArray);
-		addSaveableProperty(outputElementsProperty);
-		
-		inputID = new StringProperty("input", "ID", "");
-		addSaveableProperty(inputID);
-	}
-	
-	override public function editablePropertyUpdated(prop:IComponentProperty):void
-	{
-		if(prop == fontColour)
-		{
-			_fc = prop.propValue;
+		protected var setOutput:BooleanProperty;
 			
-			if(outputScreen)
+		protected var outputElementsProperty:ArrayProperty;
+		
+		protected var outputElementsArray:Array = [];
+		
+		protected var fontColour:ColourProperty;
+		
+		protected var fontSize:NumericStepperProperty;
+		
+		protected var editMode:Boolean;
+		
+		protected var inputEditScreen:InputEditingScreen;
+		
+		protected var outputEditScreen:OutputEditingScreen;
+		
+		protected var outputScreen:OutputScreen;
+		
+		protected var memoryObject:Object;
+		
+		protected var inputID:StringProperty;
+		
+		protected var sessionName:String ="inputElement_" ;
+		
+		[Bindable]
+		private var _fc:uint;
+		
+		[Bindable]
+		private var _fs:uint;
+		
+		
+		override protected function defineProperties():void
+		{
+			
+			super.defineProperties();
+			
+			setOutput = new BooleanProperty("inputOutput", "Set to output mode", false);
+			addProperty(setOutput);
+			
+			fontColour = new ColourProperty("fontColour", "Font Colour", 0);
+			addProperty(fontColour);
+			
+			fontSize = new NumericStepperProperty("fontSize", "Font Size", 12);
+			addProperty(fontSize);
+			
+			outputElementsProperty = new ArrayProperty("outputElements", "Elements", outputElementsArray);
+			addSaveableProperty(outputElementsProperty);
+			
+			inputID = new StringProperty("input", "ID", "");
+			addSaveableProperty(inputID);
+		}
+		
+		override public function editablePropertyUpdated(prop:IComponentProperty):void
+		{
+			if(prop == fontColour)
 			{
-				outputScreen.color = prop.propValue;
-			}
-		}
-		
-		if(prop == fontSize)
-		{
-			_fs = prop.propValue;
-			
-			lines.setLineHeight = 1.34 * prop.propValue;
-			
-			if(outputScreen)
-			{
-				outputScreen.fontSize = prop.propValue;
-			}
-		}
-		
-		setMode();
-	}
-	
-	override public function propertyValuesInitialised():void
-	{		
-		setMode();
-		
-		_fc = fontColour.propValue;
-		_fs = fontSize.propValue;
-			
-		lines.setLineHeight = 1.34 * fontSize.propValue;
-		
-		var thisElement:String = sessionName + inputID.propValue;
-		var readFromText:String;
-		
-		try
-		{
-			readFromText = readFromMemory(thisElement);
-			
-		}catch(e:Error)
-		{
-			trace(e.message);
-			return;
-		}
-		
-		if(readFromMemory(thisElement) != undefined)
-		{
-			inputArea.htmlText = readFromMemory(thisElement);
-		}
-		
-		if(setOutput.propValue && !editMode)
-		{
-
-			if(outputScreen)
-			{
-				for(var i:uint=0; i<outputElementsProperty.propValue.length; i++)
+				_fc = prop.propValue;
+				
+				if(outputScreen)
 				{
-					thisElement = sessionName + outputElementsProperty.propValue[i];
-					try
+					outputScreen.color = prop.propValue;
+				}
+			}
+			
+			if(prop == fontSize)
+			{
+				_fs = prop.propValue;
+				
+				lines.setLineHeight = 1.34 * prop.propValue;
+				
+				if(outputScreen)
+				{
+					outputScreen.fontSize = prop.propValue;
+				}
+			}
+			
+			setMode();
+		}
+		
+		override public function propertyValuesInitialised():void
+		{		
+			setMode();
+			
+			_fc = fontColour.propValue;
+			_fs = fontSize.propValue;
+				
+			lines.setLineHeight = 1.34 * fontSize.propValue;
+			
+			var thisElement:String = sessionName + inputID.propValue;
+			var readFromText:String;
+			
+			try
+			{
+				readFromText = readFromMemory(thisElement);
+				
+			}catch(e:Error)
+			{
+				trace(e.message);
+				return;
+			}
+			
+			if(readFromMemory(thisElement) != undefined)
+			{
+				inputArea.htmlText = readFromMemory(thisElement);
+			}
+			
+			if(setOutput.propValue && !editMode)
+			{
+	
+				if(outputScreen)
+				{
+					for(var i:uint=0; i<outputElementsProperty.propValue.length; i++)
 					{
-						readFromText = readFromMemory(thisElement);
+						thisElement = sessionName + outputElementsProperty.propValue[i];
+						try
+						{
+							readFromText = readFromMemory(thisElement);
+							
+						}catch(e:Error)
+						{
+							trace(e.message);
+							return;
+						}
 						
-					}catch(e:Error)
-					{
-						trace(e.message);
-						return;
+						if(readFromMemory(thisElement) != undefined)
+						{
+							outputScreen.text +=  "- " + readFromMemory(thisElement) + "\n\n";
+						}
 					}
 					
-					if(readFromMemory(thisElement) != undefined)
-					{
-						outputScreen.text +=  "- " + readFromMemory(thisElement) + "\n\n";
-					}
-				}
-				
-				outputScreen.color = fontColour.propValue;
-				outputScreen.fontSize = fontSize.propValue;
-			}
-		}
-	}
-	
-	override public function prepareValuesForSave():void
-	{		
-		if(inputEditScreen)
-		{
-			inputEditScreen.inputID = inputID.propValue;
-		}
-		
-		if(outputEditScreen)
-		{
-			populateInputFields();
-		}
-
-	}
-	
-	override protected function componentInitComplete():void
-	{
-		trace("COMPLETE");
-	}
-	
-	override public function setEditMode(f:Boolean):void
-	{
-		editMode = f;
-		setMode();
-	}
-		
-	protected function setMode():void
-	{
-		this.removeAllChildren();
-				
-		if(setOutput.propValue)
-			{
-				//we must be in output mode
-				//addNumericStepper();
-				if(editMode)
-				{
-					//we are editing the output screen
-					if(!outputEditScreen)
-					{
-						outputEditScreen = new OutputEditingScreen();
-						outputEditScreen.addEventListener(Event.CHANGE, onInputIDChange);
-					}
-					
-					populateInputFields();
-					this.addChild(outputEditScreen);
-				}else
-				{
-					//we are seeing the output screen
-					if(!outputScreen)
-					{
-						outputScreen = new OutputScreen();
-					}
-					this.addChild(lines);
-					this.addChild(outputScreen);
-				}
-			}else
-			{
-				//we must be in input mode
-				if(editMode)
-				{
-					//we are editing the input screen
-					if(!inputEditScreen)
-					{
-						inputEditScreen = new InputEditingScreen();
-						inputEditScreen.addEventListener(Event.CHANGE, onInputIDChange);
-					}
-					
-					inputEditScreen.inputID = inputID.propValue;
-					this.addChild(inputEditScreen);
-				}else
-				{
-					//we are seeing the input screen
-					this.addChild(lines);
-					this.addChild(inputArea);
-					
+					outputScreen.color = fontColour.propValue;
+					outputScreen.fontSize = fontSize.propValue;
 				}
 			}
-	}
-	
-	protected function onInputIDChange(evt:Event):void
-	{
-		if(evt.target is InputEditingScreen)
-		{
-			inputID.propValue = (evt.target as InputEditingScreen).inputID;
-			
+		}
+		
+		override public function prepareValuesForSave():void
+		{		
 			if(inputEditScreen)
 			{
-				storeText();
+				inputEditScreen.inputID = inputID.propValue;
+			}
+			
+			if(outputEditScreen)
+			{
+				populateInputFields();
+			}
+	
+		}
+		
+		override protected function componentInitComplete():void
+		{
+			trace("COMPLETE");
+		}
+		
+		override public function setEditMode(f:Boolean):void
+		{
+			editMode = f;
+			setMode();
+		}
+			
+		protected function setMode():void
+		{
+			this.removeAllChildren();
+					
+			if(setOutput.propValue)
+				{
+					//we must be in output mode
+					//addNumericStepper();
+					if(editMode)
+					{
+						//we are editing the output screen
+						if(!outputEditScreen)
+						{
+							outputEditScreen = new OutputEditingScreen();
+							outputEditScreen.addEventListener(Event.CHANGE, onInputIDChange);
+						}
+						
+						populateInputFields();
+						this.addChild(outputEditScreen);
+					}else
+					{
+						//we are seeing the output screen
+						if(!outputScreen)
+						{
+							outputScreen = new OutputScreen();
+						}
+						this.addChild(lines);
+						this.addChild(outputScreen);
+					}
+				}else
+				{
+					//we must be in input mode
+					if(editMode)
+					{
+						//we are editing the input screen
+						if(!inputEditScreen)
+						{
+							inputEditScreen = new InputEditingScreen();
+							inputEditScreen.addEventListener(Event.CHANGE, onInputIDChange);
+						}
+						
+						inputEditScreen.inputID = inputID.propValue;
+						this.addChild(inputEditScreen);
+					}else
+					{
+						//we are seeing the input screen
+						this.addChild(lines);
+						this.addChild(inputArea);
+						
+					}
+				}
+		}
+		
+		protected function onInputIDChange(evt:Event):void
+		{
+			if(evt.target is InputEditingScreen)
+			{
+				inputID.propValue = (evt.target as InputEditingScreen).inputID;
+				
+				if(inputEditScreen)
+				{
+					storeText();
+				}
+			}
+	
+			if(evt.target is OutputEditingScreen)
+			{
+				var fieldsArray:Array = (evt.target as OutputEditingScreen).inputFields;
+				
+				outputElementsProperty.propValue = fieldsArray;
+			}
+			
+		}
+		protected function onUserInput(evt:Event):void
+		{
+			storeText();
+		}
+		
+		
+		protected function storeText():void
+		{
+			var thisElement:String = sessionName + inputID.propValue;
+			
+			try
+			{
+				writeToMemory(thisElement, inputArea.text, true);
+			}catch(error:Error)
+			{
+				trace(error);
+				return;
+			}
+	
+		}
+		
+		protected function populateInputFields():void
+		{
+			for(var i:uint=0; i<outputElementsProperty.propValue.length; i++)
+			{
+				outputEditScreen.setInputID(i, outputElementsProperty.propValue[i]);
 			}
 		}
-
-		if(evt.target is OutputEditingScreen)
-		{
-			var fieldsArray:Array = (evt.target as OutputEditingScreen).inputFields;
-			
-			outputElementsProperty.propValue = fieldsArray;
-		}
-		
-	}
-	protected function onUserInput(evt:Event):void
-	{
-		storeText();
-	}
-	
-	
-	protected function storeText():void
-	{
-		var thisElement:String = sessionName + inputID.propValue;
-		
-		try
-		{
-			writeToMemory(thisElement, inputArea.text, true);
-		}catch(error:Error)
-		{
-			trace(error);
-			return;
-		}
-
-	}
-	
-	protected function populateInputFields():void
-	{
-		for(var i:uint=0; i<outputElementsProperty.propValue.length; i++)
-		{
-			outputEditScreen.setInputID(i, outputElementsProperty.propValue[i]);
-		}
-	}
 		
 	]]>
 </mx:Script>
