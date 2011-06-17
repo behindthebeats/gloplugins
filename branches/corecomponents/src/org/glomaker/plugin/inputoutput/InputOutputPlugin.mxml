@@ -32,6 +32,10 @@
 		protected static var textBg:Class;
 		
 		protected var setOutput:BooleanProperty;
+		
+		protected var setBorder:BooleanProperty;
+		
+		protected var setLines:BooleanProperty;
 			
 		protected var outputElementsProperty:ArrayProperty;
 		
@@ -61,6 +65,12 @@
 		[Bindable]
 		private var _fs:uint;
 		
+		[Bindable]
+		private var _border:Boolean;
+		
+		[Bindable]
+		private var _lines:Boolean;
+		
 		
 		override protected function defineProperties():void
 		{
@@ -69,6 +79,12 @@
 			
 			setOutput = new BooleanProperty("inputOutput", "Set to OUTPUT mode", false);
 			addProperty(setOutput);
+			
+			setBorder = new BooleanProperty("border", "Border?", true);
+			addProperty(setBorder);
+			
+			setLines = new BooleanProperty("lines", "Lines?", true);
+			addProperty(setLines);
 			
 			fontColour = new ColourProperty("fontColour", "Font Colour", 0);
 			addProperty(fontColour);
@@ -107,6 +123,27 @@
 				}
 			}
 			
+			if(prop == setBorder)
+			{
+				_border = prop.propValue;
+				
+				if(outputScreen)
+				{
+					if(_border)
+					{
+						outputScreen.setStyle("borderThickness", 1);
+					}else
+					{
+						outputScreen.setStyle("borderThickness", 0);
+					}
+				}
+			}
+			
+			if(prop == setLines)
+			{
+				_lines = prop.propValue;
+			}
+			
 			setMode();
 		}
 		
@@ -116,6 +153,8 @@
 			
 			_fc = fontColour.propValue;
 			_fs = fontSize.propValue;
+			_border = setBorder.propValue;
+			_lines = setLines.propValue;
 				
 			lines.setLineHeight = 1.34 * fontSize.propValue;
 			
@@ -320,12 +359,13 @@
 		
 	]]>
 </mx:Script>
-	<inputoutput:Lines setLineHeight="12" id="lines" />
+	<inputoutput:Lines setLineHeight="12" id="lines" visible="{_lines}"/>
     <mx:TextArea id="inputArea" color="{_fc}" fontSize="{_fs}" editable="true" 
     	width="100%" height="100%" 
     	change="onUserInput(event)"
     	horizontalScrollPolicy="off" verticalScrollPolicy="off"
-    	backgroundAlpha="0"/>
+    	backgroundAlpha="0"
+    	borderStyle="solid" borderThickness="{_border ? 1:0}" borderColor="0"/>
     <mx:TextArea id="info" text="{'INPUT component' + '\n' + 'To set up: go into editing mode and enter a unique ID.'}"
     	width="175" height="75" 
     	horizontalCenter="0" verticalCenter="0"	

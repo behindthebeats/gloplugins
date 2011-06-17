@@ -3,7 +3,8 @@
 	color="{_fc}" fontSize="{_fs}"
 	horizontalScrollPolicy="off" verticalScrollPolicy="auto"
 	backgroundAlpha="0"
-	editable="false">
+	editable="false"
+	borderStyle="solid" borderColor="0">
 	<mx:Script>
 		<![CDATA[
 			public static const NAME:String = "OutputScreen";
