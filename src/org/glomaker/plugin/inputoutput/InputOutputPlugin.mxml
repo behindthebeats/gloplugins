@@ -164,7 +164,7 @@
 					outputScreen.color = fontColour.propValue;
 					outputScreen.fontSize = fontSize.propValue;
 				}
-			}
+			}			
 		}
 		
 		override public function prepareValuesForSave():void
@@ -211,6 +211,7 @@
 						
 						populateInputFields();
 						this.addChild(outputEditScreen);
+						
 					}else
 					{
 						//we are seeing the output screen
@@ -220,6 +221,7 @@
 						}
 						this.addChild(lines);
 						this.addChild(outputScreen);
+						addInfo();
 					}
 				}else
 				{
@@ -240,6 +242,7 @@
 						//we are seeing the input screen
 						this.addChild(lines);
 						this.addChild(inputArea);
+						addInfo();
 						
 					}
 				}
@@ -294,6 +297,23 @@
 			}
 		}
 		
+		protected function addInfo():void
+		{
+			// add info if needed
+			if(Security.sandboxType == "application")
+			{
+				addChild(info);
+			}
+			
+			if(setOutput.propValue)
+			{
+				info.text = "OUTPUT component" + "\n" + "To set up: go into editing mode and enter unique IDs. Match with IDs you have set for INPUT components.";
+			}else
+			{
+				info.text = "INPUT component" + "\n" + "To set up: go into editing mode and enter a unique ID."
+			}
+		}
+		
 	]]>
 </mx:Script>
 	<inputoutput:Lines setLineHeight="12" id="lines" />
@@ -302,7 +322,10 @@
     	change="onUserInput(event)"
     	horizontalScrollPolicy="off" verticalScrollPolicy="off"
     	backgroundAlpha="0"/>
-    	
+    <mx:TextArea id="info" text="{'INPUT component' + '\n' + 'To set up: go into editing mode and enter a unique ID.'}"
+    	width="175" height="75" 
+    	horizontalCenter="0" verticalCenter="0"	
+    	horizontalScrollPolicy="off" verticalScrollPolicy="off"/>
 
 
 </BaseComponent>
