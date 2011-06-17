@@ -67,7 +67,7 @@
 			
 			super.defineProperties();
 			
-			setOutput = new BooleanProperty("inputOutput", "Set to output mode", false);
+			setOutput = new BooleanProperty("inputOutput", "Set to OUTPUT mode", false);
 			addProperty(setOutput);
 			
 			fontColour = new ColourProperty("fontColour", "Font Colour", 0);
@@ -144,21 +144,25 @@
 				{
 					for(var i:uint=0; i<outputElementsProperty.propValue.length; i++)
 					{
-						thisElement = sessionName + outputElementsProperty.propValue[i];
-						try
+						if(outputElementsProperty.propValue[i] != "")
 						{
-							readFromText = readFromMemory(thisElement);
+							thisElement = sessionName + outputElementsProperty.propValue[i];
+							try
+							{
+								readFromText = readFromMemory(thisElement);
+								
+							}catch(e:Error)
+							{
+								trace(e.message);
+								return;
+							}
 							
-						}catch(e:Error)
-						{
-							trace(e.message);
-							return;
+							if(readFromMemory(thisElement) != undefined)
+							{
+								outputScreen.text +=  "- " + readFromMemory(thisElement) + "\n\n";
+							}
 						}
 						
-						if(readFromMemory(thisElement) != undefined)
-						{
-							outputScreen.text +=  "- " + readFromMemory(thisElement) + "\n\n";
-						}
 					}
 					
 					outputScreen.color = fontColour.propValue;
