@@ -5,6 +5,7 @@
 	<mx:Script>
 		<![CDATA[
 			protected var lineHeight:Number;
+			protected var lineAlpha:Number = 0.3;
 			
 			
 			public function set setLineHeight(val:uint):void
@@ -14,12 +15,22 @@
 				
 			}
 			
+			override public function set visible(value:Boolean):void
+			{
+				
+				if(value)
+				{
+					lineAlpha = 0.3;
+				}else
+				{
+					lineAlpha = 0;
+				}
+			}
+			
 			protected function doLineHeight():void
 			{
 				graphics.clear();
-				
-				
-				
+
 				var h:uint = this.height;
 				var w:uint = this.width;
 				
@@ -31,7 +42,7 @@
 				
 				for(var i:uint=0; i<numLines; i++)
 				{	
-					graphics.lineStyle(1, 0, .3);
+					graphics.lineStyle(1, 0, lineAlpha);
 					graphics.moveTo(0, i*lineHeight);
 					graphics.lineTo(w, i*lineHeight);
 					
