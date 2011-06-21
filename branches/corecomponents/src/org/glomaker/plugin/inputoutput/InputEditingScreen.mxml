@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
 	creationComplete="init()"
 	horizontalScrollPolicy="off" verticalScrollPolicy="off"
-	backgroundColor="0xFFFFFF">
+	backgroundColor="0xDDDDDD">
 	<mx:Script>
 		<![CDATA[
 		
@@ -33,6 +33,9 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:Label text="Enter unique ID for this component."/>
-	<mx:TextInput id="input" text="{_txt}" change="onChange(event)"/>
-</mx:VBox>
+	<mx:VBox horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
+		<mx:Label text="Enter unique ID for this component." horizontalCenter="0" fontSize="12"/>
+		<mx:TextInput id="input" text="{_txt}" change="onChange(event)" horizontalCenter="0"/>
+	</mx:VBox>
+	
+</mx:Canvas>

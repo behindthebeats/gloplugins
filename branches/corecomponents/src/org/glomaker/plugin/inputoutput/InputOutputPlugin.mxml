@@ -16,6 +16,11 @@
 
 <mx:Script>
 	<![CDATA[
+		import mx.core.UIComponent;
+		import mx.containers.ViewStack;
+		import mx.controls.Text;
+		import mx.containers.VBox;
+		import mx.core.Application;
 		import org.glomaker.shared.utils.MutableArray;
 		import mx.states.SetStyle;
 		import org.glomaker.shared.properties.NumericStepperProperty;
@@ -58,6 +63,11 @@
 		protected var inputID:StringProperty;
 		
 		protected var sessionName:String ="inputElement_" ;
+
+		protected var outputInfo:String;
+		
+		[Bindable]
+		protected var inputInfo:String;
 		
 		[Bindable]
 		private var _fc:uint;
@@ -80,17 +90,17 @@
 			setOutput = new BooleanProperty("inputOutput", "Set to OUTPUT mode", false);
 			addProperty(setOutput);
 			
-			setBorder = new BooleanProperty("border", "Border?", true);
-			addProperty(setBorder);
-			
-			setLines = new BooleanProperty("lines", "Lines?", true);
-			addProperty(setLines);
-			
 			fontColour = new ColourProperty("fontColour", "Font Colour", 0);
 			addProperty(fontColour);
 			
 			fontSize = new NumericStepperProperty("fontSize", "Font Size", 12);
 			addProperty(fontSize);
+			
+			setBorder = new BooleanProperty("border", "Border?", true);
+			addProperty(setBorder);
+			
+			setLines = new BooleanProperty("lines", "Lines?", true);
+			addProperty(setLines);
 			
 			outputElementsProperty = new ArrayProperty("outputElements", "Elements", outputElementsArray);
 			addSaveableProperty(outputElementsProperty);
@@ -150,7 +160,6 @@
 		override public function propertyValuesInitialised():void
 		{		
 			setMode();
-			
 			_fc = fontColour.propValue;
 			_fs = fontSize.propValue;
 			_border = setBorder.propValue;
@@ -158,6 +167,8 @@
 				
 			lines.setLineHeight = 1.34 * fontSize.propValue;
 			
+			inputInfo = "<b>INPUT component</b>" + "\n" + "This component allows the user to input text." + "\n" + "To set up: click pencil icon to go into editing mode and enter a unique ID.";
+			outputInfo = "<b>OUTPUT component</b>" + "\n" + "To set up: click pencil icon to go into editing mode and enter unique IDs. Match with IDs you have set for INPUT components.";
 			var thisElement:String = sessionName + inputID.propValue;
 			var readFromText:String;
 			
@@ -343,18 +354,43 @@
 		protected function addInfo():void
 		{
 			// add info if needed
-			if(Security.sandboxType == "application")
+			if(Security.sandboxType == "application" && isEditor())
 			{
 				addChild(info);
 			}
 			
 			if(setOutput.propValue)
 			{
-				info.text = "OUTPUT component" + "\n" + "To set up: go into editing mode and enter unique IDs. Match with IDs you have set for INPUT components.";
+				info.htmlText = outputInfo;
 			}else
 			{
-				info.text = "INPUT component" + "\n" + "To set up: go into editing mode and enter a unique ID."
+				info.htmlText = inputInfo;
 			}
+		}
+		
+		protected function isEditor():Boolean
+		{
+			var mainApp:VBox = Application.application["mainAppComponent"] as VBox;
+			var isEditor:Boolean = false;
+			
+			if(mainApp)
+			{
+				for(var i:uint=0; i<mainApp.numChildren; i++)
+				{
+					if(mainApp.getChildAt(i) is ViewStack)
+					{
+						if(((mainApp.getChildAt(i) as ViewStack).selectedChild as UIComponent).id == "editor")
+						{
+							isEditor = true;
+						}else
+						{
+							isEditor = false;
+						}
+						break;
+					}
+				}
+			}
+			return isEditor;
 		}
 		
 	]]>
@@ -366,10 +402,12 @@
     	horizontalScrollPolicy="off" verticalScrollPolicy="off"
     	backgroundAlpha="0"
     	borderStyle="solid" borderThickness="{_border ? 1:0}" borderColor="0"/>
-    <mx:TextArea id="info" text="{'INPUT component' + '\n' + 'To set up: go into editing mode and enter a unique ID.'}"
-    	width="175" height="75" 
+    <mx:TextArea id="info" htmlText="{inputInfo}"
+    	width="175" height="150" 
     	horizontalCenter="0" verticalCenter="0"	
-    	horizontalScrollPolicy="off" verticalScrollPolicy="off"/>
+    	horizontalScrollPolicy="off" verticalScrollPolicy="off"
+    	paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5"
+    	textAlign="center" fontSize="12"/>
 
 
 </BaseComponent>
