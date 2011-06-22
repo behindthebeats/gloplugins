@@ -158,8 +158,13 @@
 		}
 		
 		override public function propertyValuesInitialised():void
-		{		
+		{	
+		
+			inputInfo = "<b>INPUT component</b>" + "\n" + "This component allows the user to input text." + "\n" + "To set up: click pencil icon to go into editing mode and enter a unique ID.";
+			outputInfo = "<b>OUTPUT component</b>" + "\n" + "To set up: click pencil icon to go into editing mode and enter unique IDs. Match with IDs you have set for INPUT components.";	
+			
 			setMode();
+			
 			_fc = fontColour.propValue;
 			_fs = fontSize.propValue;
 			_border = setBorder.propValue;
@@ -167,8 +172,7 @@
 				
 			lines.setLineHeight = 1.34 * fontSize.propValue;
 			
-			inputInfo = "<b>INPUT component</b>" + "\n" + "This component allows the user to input text." + "\n" + "To set up: click pencil icon to go into editing mode and enter a unique ID.";
-			outputInfo = "<b>OUTPUT component</b>" + "\n" + "To set up: click pencil icon to go into editing mode and enter unique IDs. Match with IDs you have set for INPUT components.";
+			
 			var thisElement:String = sessionName + inputID.propValue;
 			var readFromText:String;
 			
@@ -262,7 +266,7 @@
 							outputEditScreen = new OutputEditingScreen();
 							outputEditScreen.addEventListener(Event.CHANGE, onInputIDChange);
 						}
-						
+						info.htmlText = outputInfo;
 						populateInputFields();
 						this.addChild(outputEditScreen);
 						
@@ -288,7 +292,7 @@
 							inputEditScreen = new InputEditingScreen();
 							inputEditScreen.addEventListener(Event.CHANGE, onInputIDChange);
 						}
-						
+						info.htmlText = inputInfo;
 						inputEditScreen.inputID = inputID.propValue;
 						this.addChild(inputEditScreen);
 					}else

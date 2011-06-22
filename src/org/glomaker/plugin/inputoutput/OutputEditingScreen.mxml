@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+	minWidth="200" minHeight="{((input1.height + 8) * 6) + 98}"
 	creationComplete="init()"
 	horizontalScrollPolicy="off" verticalScrollPolicy="off"
 	backgroundColor="0xFFFFFF">
@@ -24,8 +25,11 @@
 			private var _input5:String;
 			[Bindable]
 			private var _input6:String;
+			[Bindable]
+			private var _info:String;
 			
 			private var _IDs:Array = [];
+			
 			
 			
 			/* public function getInputID(index:uint):String
@@ -62,16 +66,18 @@
 			protected function init():void
 			{
 				name = NAME;
+				_info = "<b>Output Component</b>" + "\n" + "This component will display the text that the learner has input. ";
+				_info += "Enter the IDs of the related INPUT components";
 			}
 			
 			public function get inputFields():Array
 			{
 				_IDs = [];
-				for(var i:uint = 0; i<this.numChildren; i++)
+				for(var i:uint = 0; i<container.numChildren; i++)
 				{
-					if(this.getChildAt(i) is TextInput)
+					if(container.getChildAt(i) is TextInput)
 					{
-						_IDs.push((this.getChildAt(i) as TextInput).text);
+						_IDs.push((container.getChildAt(i) as TextInput).text);
 					}
 				}
 				return _IDs.concat();
@@ -83,14 +89,20 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:VBox horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalCenter="0" verticalCenter="0">
-		<mx:Label id="lbl" text="Enter the ID of the related input component." fontSize="12"/>
-		<mx:TextInput id="input1" text="{_input1}" change="onChange(event)"/>
-		<mx:TextInput id="input2" text="{_input2}" change="onChange(event)"/>
-		<mx:TextInput id="input3" text="{_input3}" change="onChange(event)"/>
-		<mx:TextInput id="input4" text="{_input4}" change="onChange(event)"/>
-		<mx:TextInput id="input5" text="{_input5}" change="onChange(event)"/>
-		<mx:TextInput id="input6" text="{_input6}" change="onChange(event)"/>
+	<mx:VBox id="container" width="200" height="{((input1.height + 8) * 6) + 98}"
+		horizontalScrollPolicy="off" verticalScrollPolicy="off" 
+		horizontalCenter="0" verticalCenter="0"
+		verticalGap="8">
+		<mx:TextArea width="200" height="90" htmlText="{_info}" fontSize="12"
+			horizontalScrollPolicy="off" verticalScrollPolicy="off"
+			borderStyle="none"
+			selectable="false"/>
+		<mx:TextInput id="input1" width="200" text="{_input1}" change="onChange(event)"/>
+		<mx:TextInput id="input2" width="200" text="{_input2}" change="onChange(event)"/>
+		<mx:TextInput id="input3" width="200" text="{_input3}" change="onChange(event)"/>
+		<mx:TextInput id="input4" width="200" text="{_input4}" change="onChange(event)"/>
+		<mx:TextInput id="input5" width="200" text="{_input5}" change="onChange(event)"/>
+		<mx:TextInput id="input6" width="200" text="{_input6}" change="onChange(event)"/>
 	</mx:VBox>
 	
 </mx:Canvas>
