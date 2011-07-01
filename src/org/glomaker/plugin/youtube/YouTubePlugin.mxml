@@ -173,27 +173,48 @@
             		}else if((filePath.propValue as String).split("src=\"http://www.youtube.com/embed/").length > 1)
             		{
             			path = (filePath.propValue as String).split("src=\"http://www.youtube.com/embed/")[1];
+            		
+            		}else if((filePath.propValue as String).split("http://youtu.be/").length > 1)
+            		{
+            			path = (filePath.propValue as String).split("http://youtu.be/")[1];
             		}else
             		{
-            			return path;
+            			return null;
             		}
             	}
+				trace(path);
+				if((filePath.propValue as String).split("http://youtu.be/").length > 1)
+				{
+					// path is ok.
+					// add default values for w & h
+					YTWidth = String(560);
+					YTHeight = String(349);
+					
+					return path;
+				}
 				
 				if(path.split("?").length > 1)
 				{
 					path = path.split("?")[0];
-					YTWidth = (filePath.propValue as String).split("width=\"")[1];
-					YTWidth = YTWidth.split("\"")[0];
+
+				}else if(path.split("\"").length > 1)
+				{
+					path = path.split("\"")[0];
 					
-					YTHeight = (filePath.propValue as String).split("height=\"")[1];
-					YTHeight = YTHeight.split("\"")[0];
 				}else
 				{
 					return null;
 				}
 				
+				YTWidth = (filePath.propValue as String).split("width=\"")[1];
+				YTWidth = YTWidth.split("\"")[0];
+				
+				YTHeight = (filePath.propValue as String).split("height=\"")[1];
+				YTHeight = YTHeight.split("\"")[0];
+
 				return path;
 			}
+			
 			protected function addSWFLoader():void
 			{
 				this.removeAllChildren();
