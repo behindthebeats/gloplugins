@@ -16,6 +16,7 @@
 <module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/youtube/YouTubePlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/youtube/YouTubePlugin.mxml"/>
 <module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/inputoutput/InputOutputPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/inputoutput/InputOutputPlugin.mxml"/>
 <module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/textarea/TextAreaPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/textarea/TextAreaPlugin.mxml"/>
+<module application="src/PluginOptimiserApp.mxml" destPath="org/glomaker/plugin/videoplayer/VideoPlayerPlugin.swf" optimize="true" sourcePath="src/org/glomaker/plugin/videoplayer/VideoPlayerPlugin.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>
