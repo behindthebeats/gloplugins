@@ -30,7 +30,7 @@ xmlns:controls="com.fxcomponents.controls.*">
 				super.defineProperties();
 			
 			 	videoSource = new FilePathProperty("source", "Video File:", "");
-			 	videoSource.fileTypeLabel = "Flash Videos (*.flv, *.f4v)";
+			 	videoSource.fileTypeLabel = "Flash Videos (*.flv, *.f4v, *.mp4)";
 			 	videoSource.fileExtensions = "*.flv;*.f4v;*.mp4";
 			 	
 				addProperty(videoSource);

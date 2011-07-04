@@ -60,14 +60,7 @@
             override public function editablePropertyUpdated(prop:IComponentProperty):void
             {
             	trace(prop.propName, prop.propValue);
-            	/* updateInfo(prop);
-            	if(parseEmbedCode(prop))
-            	{
-            		gotoBtn.enabled = true;
-            	}else
-            	{
-            		gotoBtn.enabled = false;
-            	} */
+
             } 
             override public function destroy():void
             {
@@ -250,7 +243,7 @@
 
 			protected function onEmbedChange(evt:Event):void
 			{
-				filePath.propValue = (evt.currentTarget as TextInput).text.toLocaleLowerCase();
+				filePath.propValue = (evt.currentTarget as TextInput).text;
 				
 				updateInfo(filePath);
             	if(parseEmbedCode(filePath))

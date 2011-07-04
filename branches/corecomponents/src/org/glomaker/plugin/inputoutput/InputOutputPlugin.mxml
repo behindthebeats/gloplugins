@@ -173,7 +173,7 @@
 			lines.setLineHeight = 1.34 * fontSize.propValue;
 			
 			
-			var thisElement:String = sessionName + inputID.propValue;
+			var thisElement:String = sessionName + (inputID.propValue as String).toLowerCase();
 			var readFromText:String;
 			
 			try
@@ -200,7 +200,7 @@
 					{
 						if(outputElementsProperty.propValue[i] != "")
 						{
-							thisElement = sessionName + outputElementsProperty.propValue[i];
+							thisElement = sessionName + (outputElementsProperty.propValue[i] as String).toLowerCase();
 							try
 							{
 								readFromText = readFromMemory(thisElement);
@@ -334,11 +334,11 @@
 		
 		protected function storeText():void
 		{
-			var thisElement:String = sessionName + inputID.propValue;
+			var thisElement:String = sessionName + (inputID.propValue as String).toLowerCase();
 			
 			try
 			{
-				writeToMemory(thisElement, inputArea.text, true);
+				writeToMemory(thisElement, inputArea.text.toLowerCase(), true);
 			}catch(error:Error)
 			{
 				trace(error);
