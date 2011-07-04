@@ -250,7 +250,7 @@
 
 			protected function onEmbedChange(evt:Event):void
 			{
-				filePath.propValue = (evt.currentTarget as TextInput).text;
+				filePath.propValue = (evt.currentTarget as TextInput).text.toLocaleLowerCase();
 				
 				updateInfo(filePath);
             	if(parseEmbedCode(filePath))
@@ -273,7 +273,9 @@
     	label="YouTube control"
     	verticalScrollPolicy="off" horizontalScrollPolicy="off">
     	<!--<mx:Text id="debug"/>-->
-    	<mx:TextArea id="info" width="100%" minWidth="120" minHeight="50" backgroundColor="0xCCCCCC" verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
+    	<mx:TextArea id="info" width="100%" minWidth="120" minHeight="50" backgroundColor="0xCCCCCC" 
+    		verticalScrollPolicy="off" horizontalScrollPolicy="off"
+    		editable="false" selectable="false"/>
     	<mx:HBox id="inputSection" width="100%">
 	    	<mx:TextInput id="YTEmbedInput" minWidth="120" width="100%" change="onEmbedChange(event)"/>
 	    	<mx:Image id="tickIcon" source="{new tick()}" width="16" height="16" visible="false"/>
