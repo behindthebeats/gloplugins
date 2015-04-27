@@ -1,0 +1,1 @@
+The Glo Maker project has been split into three parts. This part relates specifically to the development of plugins to extend the functionality of Glo Maker.
